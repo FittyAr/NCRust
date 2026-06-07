@@ -204,6 +204,7 @@ pub fn render_popup(
                 Row::new(vec!["3", "Swap Left and Right Panels"]),
                 Row::new(vec!["4", "Show Help Keyboard Shortcuts"]),
                 Row::new(vec!["5", "Close User Menu"]),
+                Row::new(vec!["6", "Download 7z Extractor Tool"]),
             ];
 
             let table = Table::new(
@@ -572,6 +573,83 @@ pub fn render_popup(
             let paragraph = Paragraph::new(lines)
                 .style(Style::default().fg(parse_color(&theme.popup_fg)));
             f.render_widget(paragraph, inner);
+        }
+        PopupType::ContextMenu { items, cursor_idx } => {
+            let panel_rect = match state.active_panel {
+                ActivePanel::Left => left_rect,
+                ActivePanel::Right => right_rect,
+            };
+            let height_percent = std::cmp::min(100, std::cmp::max(20, (items.len() * 10) as u16));
+            let area = centered_rect_in(50, height_percent, panel_rect);
+            f.render_widget(Clear, area);
+
+            let mut lines = Vec::new();
+            for (i, item) in items.iter().enumerate() {
+                let is_cursor = i == *cursor_idx;
+                let line_str = if is_cursor {
+                    format!(" >  {} ", item)
+                } else {
+                    format!("    {} ", item)
+                };
+                let style = if is_cursor {
+                    Style::default()
+                        .bg(parse_color(&theme.selection_bg))
+                        .fg(parse_color(&theme.selection_fg))
+                        .add_modifier(Modifier::BOLD)
+                } else {
+                    Style::default().fg(parse_color(&theme.popup_fg))
+                };
+                lines.push(Line::from(Span::styled(line_str, style)));
+            }
+
+            let paragraph = Paragraph::new(lines).block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .border_style(Style::default().fg(parse_color(&theme.popup_border)))
+                    .title(" Actions ")
+                    .style(Style::default().bg(parse_color(&theme.popup_bg))),
+            );
+            f.render_widget(paragraph, area);
+        }
+        PopupType::CompressPrompt {
+            input,
+            targets,
+            dest_dir,
+        } => {
+            let area = centered_rect(60, 30, size);
+            f.render_widget(Clear, area);
+
+            let block = Block::default()
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Yellow))
+                .title(" Compress Archive ")
+                .style(Style::default().bg(parse_color(&theme.popup_bg)));
+
+            let count = targets.len();
+            let first_name = targets
+                .first()
+                .and_then(|p| p.file_name())
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default();
+
+            let src_label = if count == 1 {
+                format!("Compressing: {}", first_name)
+            } else {
+                format!("Compressing: {} items", count)
+            };
+
+            let text = format!(
+                "\n {}\n Destination: {}\n\n > {}.zip\n\n [Enter] Confirm   [Esc] Cancel",
+                src_label,
+                dest_dir.to_string_lossy(),
+                input
+            );
+
+            let paragraph = Paragraph::new(text)
+                .block(block)
+                .style(Style::default().fg(parse_color(&theme.popup_fg)));
+
+            f.render_widget(paragraph, area);
         }
     }
 }

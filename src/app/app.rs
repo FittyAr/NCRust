@@ -20,6 +20,13 @@ pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
     // Initial folder scans
     state.refresh_both_panels(context.config.settings.show_hidden);
 
+    // Launch background external tools download/check
+    tokio::spawn(async {
+        if let Err(e) = crate::fs::external_tools::ensure_external_tools().await {
+            log::warn!("Failed to download external tools: {}", e);
+        }
+    });
+
     loop {
         // 1. Process background operation updates (e.g. copy progress)
         if state.progress_rx.is_some() {
@@ -242,6 +249,33 @@ async fn handle_action(
                 });
             }
         }
+        Action::CompressFiles => {
+            let targets = state.get_active_panel().get_targeted_paths();
+            if !targets.is_empty() {
+                let default_name = targets.first().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "archive".to_string());
+                let dest_dir = state.get_passive_panel().current_path.clone();
+                state.active_popup = Some(PopupType::CompressPrompt {
+                    input: default_name,
+                    targets,
+                    dest_dir,
+                });
+            }
+        }
+        Action::ExtractArchive => {
+            let active = state.get_active_panel();
+            if let Some(entry) = active.entries.get(active.cursor_index).filter(|e| !e.is_dir) {
+                let dest = state.get_passive_panel().current_path.clone();
+                let rx = crate::fs::spawn_extract_task(entry.path.clone(), dest);
+                state.progress_rx = Some(rx);
+                state.active_popup = Some(PopupType::CopyProgress {
+                    current_file: "Extracting...".to_string(),
+                    files_copied: 0,
+                    total_files: 0,
+                    bytes_copied: 0,
+                    total_bytes: 0,
+                });
+            }
+        }
         Action::MkDir => {
             state.active_popup = Some(PopupType::MkDirPrompt {
                 input: String::new(),
@@ -260,6 +294,30 @@ async fn handle_action(
                 state.active_popup = Some(PopupType::Menu {
                     active_menu_idx: 0,
                     active_item_idx: 0,
+                });
+            }
+        }
+        Action::ContextMenu => {
+            let targets = state.get_active_panel().get_targeted_paths();
+            if !targets.is_empty() {
+                let mut items = vec![
+                    "1. View".to_string(),
+                    "2. Edit".to_string(),
+                    "3. Copy".to_string(),
+                    "4. Move".to_string(),
+                    "5. Delete".to_string(),
+                    "6. Compress".to_string(),
+                ];
+                let has_archive = targets.iter().any(|p| {
+                    let ext = p.extension().and_then(|s| s.to_str()).unwrap_or("").to_lowercase();
+                    matches!(ext.as_str(), "zip" | "7z" | "rar" | "tar" | "gz" | "bz2" | "xz")
+                });
+                if has_archive {
+                    items.push("7. Extract".to_string());
+                }
+                state.active_popup = Some(PopupType::ContextMenu {
+                    items,
+                    cursor_idx: 0,
                 });
             }
         }
@@ -418,6 +476,44 @@ fn handle_popup_input(
                     }
                     crossterm::event::KeyCode::Char('5') | crossterm::event::KeyCode::Esc => {
                         state.active_popup = None;
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Char('6') => {
+                        state.active_popup = None;
+                        let (tx, rx) = tokio::sync::mpsc::channel(100);
+                        tokio::spawn(async move {
+                            let _ = tx.send(crate::fs::ProgressUpdate {
+                                current_file: "Downloading 7z...".to_string(),
+                                files_copied: 0,
+                                total_files: 1,
+                                bytes_copied: 0,
+                                total_bytes: 1,
+                                error: None,
+                            }).await;
+
+                            if let Err(e) = crate::fs::external_tools::ensure_external_tools().await {
+                                let _ = tx.send(crate::fs::ProgressUpdate {
+                                    current_file: "Completed".to_string(),
+                                    files_copied: 0, total_files: 1, bytes_copied: 0, total_bytes: 1,
+                                    error: Some(format!("Failed to download: {}", e)),
+                                }).await;
+                            } else {
+                                let _ = tx.send(crate::fs::ProgressUpdate {
+                                    current_file: "Completed".to_string(),
+                                    files_copied: 1, total_files: 1, bytes_copied: 1, total_bytes: 1,
+                                    error: None,
+                                }).await;
+                            }
+                        });
+
+                        state.progress_rx = Some(rx);
+                        state.active_popup = Some(PopupType::CopyProgress {
+                            current_file: "Initializing Download...".to_string(),
+                            files_copied: 0,
+                            total_files: 1,
+                            bytes_copied: 0,
+                            total_bytes: 1,
+                        });
                         return Ok(None);
                     }
                     _ => {}
@@ -984,6 +1080,123 @@ fn handle_popup_input(
                             state.active_popup = None;
                             state.refresh_both_panels(context.config.settings.show_hidden);
                         }
+                        return Ok(None);
+                    }
+                    _ => {}
+                }
+                return Err(());
+            }
+            PopupType::ContextMenu {
+                ref items,
+                cursor_idx,
+            } => {
+                match key.code {
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Up => {
+                        if !items.is_empty() {
+                            let new_idx = if cursor_idx > 0 {
+                                cursor_idx - 1
+                            } else {
+                                items.len() - 1
+                            };
+                            state.active_popup = Some(PopupType::ContextMenu {
+                                items: items.clone(),
+                                cursor_idx: new_idx,
+                            });
+                        }
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Down => {
+                        if !items.is_empty() {
+                            let new_idx = if cursor_idx < items.len() - 1 {
+                                cursor_idx + 1
+                            } else {
+                                0
+                            };
+                            state.active_popup = Some(PopupType::ContextMenu {
+                                items: items.clone(),
+                                cursor_idx: new_idx,
+                            });
+                        }
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Enter => {
+                        if let Some(item) = items.get(cursor_idx) {
+                            state.active_popup = None;
+                            if item.contains("View") {
+                                return Ok(Some(Action::View));
+                            } else if item.contains("Edit") {
+                                return Ok(Some(Action::Edit));
+                            } else if item.contains("Copy") {
+                                return Ok(Some(Action::Copy));
+                            } else if item.contains("Move") {
+                                return Ok(Some(Action::Move));
+                            } else if item.contains("Delete") {
+                                return Ok(Some(Action::Delete));
+                            } else if item.contains("Compress") {
+                                return Ok(Some(Action::CompressFiles));
+                            } else if item.contains("Extract") {
+                                return Ok(Some(Action::ExtractArchive));
+                            }
+                        }
+                        return Ok(None);
+                    }
+                    _ => {}
+                }
+                return Err(());
+            }
+            PopupType::CompressPrompt {
+                ref input,
+                ref targets,
+                ref dest_dir,
+            } => {
+                match key.code {
+                    crossterm::event::KeyCode::Char(c) => {
+                        let mut new_input = input.clone();
+                        new_input.push(c);
+                        state.active_popup = Some(PopupType::CompressPrompt {
+                            input: new_input,
+                            targets: targets.clone(),
+                            dest_dir: dest_dir.clone(),
+                        });
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Backspace => {
+                        let mut new_input = input.clone();
+                        new_input.pop();
+                        state.active_popup = Some(PopupType::CompressPrompt {
+                            input: new_input,
+                            targets: targets.clone(),
+                            dest_dir: dest_dir.clone(),
+                        });
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Enter => {
+                        if !input.is_empty() {
+                            let mut out_name = input.clone();
+                            if !out_name.ends_with(".zip") {
+                                out_name.push_str(".zip");
+                            }
+                            let final_dest = dest_dir.join(out_name);
+                            let rx = crate::fs::spawn_compress_task(targets.clone(), final_dest);
+                            state.progress_rx = Some(rx);
+                            state.active_popup = Some(PopupType::CopyProgress {
+                                current_file: "Compressing...".to_string(),
+                                files_copied: 0,
+                                total_files: 0,
+                                bytes_copied: 0,
+                                total_bytes: 0,
+                            });
+                        } else {
+                            state.active_popup = None;
+                        }
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
                         return Ok(None);
                     }
                     _ => {}

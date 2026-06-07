@@ -194,6 +194,17 @@ pub enum PopupType {
         /// Which panel triggered the tree view (for navigation target).
         panel: ActivePanel,
     },
+    /// Context Menu for files (right-click equivalent).
+    ContextMenu {
+        items: Vec<String>,
+        cursor_idx: usize,
+    },
+    /// Prompt for choosing compression archive name.
+    CompressPrompt {
+        input: String,
+        targets: Vec<PathBuf>,
+        dest_dir: PathBuf,
+    },
 }
 
 pub struct AppState {

@@ -40,6 +40,10 @@ pub fn get_preset_bindings(preset: &str) -> HashMap<String, Action> {
             map.insert("Alt+F2".to_string(), Action::DriveSelectRight);
             map.insert(":".to_string(), Action::FocusCli);
             map.insert("Esc".to_string(), Action::Unfocus);
+            map.insert("Alt+c".to_string(), Action::CompressFiles);
+            map.insert("Alt+e".to_string(), Action::ExtractArchive);
+            map.insert("Menu".to_string(), Action::ContextMenu);
+            map.insert("Alt+m".to_string(), Action::ContextMenu);
         }
         "modern" => {
             map.insert("Up".to_string(), Action::MoveUp);
@@ -69,6 +73,10 @@ pub fn get_preset_bindings(preset: &str) -> HashMap<String, Action> {
             map.insert("Alt+F1".to_string(), Action::DriveSelectLeft);
             map.insert("Alt+F2".to_string(), Action::DriveSelectRight);
             map.insert("Esc".to_string(), Action::Unfocus);
+            map.insert("Alt+c".to_string(), Action::CompressFiles);
+            map.insert("Alt+e".to_string(), Action::ExtractArchive);
+            map.insert("Menu".to_string(), Action::ContextMenu);
+            map.insert("Alt+m".to_string(), Action::ContextMenu);
         }
         _ => {
             // Default "norton" preset
@@ -102,6 +110,10 @@ pub fn get_preset_bindings(preset: &str) -> HashMap<String, Action> {
             map.insert("Alt+F1".to_string(), Action::DriveSelectLeft);
             map.insert("Alt+F2".to_string(), Action::DriveSelectRight);
             map.insert("Esc".to_string(), Action::Unfocus);
+            map.insert("Alt+c".to_string(), Action::CompressFiles);
+            map.insert("Alt+e".to_string(), Action::ExtractArchive);
+            map.insert("Menu".to_string(), Action::ContextMenu);
+            map.insert("Alt+m".to_string(), Action::ContextMenu);
         }
     }
 

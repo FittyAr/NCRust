@@ -57,4 +57,10 @@ pub enum Action {
     DriveSelectLeft,
     /// Open drive selection menu for the right panel (Alt+F2)
     DriveSelectRight,
+    /// Compress selected items
+    CompressFiles,
+    /// Extract selected archive
+    ExtractArchive,
+    /// Open Context Menu for targeted item(s)
+    ContextMenu,
 }

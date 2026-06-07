@@ -2,6 +2,7 @@ use anyhow::Result;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tokio::sync::mpsc;
+use crate::fs::archive::{extract_archive, compress_zip};
 
 #[derive(Debug, Clone)]
 pub struct ProgressUpdate {
@@ -220,4 +221,62 @@ async fn copy_file_buffered(
             .await;
     }
     Ok(())
+}
+
+pub fn spawn_extract_task(
+    archive_path: PathBuf,
+    destination_dir: PathBuf,
+) -> mpsc::Receiver<ProgressUpdate> {
+    let (tx, rx) = mpsc::channel(100);
+    tokio::task::spawn_blocking(move || {
+        if let Err(e) = extract_archive(&archive_path, &destination_dir, &tx) {
+            let _ = tx.blocking_send(ProgressUpdate {
+                current_file: archive_path.to_string_lossy().into_owned(),
+                files_copied: 0,
+                total_files: 0,
+                bytes_copied: 0,
+                total_bytes: 0,
+                error: Some(format!("Extraction failed: {}", e)),
+            });
+        } else {
+             let _ = tx.blocking_send(ProgressUpdate {
+                current_file: "Completed".to_string(),
+                files_copied: 1,
+                total_files: 1,
+                bytes_copied: 0,
+                total_bytes: 0,
+                error: None,
+            });
+        }
+    });
+    rx
+}
+
+pub fn spawn_compress_task(
+    sources: Vec<PathBuf>,
+    dest_archive: PathBuf,
+) -> mpsc::Receiver<ProgressUpdate> {
+    let (tx, rx) = mpsc::channel(100);
+    tokio::task::spawn_blocking(move || {
+        if let Err(e) = compress_zip(sources, &dest_archive, &tx) {
+             let _ = tx.blocking_send(ProgressUpdate {
+                current_file: dest_archive.to_string_lossy().into_owned(),
+                files_copied: 0,
+                total_files: 0,
+                bytes_copied: 0,
+                total_bytes: 0,
+                error: Some(format!("Compression failed: {}", e)),
+            });
+        } else {
+             let _ = tx.blocking_send(ProgressUpdate {
+                current_file: "Completed".to_string(),
+                files_copied: 1,
+                total_files: 1,
+                bytes_copied: 0,
+                total_bytes: 0,
+                error: None,
+            });
+        }
+    });
+    rx
 }
