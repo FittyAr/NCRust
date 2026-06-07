@@ -28,28 +28,29 @@ impl EventHandler {
             loop {
                 // Poll for new input event with timeout
                 match event::poll(tick_rate) {
-                    Ok(true) => {
+                    Ok(true) =>
+                    {
                         #[allow(clippy::collapsible_match)]
                         match event::read() {
-                        Ok(CrossEvent::Key(key)) => {
-                            if sender.blocking_send(Event::Key(key)).is_err() {
-                                break;
+                            Ok(CrossEvent::Key(key)) => {
+                                if sender.blocking_send(Event::Key(key)).is_err() {
+                                    break;
+                                }
                             }
-                        }
-                        Ok(CrossEvent::Mouse(mouse)) => {
-                            if sender.blocking_send(Event::Mouse(mouse)).is_err() {
-                                break;
+                            Ok(CrossEvent::Mouse(mouse)) => {
+                                if sender.blocking_send(Event::Mouse(mouse)).is_err() {
+                                    break;
+                                }
                             }
-                        }
-                        Ok(CrossEvent::Resize(w, h)) => {
-                            if sender.blocking_send(Event::Resize(w, h)).is_err() {
-                                break;
+                            Ok(CrossEvent::Resize(w, h)) => {
+                                if sender.blocking_send(Event::Resize(w, h)).is_err() {
+                                    break;
+                                }
                             }
+                            _ => {}
                         }
-                        _ => {}
                     }
-                },
-                Ok(false) => {
+                    Ok(false) => {
                         // Timeout reached, send Tick event
                         if sender.blocking_send(Event::Tick).is_err() {
                             break;

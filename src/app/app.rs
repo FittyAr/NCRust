@@ -1,5 +1,5 @@
 use super::context::AppContext;
-use super::state::{AppState, PopupType};
+use super::state::{ActivePanel, AppState, PopupType};
 use crate::keybindings::Action;
 use crate::terminal::{Event, EventHandler, TerminalBackend};
 use crate::ui;
@@ -66,6 +66,11 @@ pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
         if let Some(event) = event_handler.next().await {
             match event {
                 Event::Key(key) => {
+                    // Filter out KeyRelease events on Windows to prevent double-step triggers
+                    if key.kind == crossterm::event::KeyEventKind::Release {
+                        continue;
+                    }
+
                     // Popups consume inputs first
                     if handle_popup_input(&mut state, key, &mut context).is_ok() {
                         continue;
@@ -129,24 +134,25 @@ async fn handle_action(
         }
         Action::Execute => {
             handle_enter_key(state, context.config.settings.show_hidden);
+            state.refresh_both_panels(context.config.settings.show_hidden);
         }
         Action::GoParent => {
-            handle_backspace_key(state);
-            state.refresh_both_panels(context.config.settings.show_hidden);
+            handle_backspace_key(state, context.config.settings.show_hidden);
         }
         Action::Help => {
             state.active_popup = Some(PopupType::Help);
         }
         Action::UserMenu => {
-            // Simplified menu notice
-            state.active_popup = Some(PopupType::Error(
-                "User menu not configured yet.".to_string(),
-            ));
+            state.active_popup = Some(PopupType::UserMenu);
         }
         Action::View => {
             // Minimalist viewer using system pager or error message
             let active = state.get_active_panel();
-            if let Some(entry) = active.entries.get(active.cursor_index).filter(|e| !e.is_dir) {
+            if let Some(entry) = active
+                .entries
+                .get(active.cursor_index)
+                .filter(|e| !e.is_dir)
+            {
                 // Try to view using default command or internal error
                 let pager = if cfg!(target_os = "windows") {
                     "more"
@@ -158,13 +164,33 @@ async fn handle_action(
         }
         Action::Edit => {
             let active = state.get_active_panel();
-            if let Some(entry) = active.entries.get(active.cursor_index).filter(|e| !e.is_dir) {
-                let _ = execute_external_command(
-                    &entry.path,
-                    &context.config.settings.default_editor,
-                    terminal_backend,
-                );
-                state.refresh_both_panels(context.config.settings.show_hidden);
+            if let Some(entry) = active
+                .entries
+                .get(active.cursor_index)
+                .filter(|e| !e.is_dir)
+            {
+                let path = entry.path.clone();
+                match std::fs::read_to_string(&path) {
+                    Ok(content) => {
+                        let lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
+                        state.active_popup = Some(PopupType::InternalEditor {
+                            path,
+                            lines: if lines.is_empty() {
+                                vec![String::new()]
+                            } else {
+                                lines
+                            },
+                            cursor_x: 0,
+                            cursor_y: 0,
+                            scroll_y: 0,
+                            is_dirty: false,
+                        });
+                    }
+                    Err(e) => {
+                        state.active_popup =
+                            Some(PopupType::Error(format!("Cannot read file: {}", e)));
+                    }
+                }
             }
         }
         Action::Copy => {
@@ -327,6 +353,158 @@ fn handle_popup_input(
                 }
                 return Err(());
             }
+            PopupType::UserMenu => {
+                match key.code {
+                    crossterm::event::KeyCode::Char('1') => {
+                        state.refresh_both_panels(context.config.settings.show_hidden);
+                        state.active_popup = None;
+                        return Ok(());
+                    }
+                    crossterm::event::KeyCode::Char('2') => {
+                        context.config.settings.show_hidden = !context.config.settings.show_hidden;
+                        let _ = context.config.save();
+                        state.refresh_both_panels(context.config.settings.show_hidden);
+                        state.active_popup = None;
+                        return Ok(());
+                    }
+                    crossterm::event::KeyCode::Char('3') => {
+                        state.swap_panels();
+                        state.active_popup = None;
+                        return Ok(());
+                    }
+                    crossterm::event::KeyCode::Char('4') => {
+                        state.active_popup = Some(PopupType::Help);
+                        return Ok(());
+                    }
+                    crossterm::event::KeyCode::Char('5') | crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(());
+                    }
+                    _ => {}
+                }
+                return Err(());
+            }
+            PopupType::InternalEditor {
+                path,
+                mut lines,
+                mut cursor_x,
+                mut cursor_y,
+                mut scroll_y,
+                mut is_dirty,
+            } => {
+                match key.code {
+                    crossterm::event::KeyCode::Char(c) => {
+                        if lines.is_empty() {
+                            lines.push(String::new());
+                        }
+                        let line = &mut lines[cursor_y];
+                        if cursor_x <= line.len() {
+                            line.insert(cursor_x, c);
+                            cursor_x += 1;
+                            is_dirty = true;
+                        }
+                    }
+                    crossterm::event::KeyCode::Backspace => {
+                        if cursor_x > 0 {
+                            let line = &mut lines[cursor_y];
+                            line.remove(cursor_x - 1);
+                            cursor_x -= 1;
+                            is_dirty = true;
+                        } else if cursor_y > 0 {
+                            let current_line = lines.remove(cursor_y);
+                            cursor_y -= 1;
+                            let prev_line_len = lines[cursor_y].len();
+                            lines[cursor_y].push_str(&current_line);
+                            cursor_x = prev_line_len;
+                            is_dirty = true;
+                        }
+                    }
+                    crossterm::event::KeyCode::Delete => {
+                        if cursor_y < lines.len() {
+                            let line = &mut lines[cursor_y];
+                            if cursor_x < line.len() {
+                                line.remove(cursor_x);
+                                is_dirty = true;
+                            } else if cursor_y < lines.len() - 1 {
+                                let next_line = lines.remove(cursor_y + 1);
+                                lines[cursor_y].push_str(&next_line);
+                                is_dirty = true;
+                            }
+                        }
+                    }
+                    crossterm::event::KeyCode::Enter => {
+                        if lines.is_empty() {
+                            lines.push(String::new());
+                        }
+                        let current_line = &mut lines[cursor_y];
+                        let next_line = current_line.split_off(cursor_x);
+                        lines.insert(cursor_y + 1, next_line);
+                        cursor_y += 1;
+                        cursor_x = 0;
+                        is_dirty = true;
+                    }
+                    crossterm::event::KeyCode::Up => {
+                        if cursor_y > 0 {
+                            cursor_y -= 1;
+                            cursor_x = cursor_x.min(lines[cursor_y].len());
+                            if cursor_y < scroll_y {
+                                scroll_y = cursor_y;
+                            }
+                        }
+                    }
+                    crossterm::event::KeyCode::Down => {
+                        if cursor_y < lines.len().saturating_sub(1) {
+                            cursor_y += 1;
+                            cursor_x = cursor_x.min(lines[cursor_y].len());
+                            if cursor_y >= scroll_y + 18 {
+                                scroll_y = cursor_y - 17;
+                            }
+                        }
+                    }
+                    crossterm::event::KeyCode::Left => {
+                        if cursor_x > 0 {
+                            cursor_x -= 1;
+                        } else if cursor_y > 0 {
+                            cursor_y -= 1;
+                            cursor_x = lines[cursor_y].len();
+                        }
+                    }
+                    crossterm::event::KeyCode::Right => {
+                        if cursor_y < lines.len() {
+                            let line_len = lines[cursor_y].len();
+                            if cursor_x < line_len {
+                                cursor_x += 1;
+                            } else if cursor_y < lines.len() - 1 {
+                                cursor_y += 1;
+                                cursor_x = 0;
+                            }
+                        }
+                    }
+                    crossterm::event::KeyCode::F(2) => {
+                        let content = lines.join("\n");
+                        if let Err(e) = std::fs::write(&path, content) {
+                            state.active_popup =
+                                Some(PopupType::Error(format!("Failed to save: {}", e)));
+                            return Ok(());
+                        }
+                        is_dirty = false;
+                    }
+                    crossterm::event::KeyCode::Esc | crossterm::event::KeyCode::F(10) => {
+                        state.active_popup = None;
+                        return Ok(());
+                    }
+                    _ => {}
+                }
+                state.active_popup = Some(PopupType::InternalEditor {
+                    path,
+                    lines,
+                    cursor_x,
+                    cursor_y,
+                    scroll_y,
+                    is_dirty,
+                });
+                return Ok(());
+            }
         }
     }
     Err(())
@@ -402,11 +580,17 @@ fn execute_shell_command(command_str: &str, terminal_backend: &mut TerminalBacke
         std::process::Command::new("cmd")
             .arg("/c")
             .arg(command_str)
+            .stdin(std::process::Stdio::inherit())
+            .stdout(std::process::Stdio::inherit())
+            .stderr(std::process::Stdio::inherit())
             .spawn()?
     } else {
         std::process::Command::new("sh")
             .arg("-c")
             .arg(command_str)
+            .stdin(std::process::Stdio::inherit())
+            .stdout(std::process::Stdio::inherit())
+            .stderr(std::process::Stdio::inherit())
             .spawn()?
     };
 
@@ -428,26 +612,18 @@ fn execute_external_command(
 ) -> Result<()> {
     terminal_backend.restore()?;
 
-    let mut cmd = if cfg!(target_os = "windows") {
-        let mut c = std::process::Command::new("cmd");
-        c.arg("/c").arg(format!(
-            "{} \"{}\"",
-            utility_command,
-            target_path.to_string_lossy()
-        ));
-        c
-    } else {
-        let mut c = std::process::Command::new("sh");
-        c.arg("-c").arg(format!(
-            "{} \"{}\"",
-            utility_command,
-            target_path.to_string_lossy()
-        ));
-        c
-    };
+    let mut child = std::process::Command::new(utility_command)
+        .arg(target_path)
+        .stdin(std::process::Stdio::inherit())
+        .stdout(std::process::Stdio::inherit())
+        .stderr(std::process::Stdio::inherit())
+        .spawn()?;
 
-    let mut child = cmd.spawn()?;
     let _ = child.wait();
+
+    println!("\n[Press Enter to return to NCRust]");
+    let mut buffer = String::new();
+    let _ = std::io::stdin().read_line(&mut buffer);
 
     *terminal_backend = TerminalBackend::init()?;
     Ok(())
@@ -487,7 +663,7 @@ fn handle_enter_key(state: &mut AppState, _show_hidden: bool) {
 }
 
 /// Ascends to parent folder directory.
-fn handle_backspace_key(state: &mut AppState) {
+fn handle_backspace_key(state: &mut AppState, show_hidden: bool) {
     let active = state.get_active_panel_mut();
     if let Some(parent) = active.current_path.parent() {
         let current_dir_name = active
@@ -499,8 +675,15 @@ fn handle_backspace_key(state: &mut AppState) {
         active.current_path = parent.to_path_buf();
         active.selected_paths.clear();
 
+        // Reread folder entries in parent directory
+        state.refresh_both_panels(show_hidden);
+
         // Reposition cursor on directory we just exited
-        active.cursor_index = active
+        let active_ref = match state.active_panel {
+            ActivePanel::Left => &mut state.left_panel,
+            ActivePanel::Right => &mut state.right_panel,
+        };
+        active_ref.cursor_index = active_ref
             .entries
             .iter()
             .position(|e| e.name == current_dir_name)

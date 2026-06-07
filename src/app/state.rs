@@ -129,6 +129,15 @@ pub enum PopupType {
         total_bytes: u64,
     },
     Error(String),
+    UserMenu,
+    InternalEditor {
+        path: PathBuf,
+        lines: Vec<String>,
+        cursor_x: usize,
+        cursor_y: usize,
+        scroll_y: usize,
+        is_dirty: bool,
+    },
 }
 
 pub struct AppState {

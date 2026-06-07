@@ -162,6 +162,84 @@ pub fn render_popup(f: &mut Frame, state: &AppState, context: &AppContext) {
 
             f.render_widget(paragraph, area);
         }
+        PopupType::UserMenu => {
+            let area = centered_rect(50, 35, size);
+            f.render_widget(Clear, area);
+
+            let block = Block::default()
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(parse_color(&theme.popup_border)))
+                .title(" User Commands Menu ")
+                .style(Style::default().bg(parse_color(&theme.popup_bg)));
+
+            let menu_rows = vec![
+                Row::new(vec!["1", "Refresh Panel Directories"]),
+                Row::new(vec!["2", "Toggle Hidden Files"]),
+                Row::new(vec!["3", "Swap Left and Right Panels"]),
+                Row::new(vec!["4", "Show Help Keyboard Shortcuts"]),
+                Row::new(vec!["5", "Close User Menu"]),
+            ];
+
+            let table = Table::new(
+                menu_rows,
+                [Constraint::Percentage(20), Constraint::Percentage(80)],
+            )
+            .block(block)
+            .header(
+                Row::new(vec!["Key", "Command"])
+                    .style(Style::default().add_modifier(Modifier::BOLD)),
+            );
+
+            f.render_widget(table, area);
+        }
+        PopupType::InternalEditor {
+            path,
+            lines,
+            cursor_x,
+            cursor_y,
+            scroll_y,
+            is_dirty,
+        } => {
+            let area = centered_rect(95, 90, size);
+            f.render_widget(Clear, area);
+
+            let title = format!(
+                " Editor - {} {} ",
+                path.to_string_lossy(),
+                if *is_dirty { "*" } else { "" }
+            );
+
+            let block = Block::default()
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Cyan))
+                .title(title)
+                .style(Style::default().bg(Color::Blue));
+
+            let height = area.height.saturating_sub(2) as usize;
+            let visible_lines: Vec<String> =
+                lines.iter().skip(*scroll_y).take(height).cloned().collect();
+
+            let mut text = Vec::new();
+            for line in visible_lines {
+                text.push(ratatui::text::Line::from(line));
+            }
+
+            let paragraph = Paragraph::new(text)
+                .block(block)
+                .style(Style::default().fg(Color::White));
+
+            f.render_widget(paragraph, area);
+
+            // Draw the terminal blinking cursor at the editing position
+            let editor_cursor_x = area.x + 1 + *cursor_x as u16;
+            let editor_cursor_y = area.y + 1 + (*cursor_y - *scroll_y) as u16;
+
+            if editor_cursor_x < area.x + area.width - 1
+                && editor_cursor_y < area.y + area.height - 1
+            {
+                f.set_cursor(editor_cursor_x, editor_cursor_y);
+            }
+        }
     }
 }
 
