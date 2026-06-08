@@ -57,6 +57,8 @@ pub fn read_attrs(path: &Path) -> Result<FileAttrs> {
     })
 }
 
+// Expose set_readonly utility function for metadata changes; verified by unit tests.
+#[allow(dead_code)]
 /// Sets the read-only flag on the file.
 pub fn set_readonly(path: &Path, readonly: bool) -> Result<()> {
     let meta = std::fs::metadata(path)
@@ -67,6 +69,9 @@ pub fn set_readonly(path: &Path, readonly: bool) -> Result<()> {
         .with_context(|| format!("Setting permissions on {:?}", path))
 }
 
+// This utility function is prepared for the interactive chmod attributes dialog 
+// which is currently read-only but will allow modification in a future update.
+#[allow(dead_code)]
 /// Sets UNIX permission mode bits on the file (no-op on Windows).
 pub fn set_unix_mode(path: &Path, mode: u32) -> Result<()> {
     #[cfg(unix)]

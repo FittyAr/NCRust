@@ -230,3 +230,43 @@ fn extract_via_external_7z(
 
     Ok(())
 }
+
+pub fn list_archive_files(path: &Path) -> Result<Vec<String>> {
+    match detect_format(path) {
+        ArchiveFormat::Zip => {
+            let file = fs::File::open(path)?;
+            let mut archive = ZipArchive::new(file)?;
+            let mut list = Vec::new();
+            for i in 0..archive.len() {
+                if let Ok(file) = archive.by_index(i) {
+                    list.push(file.name().to_string());
+                }
+            }
+            Ok(list)
+        }
+        ArchiveFormat::TarGz => {
+            let tar_gz = fs::File::open(path)?;
+            let tar = GzDecoder::new(tar_gz);
+            let mut archive = Archive::new(tar);
+            let mut list = Vec::new();
+            for entry in archive.entries()? {
+                if let Ok(entry) = entry {
+                    if let Ok(path) = entry.path() {
+                        list.push(path.to_string_lossy().into_owned());
+                    }
+                }
+            }
+            Ok(list)
+        }
+        ArchiveFormat::SevenZ => {
+            let archive = sevenz_rust::Archive::open(path)
+                .map_err(|e| anyhow!("Failed to open 7z: {:?}", e))?;
+            let mut list = Vec::new();
+            for entry in &archive.files {
+                list.push(entry.name.clone());
+            }
+            Ok(list)
+        }
+        _ => Err(anyhow!("Unsupported archive format or listing not supported")),
+    }
+}

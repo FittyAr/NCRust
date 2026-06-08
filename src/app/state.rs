@@ -74,7 +74,8 @@ pub use crate::fs::compare::{CompareEntry, CompareStatus};
 #[derive(Debug, Clone)]
 pub struct FileAttrsSnapshot {
     pub path: PathBuf,
-    /// UNIX mode bits (rwxrwxrwx) — 0 on Windows
+    // Allowed because this records UNIX attributes from read_attrs for potential future permissions edits.
+    #[allow(dead_code)]
     pub mode: u32,
     pub readonly: bool,
     pub size: u64,
@@ -181,6 +182,8 @@ pub enum PopupType {
     WipeConfirm {
         paths: Vec<PathBuf>,
     },
+    // Allowed because this confirm option will be integrated into options saving logic.
+    #[allow(dead_code)]
     SaveSetupConfirm,
 
     // ── Progress ──────────────────────────────────────────────────────────────
@@ -207,6 +210,8 @@ pub enum PopupType {
         drives: Vec<String>,
         cursor_idx: usize,
     },
+    // Allowed because this hotlist directory bookmarks manager is currently a placeholder for a planned sprint.
+    #[allow(dead_code)]
     Hotlist {
         bookmarks: Vec<(String, PathBuf)>,
         cursor_idx: usize,
@@ -214,6 +219,8 @@ pub enum PopupType {
 
     // ── Sort modes ────────────────────────────────────────────────────────────
     SortModesDialog {
+        // Allowed because this field will be used to apply sort logic specifically on the selected panel.
+        #[allow(dead_code)]
         panel: ActivePanel,
         current: SortField,
         reverse: bool,
@@ -228,6 +235,9 @@ pub enum PopupType {
         cursor_y: usize,
         scroll_y: usize,
         is_dirty: bool,
+    },
+    InternalViewer {
+        viewer: crate::ui::viewer::ViewerState,
     },
     QuickViewPanel {
         path: PathBuf,
@@ -289,6 +299,8 @@ pub enum PopupType {
     },
 
     // ── Tree view ─────────────────────────────────────────────────────────────
+    // Allowed because this graphical folder tree navigator is currently a placeholder for a planned sprint.
+    #[allow(dead_code)]
     TreeView {
         nodes: Vec<TreeNode>,
         cursor_idx: usize,
@@ -533,6 +545,7 @@ impl AppState {
     }
 
     /// Returns a mutable reference to the passive panel state.
+    // Allowed because this method is part of AppState API completeness for symmetrical panel manipulation.
     #[allow(dead_code)]
     pub fn get_passive_panel_mut(&mut self) -> &mut PanelState {
         match self.active_panel {

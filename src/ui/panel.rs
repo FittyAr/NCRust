@@ -86,12 +86,15 @@ fn visible_range(panel: &PanelState, height: usize) -> (usize, usize) {
 }
 
 fn build_row_style(
+    entry: &crate::fs::FileEntry,
     is_cursor: bool,
     is_selected: bool,
     is_active: bool,
     theme: &crate::config::theme::Theme,
 ) -> Style {
-    let mut style = Style::default().fg(parse_color(&theme.panel_fg));
+    let rules = crate::ui::highlight::default_highlight_rules();
+    let base_style = Style::default().fg(parse_color(&theme.panel_fg));
+    let mut style = crate::ui::highlight::style_for_entry(entry, &rules, base_style);
     if is_selected {
         style = style.fg(parse_color(&theme.marked_fg));
     }
@@ -158,6 +161,7 @@ fn render_full(
         .map(|(rel, entry)| {
             let i = start + rel;
             let style = build_row_style(
+                entry,
                 i == panel.cursor_index,
                 panel.selected_paths.contains(&entry.path),
                 is_active,
@@ -217,6 +221,7 @@ fn render_medium(
         .map(|(rel, entry)| {
             let i = start + rel;
             let style = build_row_style(
+                entry,
                 i == panel.cursor_index,
                 panel.selected_paths.contains(&entry.path),
                 is_active,
@@ -284,6 +289,7 @@ fn render_wide(
         .map(|(rel, entry)| {
             let i = start + rel;
             let style = build_row_style(
+                entry,
                 i == panel.cursor_index,
                 panel.selected_paths.contains(&entry.path),
                 is_active,
@@ -319,6 +325,7 @@ fn render_detailed(
         .map(|(rel, entry)| {
             let i = start + rel;
             let style = build_row_style(
+                entry,
                 i == panel.cursor_index,
                 panel.selected_paths.contains(&entry.path),
                 is_active,
@@ -387,6 +394,7 @@ fn render_descriptions(
         .map(|(rel, entry)| {
             let i = start + rel;
             let style = build_row_style(
+                entry,
                 i == panel.cursor_index,
                 panel.selected_paths.contains(&entry.path),
                 is_active,
@@ -439,6 +447,7 @@ fn render_file_owners(
         .map(|(rel, entry)| {
             let i = start + rel;
             let style = build_row_style(
+                entry,
                 i == panel.cursor_index,
                 panel.selected_paths.contains(&entry.path),
                 is_active,
@@ -492,6 +501,7 @@ fn render_file_links(
         .map(|(rel, entry)| {
             let i = start + rel;
             let style = build_row_style(
+                entry,
                 i == panel.cursor_index,
                 panel.selected_paths.contains(&entry.path),
                 is_active,
@@ -568,6 +578,7 @@ fn render_brief(
             .take(col_height)
             .map(|(i, entry)| {
                 let style = build_row_style(
+                    entry,
                     i == panel.cursor_index,
                     panel.selected_paths.contains(&entry.path),
                     is_active,

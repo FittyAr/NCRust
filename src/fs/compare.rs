@@ -1,7 +1,6 @@
 use anyhow::Result;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
-use std::path::PathBuf;
 
 /// Status of a file relative to the two panels being compared.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,10 +38,12 @@ pub fn compare_directories(left: &Path, right: &Path) -> Result<Vec<CompareEntry
                 (Some(_), None) => CompareStatus::OnlyLeft,
                 (None, Some(_)) => CompareStatus::OnlyRight,
                 (Some(l), Some(r)) => {
-                    if l.size == r.size && mtime_eq(l.modified, r.modified) {
-                        CompareStatus::Equal
-                    } else {
+                    if l.is_dir != r.is_dir {
                         CompareStatus::Different
+                    } else if !l.is_dir && (l.size != r.size || !mtime_eq(l.modified, r.modified)) {
+                        CompareStatus::Different
+                    } else {
+                        CompareStatus::Equal
                     }
                 }
                 (None, None) => unreachable!(),
@@ -65,6 +66,7 @@ pub fn compare_directories(left: &Path, right: &Path) -> Result<Vec<CompareEntry
 struct FileSummary {
     size: u64,
     modified: Option<std::time::SystemTime>,
+    is_dir: bool,
 }
 
 fn scan_directory(dir: &Path) -> Result<HashMap<String, FileSummary>> {
@@ -75,16 +77,18 @@ fn scan_directory(dir: &Path) -> Result<HashMap<String, FileSummary>> {
             Ok(m) => m,
             Err(_) => continue,
         };
-        if meta.is_file() {
-            let name = entry.file_name().to_string_lossy().to_string();
-            map.insert(
-                name,
-                FileSummary {
-                    size: meta.len(),
-                    modified: meta.modified().ok(),
-                },
-            );
+        let name = entry.file_name().to_string_lossy().to_string();
+        if name == "." || name == ".." {
+            continue;
         }
+        map.insert(
+            name,
+            FileSummary {
+                size: meta.len(),
+                modified: meta.modified().ok(),
+                is_dir: meta.is_dir(),
+            },
+        );
     }
     Ok(map)
 }
@@ -110,6 +114,7 @@ fn mtime_eq(
 mod tests {
     use super::*;
     use std::io::Write;
+    use std::path::PathBuf;
 
     fn write_file(dir: &Path, name: &str, content: &[u8]) -> PathBuf {
         let path = dir.join(name);

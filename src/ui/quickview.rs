@@ -53,10 +53,39 @@ pub fn draw_quick_view(
     f.render_widget(para, area);
 }
 
-/// Loads a file into lines for quick view. Returns a Vec of lines or a single binary notice.
 pub fn load_quick_view_content(path: &std::path::Path) -> Vec<String> {
-    match std::fs::read_to_string(path) {
-        Ok(text) => text.lines().map(|l| l.to_string()).collect(),
-        Err(_) => vec!["[Binary file — cannot preview]".to_string()],
+    let format = crate::fs::archive::detect_format(path);
+    match format {
+        crate::fs::archive::ArchiveFormat::Zip
+        | crate::fs::archive::ArchiveFormat::TarGz
+        | crate::fs::archive::ArchiveFormat::SevenZ => {
+            match crate::fs::archive::list_archive_files(path) {
+                Ok(files) => {
+                    let format_name = match format {
+                        crate::fs::archive::ArchiveFormat::Zip => "ZIP",
+                        crate::fs::archive::ArchiveFormat::TarGz => "TarGz",
+                        crate::fs::archive::ArchiveFormat::SevenZ => "7Z",
+                        _ => "Archive",
+                    };
+                    let mut lines = vec![
+                        format!("Archive: {}", path.file_name().unwrap_or_default().to_string_lossy()),
+                        format!("Format: {}", format_name),
+                        format!("Files count: {}", files.len()),
+                        "────────────────────────────────────────".to_string(),
+                    ];
+                    for f in files {
+                        lines.push(f);
+                    }
+                    lines
+                }
+                Err(e) => vec![format!("[Error reading archive: {}]", e)],
+            }
+        }
+        _ => {
+            match std::fs::read_to_string(path) {
+                Ok(text) => text.lines().map(|l| l.to_string()).collect(),
+                Err(_) => vec!["[Binary file — cannot preview]".to_string()],
+            }
+        }
     }
 }

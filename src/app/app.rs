@@ -17,6 +17,12 @@ pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
     let mut terminal_backend = TerminalBackend::init()?;
     let mut event_handler = EventHandler::new(Duration::from_millis(50));
 
+    // Load history store from disk
+    let history_store = crate::config::history::HistoryStore::load();
+    state.command_history = history_store.commands.clone();
+    state.file_view_history = history_store.viewed_files.clone();
+    state.folders_history = history_store.visited_folders.clone();
+
     // Initial folder scans
     state.refresh_both_panels(context.config.settings.show_hidden);
 
@@ -71,6 +77,12 @@ pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
 
         // 3. Exit check
         if state.should_quit {
+            // Save history store to disk
+            let mut history_store = crate::config::history::HistoryStore::default();
+            history_store.commands = state.command_history.clone();
+            history_store.viewed_files = state.file_view_history.clone();
+            history_store.visited_folders = state.folders_history.clone();
+            let _ = history_store.save();
             break;
         }
 
@@ -124,7 +136,7 @@ async fn handle_action(
     state: &mut AppState,
     action: Action,
     context: &mut AppContext,
-    terminal_backend: &mut TerminalBackend,
+    _terminal_backend: &mut TerminalBackend,
 ) -> Result<()> {
     match action {
         Action::MoveUp => {
@@ -172,17 +184,10 @@ async fn handle_action(
                 .get(active.cursor_index)
                 .filter(|e| !e.is_dir)
             {
-                let pager = if cfg!(target_os = "windows") {
-                    "more"
-                } else {
-                    "less"
-                };
-                if let Err(e) =
-                    execute_external_command(&entry.path.clone(), pager, terminal_backend)
-                {
-                    state.active_popup =
-                        Some(PopupType::Error(format!("View failed: {}", e)));
-                }
+                let path = entry.path.clone();
+                state.push_file_view_history(path.clone());
+                let viewer = crate::ui::viewer::ViewerState::load(path);
+                state.active_popup = Some(PopupType::InternalViewer { viewer });
             }
         }
         Action::Edit => {
@@ -193,6 +198,7 @@ async fn handle_action(
                 .filter(|e| !e.is_dir)
             {
                 let path = entry.path.clone();
+                state.push_file_view_history(path.clone());
                 match std::fs::read_to_string(&path) {
                     Ok(content) => {
                         let lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
@@ -797,6 +803,9 @@ fn handle_popup_input(
                 mut scroll_y,
                 mut is_dirty,
             } => {
+                let term_height = crossterm::terminal::size().map(|(_, h)| h).unwrap_or(24);
+                let edit_height = ((term_height as u16 * 90 / 100).saturating_sub(3)) as usize;
+
                 match key.code {
                     crossterm::event::KeyCode::Char(c) => {
                         if lines.is_empty() {
@@ -861,9 +870,23 @@ fn handle_popup_input(
                         if cursor_y < lines.len().saturating_sub(1) {
                             cursor_y += 1;
                             cursor_x = cursor_x.min(lines[cursor_y].len());
-                            if cursor_y >= scroll_y + 18 {
-                                scroll_y = cursor_y - 17;
+                            if cursor_y >= scroll_y + edit_height {
+                                scroll_y = cursor_y.saturating_sub(edit_height - 1);
                             }
+                        }
+                    }
+                    crossterm::event::KeyCode::PageUp => {
+                        cursor_y = cursor_y.saturating_sub(edit_height);
+                        cursor_x = cursor_x.min(lines[cursor_y].len());
+                        if cursor_y < scroll_y {
+                            scroll_y = cursor_y;
+                        }
+                    }
+                    crossterm::event::KeyCode::PageDown => {
+                        cursor_y = (cursor_y + edit_height).min(lines.len().saturating_sub(1));
+                        cursor_x = cursor_x.min(lines[cursor_y].len());
+                        if cursor_y >= scroll_y + edit_height {
+                            scroll_y = cursor_y.saturating_sub(edit_height - 1);
                         }
                     }
                     crossterm::event::KeyCode::Left => {
@@ -908,6 +931,32 @@ fn handle_popup_input(
                     scroll_y,
                     is_dirty,
                 });
+                return Ok(None);
+            }
+            PopupType::InternalViewer { mut viewer } => {
+                match key.code {
+                    crossterm::event::KeyCode::Esc | crossterm::event::KeyCode::F(10) => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Up => {
+                        viewer.scroll_up(1);
+                    }
+                    crossterm::event::KeyCode::Down => {
+                        viewer.scroll_down(1);
+                    }
+                    crossterm::event::KeyCode::PageUp => {
+                        viewer.scroll_up(18);
+                    }
+                    crossterm::event::KeyCode::PageDown => {
+                        viewer.scroll_down(18);
+                    }
+                    crossterm::event::KeyCode::F(2) => {
+                        viewer.toggle_mode();
+                    }
+                    _ => {}
+                }
+                state.active_popup = Some(PopupType::InternalViewer { viewer });
                 return Ok(None);
             }
             PopupType::Menu {
@@ -1671,11 +1720,48 @@ fn handle_popup_input(
                 }
                 return Err(());
             }
+            PopupType::TaskListDialog { mut tasks, mut cursor_idx } => {
+                match key.code {
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Up => {
+                        if cursor_idx > 0 {
+                            cursor_idx -= 1;
+                        }
+                    }
+                    crossterm::event::KeyCode::Down => {
+                        if !tasks.is_empty() && cursor_idx < tasks.len().saturating_sub(1) {
+                            cursor_idx += 1;
+                        }
+                    }
+                    crossterm::event::KeyCode::Delete | crossterm::event::KeyCode::Char('k') => {
+                        if let Some(task) = tasks.get(cursor_idx) {
+                            let pid = task.pid;
+                            match kill_process(pid) {
+                                Ok(_) => {
+                                    tasks.remove(cursor_idx);
+                                    if cursor_idx >= tasks.len() && cursor_idx > 0 {
+                                        cursor_idx = tasks.len().saturating_sub(1);
+                                    }
+                                }
+                                Err(e) => {
+                                    state.active_popup = Some(PopupType::Error(format!("Failed to kill process: {}", e)));
+                                    return Ok(None);
+                                }
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+                state.active_popup = Some(PopupType::TaskListDialog { tasks, cursor_idx });
+                return Ok(None);
+            }
             // Dismiss-only popups for new types not yet fully interactive
             PopupType::SortModesDialog { .. }
             | PopupType::FileAttributesDialog { .. }
             | PopupType::CompareFoldersResult { .. }
-            | PopupType::TaskListDialog { .. }
             | PopupType::FileAssociationsDialog { .. }
             | PopupType::ArchiveCommandsMenu { .. }
             | PopupType::QuickViewPanel { .. }
@@ -1694,6 +1780,42 @@ fn handle_popup_input(
         }
     }
     Err(())
+}
+
+fn kill_process(pid: u32) -> std::io::Result<()> {
+    #[cfg(unix)]
+    {
+        let output = std::process::Command::new("kill")
+            .arg("-9")
+            .arg(pid.to_string())
+            .output()?;
+        if output.status.success() {
+            Ok(())
+        } else {
+            let err_msg = String::from_utf8_lossy(&output.stderr);
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("kill failed: {}", err_msg),
+            ))
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let output = std::process::Command::new("taskkill")
+            .arg("/F")
+            .arg("/PID")
+            .arg(pid.to_string())
+            .output()?;
+        if output.status.success() {
+            Ok(())
+        } else {
+            let err_msg = String::from_utf8_lossy(&output.stderr);
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("taskkill failed: {}", err_msg),
+            ))
+        }
+    }
 }
 
 fn trigger_menu_item(
@@ -1915,22 +2037,8 @@ fn read_proc_memory(pid: u32) -> u64 {
     0
 }
 
-fn compare_directories(state: &AppState) -> bool {
-    let left_names: std::collections::HashSet<String> = state
-        .left_panel
-        .entries
-        .iter()
-        .map(|e| e.name.clone())
-        .collect();
-    let right_names: std::collections::HashSet<String> = state
-        .right_panel
-        .entries
-        .iter()
-        .map(|e| e.name.clone())
-        .collect();
-    left_names == right_names
-}
-
+// This bookmarks resolution logic is prepared for the hotlist/quick bookmarks panel feature (planned for a future sprint).
+#[allow(dead_code)]
 fn get_hotlist_bookmarks() -> Vec<(String, std::path::PathBuf)> {
     let mut bookmarks = Vec::new();
     if let Some(path) = directories::UserDirs::new().map(|u| u.home_dir().to_path_buf()) {
@@ -2042,7 +2150,8 @@ fn build_info_panel_lines(state: &AppState) -> Vec<String> {
     lines
 }
 
-/// Recursively builds tree nodes up to `max_depth` levels deep.
+// Recursively builds tree nodes for the graphical tree navigator feature (planned for a future sprint).
+#[allow(dead_code)]
 fn build_tree_nodes(root: &std::path::Path, depth: usize, max_depth: usize) -> Vec<TreeNode> {
     let mut nodes = Vec::new();
 
@@ -2179,6 +2288,7 @@ fn handle_cli_input(
             if !state.cli_input.is_empty() {
                 let cmd = state.cli_input.trim().to_string();
                 state.cli_input.clear();
+                state.push_command_history(cmd.clone());
                 let _ = execute_shell_command(&cmd, terminal_backend);
                 state.refresh_both_panels(context.config.settings.show_hidden);
                 return Ok(());
@@ -2237,8 +2347,8 @@ fn execute_shell_command(command_str: &str, terminal_backend: &mut TerminalBacke
     Ok(())
 }
 
-/// Spawns an external utility (like a pager or editor) on the selected file path.
-/// Suspends and resumes the TUI **in-place** without dropping/recreating TerminalBackend.
+// Suspends TUI and launches an external editor or viewer command (reserved for custom user command association bindings).
+#[allow(dead_code)]
 fn execute_external_command(
     target_path: &Path,
     utility_command: &str,
@@ -2271,49 +2381,59 @@ fn execute_external_command(
 
 /// Enters highlighted directory or open files with standard OS handlers.
 fn handle_enter_key(state: &mut AppState, _show_hidden: bool) {
-    let active = state.get_active_panel_mut();
-    if let Some(entry) = active.entries.get(active.cursor_index) {
-        if entry.is_dir {
-            active.current_path = entry.path.clone();
-            active.cursor_index = 0;
-            active.selected_paths.clear();
-        } else {
-            let path = entry.path.to_string_lossy().to_string();
-            let cmd = if cfg!(target_os = "windows") {
-                format!("start \"\" \"{}\"", path)
+    let mut target_dir = None;
+    {
+        let active = state.get_active_panel();
+        if let Some(entry) = active.entries.get(active.cursor_index) {
+            if entry.is_dir {
+                target_dir = Some(entry.path.clone());
             } else {
-                format!("xdg-open \"{}\" 2>/dev/null", path)
-            };
+                let path = entry.path.to_string_lossy().to_string();
+                let cmd = if cfg!(target_os = "windows") {
+                    format!("start \"\" \"{}\"", path)
+                } else {
+                    format!("xdg-open \"{}\" 2>/dev/null", path)
+                };
 
-            let args = if cfg!(target_os = "windows") {
-                vec!["/c", &cmd]
-            } else {
-                vec!["-c", &cmd]
-            };
+                let args = if cfg!(target_os = "windows") {
+                    vec!["/c", &cmd]
+                } else {
+                    vec!["-c", &cmd]
+                };
 
-            let _ = std::process::Command::new(if cfg!(target_os = "windows") {
-                "cmd"
-            } else {
-                "sh"
-            })
-            .args(&args)
-            .spawn();
+                let _ = std::process::Command::new(if cfg!(target_os = "windows") {
+                    "cmd"
+                } else {
+                    "sh"
+                })
+                .args(&args)
+                .spawn();
+            }
         }
+    }
+    if let Some(dir) = target_dir {
+        state.push_folders_history(dir.clone());
+        let active_mut = state.get_active_panel_mut();
+        active_mut.current_path = dir;
+        active_mut.cursor_index = 0;
+        active_mut.selected_paths.clear();
     }
 }
 
 /// Ascends to parent folder directory.
 fn handle_backspace_key(state: &mut AppState, show_hidden: bool) {
-    let active = state.get_active_panel_mut();
-    if let Some(parent) = active.current_path.parent() {
-        let current_dir_name = active
+    let parent_path = state.get_active_panel().current_path.parent().map(|p| p.to_path_buf());
+    if let Some(parent) = parent_path {
+        let current_dir_name = state.get_active_panel()
             .current_path
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
             .unwrap_or_default();
 
-        active.current_path = parent.to_path_buf();
-        active.selected_paths.clear();
+        state.push_folders_history(parent.clone());
+
+        state.get_active_panel_mut().current_path = parent;
+        state.get_active_panel_mut().selected_paths.clear();
 
         // Reread folder entries in parent directory
         state.refresh_both_panels(show_hidden);
