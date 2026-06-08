@@ -155,7 +155,12 @@ fn render_full(
     block: Block,
 ) {
     let theme = &context.config.theme;
-    let height = area.height.saturating_sub(3) as usize;
+    let header_offset = if context.config.settings.show_column_titles {
+        3
+    } else {
+        2
+    };
+    let height = area.height.saturating_sub(header_offset) as usize;
     let (start, end) = visible_range(panel, height);
 
     let rows: Vec<Row> = panel.entries[start..end]
@@ -196,9 +201,13 @@ fn render_full(
             Constraint::Percentage(15),
             Constraint::Percentage(30),
         ],
-    )
-    .header(header)
-    .block(block);
+    );
+    let table = if context.config.settings.show_column_titles {
+        table.header(header)
+    } else {
+        table
+    };
+    let table = table.block(block);
     f.render_widget(table, area);
 }
 
@@ -215,7 +224,12 @@ fn render_medium(
     block: Block,
 ) {
     let theme = &context.config.theme;
-    let height = area.height.saturating_sub(3) as usize;
+    let header_offset = if context.config.settings.show_column_titles {
+        3
+    } else {
+        2
+    };
+    let height = area.height.saturating_sub(header_offset) as usize;
     let (start, end) = visible_range(panel, height);
 
     let rows: Vec<Row> = panel.entries[start..end]
@@ -264,9 +278,13 @@ fn render_medium(
             Constraint::Percentage(15),
             Constraint::Percentage(25),
         ],
-    )
-    .header(header)
-    .block(block);
+    );
+    let table = if context.config.settings.show_column_titles {
+        table.header(header)
+    } else {
+        table
+    };
+    let table = table.block(block);
     f.render_widget(table, area);
 }
 
@@ -323,7 +341,12 @@ fn render_detailed(
     block: Block,
 ) {
     let theme = &context.config.theme;
-    let height = area.height.saturating_sub(3) as usize;
+    let header_offset = if context.config.settings.show_column_titles {
+        3
+    } else {
+        2
+    };
+    let height = area.height.saturating_sub(header_offset) as usize;
     let (start, end) = visible_range(panel, height);
 
     let rows: Vec<Row> = panel.entries[start..end]
@@ -371,9 +394,13 @@ fn render_detailed(
             Constraint::Percentage(20),
             Constraint::Percentage(25),
         ],
-    )
-    .header(header)
-    .block(block);
+    );
+    let table = if context.config.settings.show_column_titles {
+        table.header(header)
+    } else {
+        table
+    };
+    let table = table.block(block);
     f.render_widget(table, area);
 }
 
@@ -390,7 +417,12 @@ fn render_descriptions(
     block: Block,
 ) {
     let theme = &context.config.theme;
-    let height = area.height.saturating_sub(3) as usize;
+    let header_offset = if context.config.settings.show_column_titles {
+        3
+    } else {
+        2
+    };
+    let height = area.height.saturating_sub(header_offset) as usize;
     let (start, end) = visible_range(panel, height);
 
     let rows: Vec<Row> = panel.entries[start..end]
@@ -423,9 +455,13 @@ fn render_descriptions(
     let table = Table::new(
         rows,
         [Constraint::Percentage(40), Constraint::Percentage(60)],
-    )
-    .header(header)
-    .block(block);
+    );
+    let table = if context.config.settings.show_column_titles {
+        table.header(header)
+    } else {
+        table
+    };
+    let table = table.block(block);
     f.render_widget(table, area);
 }
 
@@ -442,7 +478,12 @@ fn render_file_owners(
     block: Block,
 ) {
     let theme = &context.config.theme;
-    let height = area.height.saturating_sub(3) as usize;
+    let header_offset = if context.config.settings.show_column_titles {
+        3
+    } else {
+        2
+    };
+    let height = area.height.saturating_sub(header_offset) as usize;
     let (start, end) = visible_range(panel, height);
 
     let rows: Vec<Row> = panel.entries[start..end]
@@ -477,9 +518,13 @@ fn render_file_owners(
     let table = Table::new(
         rows,
         [Constraint::Percentage(60), Constraint::Percentage(40)],
-    )
-    .header(header)
-    .block(block);
+    );
+    let table = if context.config.settings.show_column_titles {
+        table.header(header)
+    } else {
+        table
+    };
+    let table = table.block(block);
     f.render_widget(table, area);
 }
 
@@ -496,7 +541,12 @@ fn render_file_links(
     block: Block,
 ) {
     let theme = &context.config.theme;
-    let height = area.height.saturating_sub(3) as usize;
+    let header_offset = if context.config.settings.show_column_titles {
+        3
+    } else {
+        2
+    };
+    let height = area.height.saturating_sub(header_offset) as usize;
     let (start, end) = visible_range(panel, height);
 
     let rows: Vec<Row> = panel.entries[start..end]
@@ -531,9 +581,13 @@ fn render_file_links(
     let table = Table::new(
         rows,
         [Constraint::Percentage(80), Constraint::Percentage(20)],
-    )
-    .header(header)
-    .block(block);
+    );
+    let table = if context.config.settings.show_column_titles {
+        table.header(header)
+    } else {
+        table
+    };
+    let table = table.block(block);
     f.render_widget(table, area);
 }
 

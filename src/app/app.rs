@@ -2230,13 +2230,13 @@ fn handle_popup_input(
                 mut settings,
             } => {
                 let max_rows = match active_tab {
-                    0 => 18, // System
-                    1 => 33, // Panel
-                    2 => 35, // Interface
-                    3 => 16, // Confirmations
-                    4 => 11, // Language & Plugins
-                    5 => 39, // Editor/Viewer
-                    6 => 5,  // Colors
+                    0 => 19, // System (17 settings + 2 buttons)
+                    1 => 35, // Panel (33 settings + 2 buttons)
+                    2 => 39, // Interface (37 settings + 2 buttons)
+                    3 => 16, // Confirmations (14 settings + 2 buttons)
+                    4 => 13, // Language & Plugins (11 settings + 2 buttons)
+                    5 => 41, // Editor/Viewer (39 settings + 2 buttons)
+                    6 => 5,  // Colors (3 settings + 2 buttons)
                     _ => 5,
                 };
 
@@ -2258,6 +2258,10 @@ fn handle_popup_input(
                         crossterm::event::KeyCode::Enter => {
                             if active_tab == 5 && cursor_idx == 1 {
                                 settings.default_editor = edit_buffer.clone();
+                            } else if active_tab == 5 && cursor_idx == 22 {
+                                settings.viewer_command = edit_buffer.clone();
+                            } else if active_tab == 2 && cursor_idx == 14 {
+                                settings.interface_window_title_addons = edit_buffer.clone();
                             }
                             editing_value = false;
                         }
@@ -2332,14 +2336,331 @@ fn handle_popup_input(
                         }
 
                         match active_tab {
+                            0 => match cursor_idx {
+                                0 => {
+                                    settings.delete_to_recycle_bin = !settings.delete_to_recycle_bin
+                                }
+                                1 => {
+                                    settings.use_system_copy_routine =
+                                        !settings.use_system_copy_routine
+                                }
+                                2 => {
+                                    settings.copy_files_opened_for_writing =
+                                        !settings.copy_files_opened_for_writing
+                                }
+                                3 => settings.scan_symbolic_links = !settings.scan_symbolic_links,
+                                4 => {
+                                    settings.save_commands_history = !settings.save_commands_history
+                                }
+                                5 => settings.save_folders_history = !settings.save_folders_history,
+                                6 => {
+                                    settings.save_view_and_edit_history =
+                                        !settings.save_view_and_edit_history
+                                }
+                                7 => {
+                                    settings.use_windows_registered_types =
+                                        !settings.use_windows_registered_types
+                                }
+                                8 => {
+                                    settings.automatic_update_env_variables =
+                                        !settings.automatic_update_env_variables
+                                }
+                                10 => {
+                                    settings.req_admin_modification =
+                                        !settings.req_admin_modification
+                                }
+                                11 => settings.req_admin_reading = !settings.req_admin_reading,
+                                12 => {
+                                    settings.req_admin_use_additional_privileges =
+                                        !settings.req_admin_use_additional_privileges
+                                }
+                                13 => {
+                                    settings.sorting_collation =
+                                        match settings.sorting_collation.as_str() {
+                                            "linguistic" => "natural".to_string(),
+                                            _ => "linguistic".to_string(),
+                                        };
+                                }
+                                14 => {
+                                    settings.treat_digits_as_numbers =
+                                        !settings.treat_digits_as_numbers
+                                }
+                                15 => settings.case_sensitive_sort = !settings.case_sensitive_sort,
+                                16 => settings.auto_save_setup = !settings.auto_save_setup,
+                                _ => {}
+                            },
                             1 => match cursor_idx {
                                 0 => settings.show_hidden = !settings.show_hidden,
+                                1 => settings.highlight_files = !settings.highlight_files,
+                                2 => settings.select_folders = !settings.select_folders,
+                                3 => {
+                                    settings.right_click_selects_files =
+                                        !settings.right_click_selects_files
+                                }
+                                4 => {
+                                    settings.sort_folder_names_by_extension =
+                                        !settings.sort_folder_names_by_extension
+                                }
                                 5 => settings.sort_reverse = !settings.sort_reverse,
+                                6 => {
+                                    settings.disable_panel_update_object_count =
+                                        match settings.disable_panel_update_object_count {
+                                            0 => 100,
+                                            100 => 1000,
+                                            1000 => 10000,
+                                            _ => 0,
+                                        };
+                                }
+                                7 => {
+                                    settings.network_drives_autorefresh =
+                                        !settings.network_drives_autorefresh
+                                }
+                                8 => settings.show_column_titles = !settings.show_column_titles,
+                                9 => settings.show_status_line = !settings.show_status_line,
+                                10 => {
+                                    settings.detect_volume_mount_points =
+                                        !settings.detect_volume_mount_points
+                                }
+                                11 => {
+                                    settings.show_files_total_information =
+                                        !settings.show_files_total_information
+                                }
+                                12 => settings.show_free_size = !settings.show_free_size,
+                                13 => settings.show_scrollbar = !settings.show_scrollbar,
+                                14 => {
+                                    settings.show_background_screens_number =
+                                        !settings.show_background_screens_number
+                                }
+                                15 => {
+                                    settings.show_sort_mode_letter = !settings.show_sort_mode_letter
+                                }
+                                16 => {
+                                    settings.show_dotdot_in_root_folders =
+                                        !settings.show_dotdot_in_root_folders
+                                }
+                                18 => {
+                                    settings.infopanel_show_power_status =
+                                        !settings.infopanel_show_power_status
+                                }
+                                19 => {
+                                    settings.infopanel_show_cd_drive_parameters =
+                                        !settings.infopanel_show_cd_drive_parameters
+                                }
+                                20 => {
+                                    settings.infopanel_computer_name_format =
+                                        match settings.infopanel_computer_name_format.as_str() {
+                                            "Physical NetBIOS" => "DNS name".to_string(),
+                                            _ => "Physical NetBIOS".to_string(),
+                                        };
+                                }
+                                21 => {
+                                    settings.infopanel_user_name_format =
+                                        match settings.infopanel_user_name_format.as_str() {
+                                            "Logon name" => "UPN".to_string(),
+                                            _ => "Logon name".to_string(),
+                                        };
+                                }
+                                25 => {
+                                    settings.file_descriptions_list_names =
+                                        match settings.file_descriptions_list_names.as_str() {
+                                            "Descript.ion,Files.bbs" => "descript.ion".to_string(),
+                                            "descript.ion" => "files.bbs".to_string(),
+                                            _ => "Descript.ion,Files.bbs".to_string(),
+                                        };
+                                }
+                                26 => {
+                                    settings.file_descriptions_set_hidden =
+                                        !settings.file_descriptions_set_hidden
+                                }
+                                27 => {
+                                    settings.file_descriptions_update_readonly =
+                                        !settings.file_descriptions_update_readonly
+                                }
+                                28 => {
+                                    settings.file_descriptions_position =
+                                        match settings.file_descriptions_position {
+                                            0 => 1,
+                                            1 => 2,
+                                            _ => 0,
+                                        };
+                                }
+                                29 => {
+                                    settings.file_descriptions_update_mode =
+                                        match settings.file_descriptions_update_mode.as_str() {
+                                            "Do not update" => "Update if displayed".to_string(),
+                                            "Update if displayed" => "Always update".to_string(),
+                                            _ => "Do not update".to_string(),
+                                        };
+                                }
+                                30 => {
+                                    settings.file_descriptions_use_ansi =
+                                        !settings.file_descriptions_use_ansi
+                                }
+                                31 => {
+                                    settings.file_descriptions_save_utf8 =
+                                        !settings.file_descriptions_save_utf8
+                                }
+                                32 => {
+                                    settings.folder_description_list_names = match settings
+                                        .folder_description_list_names
+                                        .as_str()
+                                    {
+                                        "DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me" => {
+                                            "DirInfo,File_Id.diz".to_string()
+                                        }
+                                        _ => "DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"
+                                            .to_string(),
+                                    };
+                                }
                                 _ => {}
                             },
                             2 => match cursor_idx {
+                                0 => settings.interface_clock = !settings.interface_clock,
                                 1 => settings.mouse_support = !settings.mouse_support,
-                                32 => {
+                                2 => {
+                                    settings.interface_show_key_bar =
+                                        !settings.interface_show_key_bar
+                                }
+                                3 => {
+                                    settings.interface_always_show_menu_bar =
+                                        !settings.interface_always_show_menu_bar
+                                }
+                                4 => {
+                                    settings.interface_screen_saver_minutes =
+                                        match settings.interface_screen_saver_minutes {
+                                            1 => 5,
+                                            5 => 10,
+                                            10 => 15,
+                                            15 => 30,
+                                            30 => 60,
+                                            _ => 1,
+                                        };
+                                }
+                                5 => {
+                                    settings.interface_show_total_copy_progress =
+                                        !settings.interface_show_total_copy_progress
+                                }
+                                6 => {
+                                    settings.interface_show_copying_time =
+                                        !settings.interface_show_copying_time
+                                }
+                                7 => {
+                                    settings.interface_show_total_delete_progress =
+                                        !settings.interface_show_total_delete_progress
+                                }
+                                8 => {
+                                    settings.interface_use_ctrl_pgup_change_drive =
+                                        !settings.interface_use_ctrl_pgup_change_drive
+                                }
+                                9 => {
+                                    settings.interface_use_virtual_terminal =
+                                        !settings.interface_use_virtual_terminal
+                                }
+                                10 => {
+                                    settings.interface_fullwidth_aware_rendering =
+                                        !settings.interface_fullwidth_aware_rendering
+                                }
+                                11 => {
+                                    settings.interface_cleartype_friendly_redraw =
+                                        !settings.interface_cleartype_friendly_redraw
+                                }
+                                12 => {
+                                    settings.interface_console_icon =
+                                        match settings.interface_console_icon {
+                                            0 => 1,
+                                            1 => 2,
+                                            _ => 0,
+                                        };
+                                }
+                                13 => {
+                                    settings.interface_console_icon_admin_alternate =
+                                        !settings.interface_console_icon_admin_alternate
+                                }
+                                14 => {
+                                    editing_value = true;
+                                    edit_buffer = settings.interface_window_title_addons.clone();
+                                }
+                                16 => {
+                                    settings.dialog_history_in_edit_controls =
+                                        !settings.dialog_history_in_edit_controls
+                                }
+                                17 => {
+                                    settings.dialog_persistent_blocks =
+                                        !settings.dialog_persistent_blocks
+                                }
+                                18 => {
+                                    settings.dialog_del_removes_blocks =
+                                        !settings.dialog_del_removes_blocks
+                                }
+                                19 => settings.dialog_autocomplete = !settings.dialog_autocomplete,
+                                20 => {
+                                    settings.dialog_backspace_deletes_unchanged =
+                                        !settings.dialog_backspace_deletes_unchanged
+                                }
+                                21 => {
+                                    settings.dialog_mouse_click_outside_closes =
+                                        !settings.dialog_mouse_click_outside_closes
+                                }
+                                23 => {
+                                    settings.menu_left_click_outside =
+                                        match settings.menu_left_click_outside.as_str() {
+                                            "Cancel menu" => "Do nothing".to_string(),
+                                            _ => "Cancel menu".to_string(),
+                                        };
+                                }
+                                24 => {
+                                    settings.menu_right_click_outside =
+                                        match settings.menu_right_click_outside.as_str() {
+                                            "Cancel menu" => "Do nothing".to_string(),
+                                            _ => "Cancel menu".to_string(),
+                                        };
+                                }
+                                25 => {
+                                    settings.menu_middle_click_outside =
+                                        match settings.menu_middle_click_outside.as_str() {
+                                            "Execute selected item" => "Cancel menu".to_string(),
+                                            _ => "Execute selected item".to_string(),
+                                        };
+                                }
+                                27 => {
+                                    settings.cmdline_persistent_blocks =
+                                        !settings.cmdline_persistent_blocks
+                                }
+                                28 => {
+                                    settings.cmdline_del_removes_blocks =
+                                        !settings.cmdline_del_removes_blocks
+                                }
+                                29 => {
+                                    settings.cmdline_autocomplete = !settings.cmdline_autocomplete
+                                }
+                                30 => {
+                                    settings.cmdline_prompt_format =
+                                        match settings.cmdline_prompt_format.as_str() {
+                                            "$p$g" => "$p".to_string(),
+                                            "$p" => "$g".to_string(),
+                                            _ => "$p$g".to_string(),
+                                        };
+                                }
+                                31 => {
+                                    settings.cmdline_use_home_dir =
+                                        match settings.cmdline_use_home_dir.as_str() {
+                                            "%FARHOME%" => "%USERPROFILE%".to_string(),
+                                            _ => "%FARHOME%".to_string(),
+                                        };
+                                }
+                                33 => {
+                                    settings.autocomplete_show_list =
+                                        !settings.autocomplete_show_list
+                                }
+                                34 => {
+                                    settings.autocomplete_modal_mode =
+                                        !settings.autocomplete_modal_mode
+                                }
+                                35 => {
+                                    settings.autocomplete_append_first =
+                                        !settings.autocomplete_append_first
+                                }
+                                36 => {
                                     settings.keybinding_preset =
                                         match settings.keybinding_preset.as_str() {
                                             "norton" => "vim".to_string(),
@@ -2350,13 +2671,57 @@ fn handle_popup_input(
                                 _ => {}
                             },
                             3 => match cursor_idx {
+                                0 => {
+                                    settings.confirmations.confirm_copy =
+                                        !settings.confirmations.confirm_copy
+                                }
+                                1 => {
+                                    settings.confirmations.confirm_move =
+                                        !settings.confirmations.confirm_move
+                                }
                                 2 => {
                                     settings.confirmations.confirm_overwrite =
                                         !settings.confirmations.confirm_overwrite
                                 }
+                                3 => {
+                                    settings.confirmations.confirm_drag_and_drop =
+                                        !settings.confirmations.confirm_drag_and_drop
+                                }
                                 4 => {
                                     settings.confirmations.confirm_delete =
                                         !settings.confirmations.confirm_delete
+                                }
+                                5 => {
+                                    settings.confirmations.confirm_delete_non_empty_folders =
+                                        !settings.confirmations.confirm_delete_non_empty_folders
+                                }
+                                6 => {
+                                    settings.confirmations.confirm_interrupt_operation =
+                                        !settings.confirmations.confirm_interrupt_operation
+                                }
+                                7 => {
+                                    settings.confirmations.confirm_disconnect_network_drive =
+                                        !settings.confirmations.confirm_disconnect_network_drive
+                                }
+                                8 => {
+                                    settings.confirmations.confirm_delete_subst_disk =
+                                        !settings.confirmations.confirm_delete_subst_disk
+                                }
+                                9 => {
+                                    settings.confirmations.confirm_detach_virtual_disk =
+                                        !settings.confirmations.confirm_detach_virtual_disk
+                                }
+                                10 => {
+                                    settings.confirmations.confirm_hotplug_removal =
+                                        !settings.confirmations.confirm_hotplug_removal
+                                }
+                                11 => {
+                                    settings.confirmations.confirm_reload_edited_file =
+                                        !settings.confirmations.confirm_reload_edited_file
+                                }
+                                12 => {
+                                    settings.confirmations.confirm_clear_history_list =
+                                        !settings.confirmations.confirm_clear_history_list
                                 }
                                 13 => {
                                     settings.confirmations.confirm_quit =
@@ -2364,20 +2729,196 @@ fn handle_popup_input(
                                 }
                                 _ => {}
                             },
-                            5 => {
-                                if cursor_idx == 1 {
+                            4 => match cursor_idx {
+                                0 => {
+                                    settings.language = match settings.language.as_str() {
+                                        "English" => "Spanish".to_string(),
+                                        _ => "English".to_string(),
+                                    };
+                                }
+                                3 => {
+                                    settings.plugins_manager_oem_support =
+                                        !settings.plugins_manager_oem_support
+                                }
+                                4 => {
+                                    settings.plugins_manager_scan_symlinks =
+                                        !settings.plugins_manager_scan_symlinks
+                                }
+                                6 => {
+                                    settings.plugins_manager_file_processing =
+                                        !settings.plugins_manager_file_processing
+                                }
+                                7 => {
+                                    settings.plugins_manager_show_standard_association =
+                                        !settings.plugins_manager_show_standard_association
+                                }
+                                8 => {
+                                    settings.plugins_manager_even_if_one_found =
+                                        !settings.plugins_manager_even_if_one_found
+                                }
+                                9 => {
+                                    settings.plugins_manager_search_results =
+                                        !settings.plugins_manager_search_results
+                                }
+                                10 => {
+                                    settings.plugins_manager_prefix_processing =
+                                        !settings.plugins_manager_prefix_processing
+                                }
+                                _ => {}
+                            },
+                            5 => match cursor_idx {
+                                0 => settings.editor_use_external = !settings.editor_use_external,
+                                1 => {
                                     editing_value = true;
                                     edit_buffer = settings.default_editor.clone();
                                 }
-                            }
-                            6 => {
-                                if cursor_idx == 0 {
+                                3 => {
+                                    settings.editor_expand_tabs =
+                                        match settings.editor_expand_tabs.as_str() {
+                                            "Do not expand tabs" => "Expand tabs".to_string(),
+                                            _ => "Do not expand tabs".to_string(),
+                                        };
+                                }
+                                4 => {
+                                    settings.editor_persistent_blocks =
+                                        !settings.editor_persistent_blocks
+                                }
+                                5 => {
+                                    settings.editor_cursor_beyond_eol =
+                                        !settings.editor_cursor_beyond_eol
+                                }
+                                6 => {
+                                    settings.editor_del_removes_blocks =
+                                        !settings.editor_del_removes_blocks
+                                }
+                                7 => settings.editor_select_found = !settings.editor_select_found,
+                                8 => settings.editor_auto_indent = !settings.editor_auto_indent,
+                                9 => settings.editor_cursor_at_end = !settings.editor_cursor_at_end,
+                                10 => {
+                                    settings.editor_tab_size = match settings.editor_tab_size {
+                                        2 => 4,
+                                        4 => 8,
+                                        _ => 2,
+                                    };
+                                }
+                                11 => {
+                                    settings.editor_show_scrollbar = !settings.editor_show_scrollbar
+                                }
+                                12 => {
+                                    settings.editor_show_white_space =
+                                        !settings.editor_show_white_space
+                                }
+                                13 => {
+                                    settings.editor_show_line_numbers =
+                                        !settings.editor_show_line_numbers
+                                }
+                                14 => {
+                                    settings.editor_save_file_position =
+                                        !settings.editor_save_file_position
+                                }
+                                15 => {
+                                    settings.editor_save_bookmarks = !settings.editor_save_bookmarks
+                                }
+                                16 => {
+                                    settings.editor_allow_editing_opened_writing =
+                                        !settings.editor_allow_editing_opened_writing
+                                }
+                                17 => {
+                                    settings.editor_lock_editing_readonly =
+                                        !settings.editor_lock_editing_readonly
+                                }
+                                18 => {
+                                    settings.editor_warn_opening_readonly =
+                                        !settings.editor_warn_opening_readonly
+                                }
+                                19 => {
+                                    settings.editor_autodetect_codepage =
+                                        !settings.editor_autodetect_codepage
+                                }
+                                20 => {
+                                    settings.editor_default_codepage =
+                                        match settings.editor_default_codepage.as_str() {
+                                            "1252" => "65001".to_string(),
+                                            "65001" => "1200".to_string(),
+                                            _ => "1252".to_string(),
+                                        };
+                                }
+                                21 => settings.viewer_use_external = !settings.viewer_use_external,
+                                22 => {
+                                    editing_value = true;
+                                    edit_buffer = settings.viewer_command.clone();
+                                }
+                                24 => {
+                                    settings.viewer_persistent_selection =
+                                        !settings.viewer_persistent_selection
+                                }
+                                25 => {
+                                    settings.viewer_show_scrolling_arrows =
+                                        !settings.viewer_show_scrolling_arrows
+                                }
+                                26 => {
+                                    settings.viewer_tab_size = match settings.viewer_tab_size {
+                                        2 => 4,
+                                        4 => 8,
+                                        _ => 2,
+                                    };
+                                }
+                                27 => settings.viewer_visible_zero = !settings.viewer_visible_zero,
+                                28 => {
+                                    settings.viewer_show_scrollbar = !settings.viewer_show_scrollbar
+                                }
+                                29 => {
+                                    settings.viewer_save_file_position =
+                                        !settings.viewer_save_file_position
+                                }
+                                30 => {
+                                    settings.viewer_save_view_mode = !settings.viewer_save_view_mode
+                                }
+                                31 => {
+                                    settings.viewer_save_file_codepage =
+                                        !settings.viewer_save_file_codepage
+                                }
+                                32 => {
+                                    settings.viewer_save_wrap_mode = !settings.viewer_save_wrap_mode
+                                }
+                                33 => {
+                                    settings.viewer_save_bookmarks = !settings.viewer_save_bookmarks
+                                }
+                                34 => {
+                                    settings.viewer_detect_dump_view_mode =
+                                        !settings.viewer_detect_dump_view_mode
+                                }
+                                35 => {
+                                    settings.viewer_max_line_width =
+                                        match settings.viewer_max_line_width {
+                                            1000 => 10000,
+                                            10000 => 50000,
+                                            _ => 1000,
+                                        };
+                                }
+                                36 => {
+                                    settings.viewer_autodetect_codepage =
+                                        !settings.viewer_autodetect_codepage
+                                }
+                                37 => {
+                                    settings.viewer_default_codepage =
+                                        match settings.viewer_default_codepage.as_str() {
+                                            "1252" => "65001".to_string(),
+                                            "65001" => "1200".to_string(),
+                                            _ => "1252".to_string(),
+                                        };
+                                }
+                                _ => {}
+                            },
+                            6 => match cursor_idx {
+                                0 => {
                                     settings.theme = match settings.theme.as_str() {
                                         "slate" => "classic_blue".to_string(),
                                         _ => "slate".to_string(),
                                     };
                                 }
-                            }
+                                _ => {}
+                            },
                             _ => {}
                         }
                     }

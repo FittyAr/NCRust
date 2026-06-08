@@ -3,7 +3,7 @@ use crate::app::state::{AppState, PopupType};
 use crate::ui::theme_apply::parse_color;
 use ratatui::{
     Frame,
-    layout::Rect,
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
     text::{Line, Span},
     widgets::Paragraph,
@@ -146,7 +146,8 @@ pub fn render_menu(f: &mut Frame, area: Rect, context: &AppContext, state: &AppS
     };
 
     let mut spans = Vec::new();
-    for (i, title) in get_menu_titles().iter().enumerate() {
+    let titles = get_menu_titles();
+    for (i, title) in titles.iter().enumerate() {
         let is_active = Some(i) == active_menu_idx;
         let style = if is_active {
             Style::default()
@@ -161,7 +162,27 @@ pub fn render_menu(f: &mut Frame, area: Rect, context: &AppContext, state: &AppS
         spans.push(Span::styled(*title, style));
     }
 
+    let menu_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Min(20), Constraint::Length(12)])
+        .split(area);
+
     let line = Line::from(spans);
     let paragraph = Paragraph::new(line).style(Style::default().bg(parse_color("DarkGray")));
-    f.render_widget(paragraph, area);
+    f.render_widget(paragraph, menu_chunks[0]);
+
+    if context.config.settings.interface_clock {
+        let time_str = chrono::Local::now().format(" %H:%M:%S ").to_string();
+        let clock_para = Paragraph::new(time_str)
+            .style(
+                Style::default()
+                    .bg(parse_color("DarkGray"))
+                    .fg(parse_color(&theme.panel_fg)),
+            )
+            .alignment(ratatui::layout::Alignment::Right);
+        f.render_widget(clock_para, menu_chunks[1]);
+    } else {
+        let empty_para = Paragraph::new("").style(Style::default().bg(parse_color("DarkGray")));
+        f.render_widget(empty_para, menu_chunks[1]);
+    }
 }

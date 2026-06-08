@@ -18,18 +18,38 @@ pub struct AppLayout {
 ///   showing only the CLI and f-key bar, revealing the terminal scrollback below.
 /// - `left_panel_visible` / `right_panel_visible`: when one panel is hidden,
 ///   the other expands to fill the full width (100 %).
-pub fn calculate_layout(area: Rect, state: &AppState) -> AppLayout {
+pub fn calculate_layout(
+    area: Rect,
+    state: &AppState,
+    settings: &crate::config::settings::Settings,
+) -> AppLayout {
+    let menu_active = matches!(
+        state.active_popup,
+        Some(crate::app::state::PopupType::Menu { .. })
+    );
+    let menu_height = if settings.interface_always_show_menu_bar || menu_active {
+        1
+    } else {
+        0
+    };
+
+    let fkeys_height = if settings.interface_show_key_bar {
+        1
+    } else {
+        0
+    };
+
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(1), // Dropdown menu bar (F9)
+            Constraint::Length(menu_height), // Dropdown menu bar (F9)
             if state.both_panels_hidden {
                 Constraint::Length(0) // Both panels hidden → 0 height
             } else {
                 Constraint::Min(3) // Normal: panels take remaining space
             },
-            Constraint::Length(1), // Command-line bar
-            Constraint::Length(1), // F1–F10 shortcuts
+            Constraint::Length(1),            // Command-line bar
+            Constraint::Length(fkeys_height), // F1–F10 shortcuts
         ])
         .split(area);
 

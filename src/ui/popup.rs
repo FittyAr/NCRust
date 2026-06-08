@@ -1553,26 +1553,168 @@ pub fn render_popup(
 
             match active_tab {
                 0 => {
-                    rows.push(("[ ] Delete to Recycle Bin".to_string(), true));
-                    rows.push(("[ ] Use system copy routine".to_string(), true));
-                    rows.push(("[ ] Copy files opened for writing".to_string(), true));
-                    rows.push(("[ ] Scan symbolic links".to_string(), true));
-                    rows.push(("[x] Save commands history".to_string(), false));
-                    rows.push(("[x] Save folders history".to_string(), false));
-                    rows.push(("[x] Save view and edit history".to_string(), false));
-                    rows.push(("[ ] Use Windows registered types".to_string(), true));
                     rows.push((
-                        "[ ] Automatic update of environment variables".to_string(),
+                        format!(
+                            "[{}] Delete to Recycle Bin",
+                            if settings.delete_to_recycle_bin {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Use system copy routine",
+                            if settings.use_system_copy_routine {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Copy files opened for writing",
+                            if settings.copy_files_opened_for_writing {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Scan symbolic links",
+                            if settings.scan_symbolic_links {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Save commands history",
+                            if settings.save_commands_history {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        false,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Save folders history",
+                            if settings.save_folders_history {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        false,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Save view and edit history",
+                            if settings.save_view_and_edit_history {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        false,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Use Windows registered types",
+                            if settings.use_windows_registered_types {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Automatic update of environment variables",
+                            if settings.automatic_update_env_variables {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push(("Request administrator rights:".to_string(), true));
-                    rows.push(("  [ ] For modification".to_string(), true));
-                    rows.push(("  [ ] For reading".to_string(), true));
-                    rows.push(("  [ ] Use additional privileges".to_string(), true));
-                    rows.push(("Sorting collation: < linguistic >".to_string(), true));
-                    rows.push(("  [ ] Treat digits as numbers".to_string(), true));
-                    rows.push(("  [ ] Case sensitive".to_string(), true));
-                    rows.push(("[ ] Auto save setup".to_string(), true));
+                    rows.push((
+                        format!(
+                            "  [{}] For modification",
+                            if settings.req_admin_modification {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] For reading",
+                            if settings.req_admin_reading { "x" } else { " " }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Use additional privileges",
+                            if settings.req_admin_use_additional_privileges {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!("Sorting collation: < {} >", settings.sorting_collation),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Treat digits as numbers",
+                            if settings.treat_digits_as_numbers {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Case sensitive",
+                            if settings.case_sensitive_sort {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Auto save setup",
+                            if settings.auto_save_setup { "x" } else { " " }
+                        ),
+                        true,
+                    ));
                 }
                 1 => {
                     rows.push((
@@ -1582,10 +1724,42 @@ pub fn render_popup(
                         ),
                         false,
                     ));
-                    rows.push(("[ ] Highlight files".to_string(), true));
-                    rows.push(("[ ] Select folders".to_string(), true));
-                    rows.push(("[ ] Right click selects files".to_string(), true));
-                    rows.push(("[ ] Sort folder names by extension".to_string(), true));
+                    rows.push((
+                        format!(
+                            "[{}] Highlight files",
+                            if settings.highlight_files { "x" } else { " " }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Select folders",
+                            if settings.select_folders { "x" } else { " " }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Right click selects files",
+                            if settings.right_click_selects_files {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Sort folder names by extension",
+                            if settings.sort_folder_names_by_extension {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
                     rows.push((
                         format!(
                             "[{}] Allow reverse sort modes",
@@ -1594,27 +1768,147 @@ pub fn render_popup(
                         false,
                     ));
                     rows.push((
-                        "Disable automatic panel update if object count exceeds: [ 0 ]".to_string(),
+                        format!(
+                            "Disable automatic panel update if object count exceeds: [ {} ]",
+                            settings.disable_panel_update_object_count
+                        ),
                         true,
                     ));
-                    rows.push(("[ ] Network drives autorefresh".to_string(), true));
-                    rows.push(("[x] Show column titles".to_string(), true));
-                    rows.push(("[x] Show status line".to_string(), true));
-                    rows.push(("[ ] Detect volume mount points".to_string(), true));
-                    rows.push(("[x] Show files total information".to_string(), true));
-                    rows.push(("[ ] Show free size".to_string(), true));
-                    rows.push(("[ ] Show scrollbar".to_string(), true));
-                    rows.push(("[x] Show background screens number".to_string(), true));
-                    rows.push(("[x] Show sort mode letter".to_string(), true));
-                    rows.push(("[ ] Show \"..\" in root folders".to_string(), true));
-                    rows.push(("InfoPanel settings:".to_string(), true));
-                    rows.push(("  [ ] Show power status".to_string(), true));
-                    rows.push(("  [x] Show CD drive parameters".to_string(), true));
                     rows.push((
-                        "  Computer name format: < Physical NetBIOS >".to_string(),
+                        format!(
+                            "[{}] Network drives autorefresh",
+                            if settings.network_drives_autorefresh {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
-                    rows.push(("  User name format: < Logon name >".to_string(), true));
+                    rows.push((
+                        format!(
+                            "[{}] Show column titles",
+                            if settings.show_column_titles {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show status line",
+                            if settings.show_status_line { "x" } else { " " }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Detect volume mount points",
+                            if settings.detect_volume_mount_points {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show files total information",
+                            if settings.show_files_total_information {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show free size",
+                            if settings.show_free_size { "x" } else { " " }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show scrollbar",
+                            if settings.show_scrollbar { "x" } else { " " }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show background screens number",
+                            if settings.show_background_screens_number {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show sort mode letter",
+                            if settings.show_sort_mode_letter {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show \"..\" in root folders",
+                            if settings.show_dotdot_in_root_folders {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push(("InfoPanel settings:".to_string(), true));
+                    rows.push((
+                        format!(
+                            "  [{}] Show power status",
+                            if settings.infopanel_show_power_status {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Show CD drive parameters",
+                            if settings.infopanel_show_cd_drive_parameters {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Computer name format: < {} >",
+                            settings.infopanel_computer_name_format
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  User name format: < {} >",
+                            settings.infopanel_user_name_format
+                        ),
+                        true,
+                    ));
                     rows.push((
                         "Groups of file masks: [Ins/Del/F4/F7/Ctrl+R]".to_string(),
                         true,
@@ -1624,78 +1918,419 @@ pub fn render_popup(
                         true,
                     ));
                     rows.push(("File descriptions:".to_string(), true));
-                    rows.push(("  Names: [ Descript.ion,Files.bbs ]".to_string(), true));
                     rows.push((
-                        "  [x] Set \"hidden\" attribute to new lists".to_string(),
+                        format!("  Names: [ {} ]", settings.file_descriptions_list_names),
                         true,
                     ));
-                    rows.push(("  [ ] Update read only description file".to_string(), true));
-                    rows.push(("  Position of new descriptions: [ 0 ]".to_string(), true));
-                    rows.push(("  Update mode: ( ) Do not update  (•) Update if displayed  ( ) Always update".to_string(), true));
-                    rows.push(("  [ ] Use ANSI code page by default".to_string(), true));
-                    rows.push(("  [ ] Save in UTF-8".to_string(), true));
                     rows.push((
-                        "Folder description list names: [ DirInfo,File_Id.diz,... ]".to_string(),
+                        format!(
+                            "  [{}] Set \"hidden\" attribute to new lists",
+                            if settings.file_descriptions_set_hidden {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Update read only description file",
+                            if settings.file_descriptions_update_readonly {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Position of new descriptions: [ {} ]",
+                            settings.file_descriptions_position
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Update mode: < {} >",
+                            settings.file_descriptions_update_mode
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Use ANSI code page by default",
+                            if settings.file_descriptions_use_ansi {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Save in UTF-8",
+                            if settings.file_descriptions_save_utf8 {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "Folder description list names: [ {} ]",
+                            settings.folder_description_list_names
+                        ),
                         true,
                     ));
                 }
                 2 => {
-                    rows.push(("[ ] Clock".to_string(), true));
+                    rows.push((
+                        format!(
+                            "[{}] Clock",
+                            if settings.interface_clock { "x" } else { " " }
+                        ),
+                        true,
+                    ));
                     rows.push((
                         format!("[{}] Mouse", if settings.mouse_support { "x" } else { " " }),
                         false,
                     ));
-                    rows.push(("[ ] Show key bar".to_string(), true));
-                    rows.push(("[ ] Always show the menu bar".to_string(), true));
-                    rows.push(("Screen saver: [ 5 ] minutes".to_string(), true));
-                    rows.push(("[ ] Show total copy progress indicator".to_string(), true));
-                    rows.push(("[ ] Show copying time information".to_string(), true));
-                    rows.push(("[ ] Show total delete progress indicator".to_string(), true));
-                    rows.push(("[ ] Use Ctrl+PgUp to change drive".to_string(), true));
-                    rows.push(("[ ] Use Virtual Terminal for rendering".to_string(), true));
-                    rows.push(("[ ] Fullwidth-aware rendering".to_string(), true));
-                    rows.push(("[x] ClearType-friendly redraw".to_string(), true));
-                    rows.push(("Console icon: [ 0 ]".to_string(), true));
-                    rows.push(("  [ ] Alternate for Administrator".to_string(), true));
                     rows.push((
-                        "Far window title addons: [ %Ver %Platform %Admin ]".to_string(),
+                        format!(
+                            "[{}] Show key bar",
+                            if settings.interface_show_key_bar {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
+                    rows.push((
+                        format!(
+                            "[{}] Always show the menu bar",
+                            if settings.interface_always_show_menu_bar {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "Screen saver: [ {} ] minutes",
+                            settings.interface_screen_saver_minutes
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show total copy progress indicator",
+                            if settings.interface_show_total_copy_progress {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show copying time information",
+                            if settings.interface_show_copying_time {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Show total delete progress indicator",
+                            if settings.interface_show_total_delete_progress {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Use Ctrl+PgUp to change drive",
+                            if settings.interface_use_ctrl_pgup_change_drive {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Use Virtual Terminal for rendering",
+                            if settings.interface_use_virtual_terminal {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Fullwidth-aware rendering",
+                            if settings.interface_fullwidth_aware_rendering {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] ClearType-friendly redraw",
+                            if settings.interface_cleartype_friendly_redraw {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!("Console icon: [ {} ]", settings.interface_console_icon),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Alternate for Administrator",
+                            if settings.interface_console_icon_admin_alternate {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    if *editing_value && *cursor_idx == 14 {
+                        rows.push((
+                            format!("Far window title addons: [ {}◄ ]", edit_buffer),
+                            false,
+                        ));
+                    } else {
+                        rows.push((
+                            format!(
+                                "Far window title addons: [ {} ]",
+                                settings.interface_window_title_addons
+                            ),
+                            true,
+                        ));
+                    }
                     rows.push(("Dialog settings:".to_string(), true));
-                    rows.push(("  [x] History in dialog edit controls".to_string(), true));
-                    rows.push(("  [ ] Persistent blocks in edit controls".to_string(), true));
                     rows.push((
-                        "  [x] Del removes blocks in edit controls".to_string(),
+                        format!(
+                            "  [{}] History in dialog edit controls",
+                            if settings.dialog_history_in_edit_controls {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
-                    rows.push(("  [x] AutoComplete in edit controls".to_string(), true));
-                    rows.push(("  [ ] Backspace deletes unchanged text".to_string(), true));
-                    rows.push(("  [x] Mouse click outside closes dialog".to_string(), true));
-                    rows.push(("Menu settings:".to_string(), true));
-                    rows.push(("  Left click outside: < Cancel menu >".to_string(), true));
-                    rows.push(("  Right click outside: < Cancel menu >".to_string(), true));
                     rows.push((
-                        "  Middle click outside: < Execute selected >".to_string(),
+                        format!(
+                            "  [{}] Persistent blocks in edit controls",
+                            if settings.dialog_persistent_blocks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Del removes blocks in edit controls",
+                            if settings.dialog_del_removes_blocks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] AutoComplete in edit controls",
+                            if settings.dialog_autocomplete {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Backspace deletes unchanged text",
+                            if settings.dialog_backspace_deletes_unchanged {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Mouse click outside closes dialog",
+                            if settings.dialog_mouse_click_outside_closes {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push(("Menu settings:".to_string(), true));
+                    rows.push((
+                        format!(
+                            "  Left click outside: < {} >",
+                            settings.menu_left_click_outside
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Right click outside: < {} >",
+                            settings.menu_right_click_outside
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Middle click outside: < {} >",
+                            settings.menu_middle_click_outside
+                        ),
                         true,
                     ));
                     rows.push(("Command line settings:".to_string(), true));
-                    rows.push(("  [ ] Persistent blocks".to_string(), true));
-                    rows.push(("  [x] Del removes blocks".to_string(), true));
-                    rows.push(("  [x] AutoComplete".to_string(), true));
-                    rows.push(("  [ ] Set prompt format: [ $p$g ]".to_string(), true));
-                    rows.push(("  [x] Use home dir: [ %FARHOME% ]".to_string(), true));
+                    rows.push((
+                        format!(
+                            "  [{}] Persistent blocks",
+                            if settings.cmdline_persistent_blocks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Del removes blocks",
+                            if settings.cmdline_del_removes_blocks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] AutoComplete",
+                            if settings.cmdline_autocomplete {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Set prompt format: [ {} ]",
+                            settings.cmdline_prompt_format
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!("  Use home dir: [ {} ]", settings.cmdline_use_home_dir),
+                        true,
+                    ));
                     rows.push(("AutoComplete settings:".to_string(), true));
-                    rows.push(("  [x] Show a list".to_string(), true));
-                    rows.push(("    [ ] Modal mode".to_string(), true));
-                    rows.push(("  [ ] Append the first matched item".to_string(), true));
+                    rows.push((
+                        format!(
+                            "  [{}] Show a list",
+                            if settings.autocomplete_show_list {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "    [{}] Modal mode",
+                            if settings.autocomplete_modal_mode {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Append the first matched item",
+                            if settings.autocomplete_append_first {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
                     rows.push((
                         format!("Keybindings preset: < {} >", settings.keybinding_preset),
                         false,
                     ));
                 }
                 3 => {
-                    rows.push(("[ ] Copy".to_string(), true));
-                    rows.push(("[ ] Move".to_string(), true));
+                    rows.push((
+                        format!(
+                            "[{}] Copy",
+                            if settings.confirmations.confirm_copy {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Move",
+                            if settings.confirmations.confirm_move {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
                     rows.push((
                         format!(
                             "[{}] Overwrite and delete R/O files",
@@ -1707,7 +2342,17 @@ pub fn render_popup(
                         ),
                         false,
                     ));
-                    rows.push(("[ ] Drag and drop".to_string(), true));
+                    rows.push((
+                        format!(
+                            "[{}] Drag and drop",
+                            if settings.confirmations.confirm_drag_and_drop {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
                     rows.push((
                         format!(
                             "[{}] Delete",
@@ -1719,14 +2364,94 @@ pub fn render_popup(
                         ),
                         false,
                     ));
-                    rows.push(("[ ] Delete non-empty folders".to_string(), true));
-                    rows.push(("[ ] Interrupt operation".to_string(), true));
-                    rows.push(("[ ] Disconnect network drive".to_string(), true));
-                    rows.push(("[ ] Delete SUBST-disk".to_string(), true));
-                    rows.push(("[ ] Detach virtual disk".to_string(), true));
-                    rows.push(("[ ] HotPlug-device removal".to_string(), true));
-                    rows.push(("[ ] Reload edited file".to_string(), true));
-                    rows.push(("[ ] Clear history list".to_string(), true));
+                    rows.push((
+                        format!(
+                            "[{}] Delete non-empty folders",
+                            if settings.confirmations.confirm_delete_non_empty_folders {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Interrupt operation",
+                            if settings.confirmations.confirm_interrupt_operation {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Disconnect network drive",
+                            if settings.confirmations.confirm_disconnect_network_drive {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Delete SUBST-disk",
+                            if settings.confirmations.confirm_delete_subst_disk {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Detach virtual disk",
+                            if settings.confirmations.confirm_detach_virtual_disk {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] HotPlug-device removal",
+                            if settings.confirmations.confirm_hotplug_removal {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Reload edited file",
+                            if settings.confirmations.confirm_reload_edited_file {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Clear history list",
+                            if settings.confirmations.confirm_clear_history_list {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
                     rows.push((
                         format!(
                             "[{}] Exit",
@@ -1740,24 +2465,101 @@ pub fn render_popup(
                     ));
                 }
                 4 => {
-                    rows.push(("Main language: < English >".to_string(), false));
+                    rows.push((format!("Main language: < {} >", settings.language), false));
                     rows.push((
                         "Plugins configuration: [ArcLite | EMenu | HlfViewer | NetBox]".to_string(),
                         true,
                     ));
                     rows.push(("Plugins manager settings:".to_string(), true));
-                    rows.push(("  [x] OEM plugins support".to_string(), true));
-                    rows.push(("  [x] Scan symbolic links".to_string(), true));
+                    rows.push((
+                        format!(
+                            "  [{}] OEM plugins support",
+                            if settings.plugins_manager_oem_support {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Scan symbolic links",
+                            if settings.plugins_manager_scan_symlinks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
                     rows.push(("  Plugin selection:".to_string(), true));
-                    rows.push(("    [ ] File processing".to_string(), true));
-                    rows.push(("      [ ] Show standard association".to_string(), true));
-                    rows.push(("        [ ] Even if only one plugin".to_string(), true));
-                    rows.push(("    [ ] Search results (SetFindList)".to_string(), true));
-                    rows.push(("    [ ] Prefix processing".to_string(), true));
+                    rows.push((
+                        format!(
+                            "    [{}] File processing",
+                            if settings.plugins_manager_file_processing {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "      [{}] Show standard association",
+                            if settings.plugins_manager_show_standard_association {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "        [{}] Even if only one plugin",
+                            if settings.plugins_manager_even_if_one_found {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "    [{}] Search results (SetFindList)",
+                            if settings.plugins_manager_search_results {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "    [{}] Prefix processing",
+                            if settings.plugins_manager_prefix_processing {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
                 }
                 5 => {
                     rows.push((
-                        "[ ] Use external editor for F4 instead of Alt+F4".to_string(),
+                        format!(
+                            "[{}] Use external editor for F4 instead of Alt+F4",
+                            if settings.editor_use_external {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     if *editing_value && *cursor_idx == 1 {
@@ -1769,79 +2571,343 @@ pub fn render_popup(
                         ));
                     }
                     rows.push(("Internal editor:".to_string(), true));
-                    rows.push(("  Expand tabs: < Do not expand tabs >".to_string(), true));
                     rows.push((
-                        "  [ ] Persistent blocks                  [x] Cursor beyond end"
-                            .to_string(),
+                        format!("  Expand tabs: < {} >", settings.editor_expand_tabs),
                         true,
                     ));
                     rows.push((
-                        "  [x] Del removes blocks                 [ ] Select found".to_string(),
+                        format!(
+                            "  [{}] Persistent blocks",
+                            if settings.editor_persistent_blocks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "  [ ] Auto indent                        [ ] Cursor at the end"
-                            .to_string(),
+                        format!(
+                            "  [{}] Cursor beyond end of line",
+                            if settings.editor_cursor_beyond_eol {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "  Tab size: [ 8 ]                        [ ] Show scrollbar".to_string(),
+                        format!(
+                            "  [{}] Del removes blocks",
+                            if settings.editor_del_removes_blocks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "  [ ] Show white space                   [ ] Show line numbers"
-                            .to_string(),
-                        true,
-                    ));
-                    rows.push(("  [x] Save file position".to_string(), true));
-                    rows.push(("  [x] Save bookmarks".to_string(), true));
-                    rows.push(("  [x] Allow editing files opened".to_string(), true));
-                    rows.push(("  [ ] Lock editing of read-only files".to_string(), true));
-                    rows.push(("  [ ] Warn when opening read-only files".to_string(), true));
-                    rows.push(("  [x] Autodetect code page".to_string(), true));
-                    rows.push((
-                        "  Default code page: < 1252 | ANSI - Latín I >".to_string(),
+                        format!(
+                            "  [{}] Select found",
+                            if settings.editor_select_found {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "[ ] Use external viewer for F3 instead of Alt+F3".to_string(),
+                        format!(
+                            "  [{}] Auto indent",
+                            if settings.editor_auto_indent {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
-                    rows.push(("Viewer command: [ ... ]".to_string(), true));
+                    rows.push((
+                        format!(
+                            "  [{}] Cursor at the end",
+                            if settings.editor_cursor_at_end {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!("  Tab size: [ {} ]", settings.editor_tab_size),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Show scrollbar",
+                            if settings.editor_show_scrollbar {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Show white space",
+                            if settings.editor_show_white_space {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Show line numbers",
+                            if settings.editor_show_line_numbers {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Save file position",
+                            if settings.editor_save_file_position {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Save bookmarks",
+                            if settings.editor_save_bookmarks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Allow editing files opened for writing",
+                            if settings.editor_allow_editing_opened_writing {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Lock editing of read-only files",
+                            if settings.editor_lock_editing_readonly {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Warn when opening read-only files",
+                            if settings.editor_warn_opening_readonly {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Autodetect code page",
+                            if settings.editor_autodetect_codepage {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Default code page: < {} >",
+                            settings.editor_default_codepage
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "[{}] Use external viewer for F3 instead of Alt+F3",
+                            if settings.viewer_use_external {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    if *editing_value && *cursor_idx == 22 {
+                        rows.push((format!("Viewer command: [ {}◄ ]", edit_buffer), false));
+                    } else {
+                        rows.push((
+                            format!("Viewer command: [ {} ]", settings.viewer_command),
+                            true,
+                        ));
+                    }
                     rows.push(("Internal viewer:".to_string(), true));
                     rows.push((
-                        "  [x] Persistent selection               [x] Show scrolling arrows"
-                            .to_string(),
+                        format!(
+                            "  [{}] Persistent selection",
+                            if settings.viewer_persistent_selection {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "  Tab size: [ 8 ]                        [ ] Visible '\\0'".to_string(),
+                        format!(
+                            "  [{}] Show scrolling arrows",
+                            if settings.viewer_show_scrolling_arrows {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "                                         [ ] Show scrollbar".to_string(),
+                        format!("  Tab size: [ {} ]", settings.viewer_tab_size),
                         true,
                     ));
                     rows.push((
-                        "  [x] Save file position                 [x] Save view mode".to_string(),
+                        format!(
+                            "  [{}] Visible '\\0'",
+                            if settings.viewer_visible_zero {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "  [x] Save file code page                [ ] Save wrap mode".to_string(),
+                        format!(
+                            "  [{}] Show scrollbar",
+                            if settings.viewer_show_scrollbar {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "  [x] Save bookmarks                     [x] Detect dump view mode"
-                            .to_string(),
+                        format!(
+                            "  [{}] Save file position",
+                            if settings.viewer_save_file_position {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "  Maximum line width: [ 10000 ]          [x] Autodetect code page"
-                            .to_string(),
+                        format!(
+                            "  [{}] Save view mode",
+                            if settings.viewer_save_view_mode {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
                         true,
                     ));
                     rows.push((
-                        "  Default code page: < 1252 | ANSI - Latín I >".to_string(),
+                        format!(
+                            "  [{}] Save file code page",
+                            if settings.viewer_save_file_codepage {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Save wrap mode",
+                            if settings.viewer_save_wrap_mode {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Save bookmarks",
+                            if settings.viewer_save_bookmarks {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Detect dump view mode",
+                            if settings.viewer_detect_dump_view_mode {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Maximum line width: [ {} ]",
+                            settings.viewer_max_line_width
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  [{}] Autodetect code page",
+                            if settings.viewer_autodetect_codepage {
+                                "x"
+                            } else {
+                                " "
+                            }
+                        ),
+                        true,
+                    ));
+                    rows.push((
+                        format!(
+                            "  Default code page: < {} >",
+                            settings.viewer_default_codepage
+                        ),
                         true,
                     ));
                     rows.push(("Code pages list: [Ctrl+H Ins Del F4]".to_string(), true));
