@@ -1562,7 +1562,7 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
@@ -1573,7 +1573,7 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
@@ -1584,7 +1584,7 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
@@ -1595,7 +1595,7 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
@@ -1639,7 +1639,7 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
@@ -1650,9 +1650,9 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
-                    rows.push(("Request administrator rights:".to_string(), true));
+                    rows.push(("Request administrator rights:".to_string(), false));
                     rows.push((
                         format!(
                             "  [{}] For modification",
@@ -1662,14 +1662,14 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
                             "  [{}] For reading",
                             if settings.req_admin_reading { "x" } else { " " }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
@@ -1680,11 +1680,11 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!("Sorting collation: < {} >", settings.sorting_collation),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
@@ -1695,7 +1695,7 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
@@ -1706,14 +1706,14 @@ pub fn render_popup(
                                 " "
                             }
                         ),
-                        true,
+                        false,
                     ));
                     rows.push((
                         format!(
                             "[{}] Auto save setup",
                             if settings.auto_save_setup { "x" } else { " " }
                         ),
-                        true,
+                        false,
                     ));
                 }
                 1 => {

@@ -41,7 +41,11 @@ pub fn handle(
                 if src_paths.len() == 1 {
                     // Single item: use the input string as the new filename
                     let dst = dest_dir.join(&input);
-                    if let Err(e) = crate::fs::rename_or_move_sync(&src_paths[0], &dst) {
+                    if let Err(e) = crate::fs::rename_or_move_sync(
+                        &src_paths[0],
+                        &dst,
+                        context.config.settings.req_admin_modification,
+                    ) {
                         state.active_popup = Some(PopupType::Error(format!("Move failed: {}", e)));
                     }
                 } else {
@@ -49,7 +53,11 @@ pub fn handle(
                     for src in &src_paths {
                         if let Some(fname) = src.file_name() {
                             let dst = dest_dir.join(fname);
-                            if let Err(e) = crate::fs::rename_or_move_sync(src, &dst) {
+                            if let Err(e) = crate::fs::rename_or_move_sync(
+                                src,
+                                &dst,
+                                context.config.settings.req_admin_modification,
+                            ) {
                                 state.active_popup =
                                     Some(PopupType::Error(format!("Move failed: {}", e)));
                                 break;

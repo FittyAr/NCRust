@@ -25,7 +25,10 @@ pub fn handle(
             KeyCode::Enter => {
                 if !input.is_empty() {
                     let path = state.get_active_panel().current_path.join(input);
-                    if let Err(e) = crate::fs::create_directory(&path) {
+                    if let Err(e) = crate::fs::create_directory(
+                        &path,
+                        context.config.settings.req_admin_modification,
+                    ) {
                         state.active_popup =
                             Some(PopupType::Error(format!("Directory error: {}", e)));
                     } else {

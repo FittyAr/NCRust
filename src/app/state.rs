@@ -503,6 +503,12 @@ pub struct AppState {
 
     // ── Selection snapshot for RestoreSelection ───────────────────────────────
     pub last_selection_snapshot: HashSet<PathBuf>,
+
+    // ── System settings ───────────────────────────────────────────────────────
+    pub case_sensitive_sort: bool,
+    pub treat_digits_as_numbers: bool,
+    pub sorting_collation: String,
+    pub req_admin_reading: bool,
 }
 
 impl AppState {
@@ -524,6 +530,10 @@ impl AppState {
             folders_history: Vec::new(),
             folder_shortcuts: HashMap::new(),
             last_selection_snapshot: HashSet::new(),
+            case_sensitive_sort: false,
+            treat_digits_as_numbers: false,
+            sorting_collation: "linguistic".to_string(),
+            req_admin_reading: false,
         }
     }
 
@@ -617,7 +627,14 @@ impl AppState {
     /// Refreshes directories inside left and right panels.
     pub fn refresh_both_panels(&mut self, show_hidden: bool) {
         let left_path = self.left_panel.current_path.clone();
-        if let Ok(entries) = fs::read_directory(&left_path, show_hidden) {
+        if let Ok(entries) = fs::read_directory(
+            &left_path,
+            show_hidden,
+            self.case_sensitive_sort,
+            self.treat_digits_as_numbers,
+            &self.sorting_collation,
+            self.req_admin_reading,
+        ) {
             self.left_panel.entries = entries;
             if self.left_panel.cursor_index >= self.left_panel.entries.len() {
                 self.left_panel.cursor_index = self.left_panel.entries.len().saturating_sub(1);
@@ -625,7 +642,14 @@ impl AppState {
         }
 
         let right_path = self.right_panel.current_path.clone();
-        if let Ok(entries) = fs::read_directory(&right_path, show_hidden) {
+        if let Ok(entries) = fs::read_directory(
+            &right_path,
+            show_hidden,
+            self.case_sensitive_sort,
+            self.treat_digits_as_numbers,
+            &self.sorting_collation,
+            self.req_admin_reading,
+        ) {
             self.right_panel.entries = entries;
             if self.right_panel.cursor_index >= self.right_panel.entries.len() {
                 self.right_panel.cursor_index = self.right_panel.entries.len().saturating_sub(1);

@@ -49,7 +49,7 @@ pub async fn handle_action(
             state.get_active_panel_mut().move_cursor_down();
         }
         Action::Execute => {
-            handle_enter_key(state, context.config.settings.show_hidden);
+            handle_enter_key(state, context);
             state.refresh_both_panels(context.config.settings.show_hidden);
         }
         Action::GoParent => {
@@ -78,7 +78,8 @@ pub async fn handle_action(
 
                 if let Some(ref r) = rule {
                     let cmd = r.resolve_view_cmd(&path);
-                    if let Err(e) = execute_external_command(&path, &cmd, terminal_backend) {
+                    if let Err(e) = execute_external_command(&path, &cmd, context, terminal_backend)
+                    {
                         state.active_popup =
                             Some(PopupType::Error(format!("Failed to run viewer: {}", e)));
                     }
@@ -125,7 +126,7 @@ pub async fn handle_action(
             let targets = state.get_active_panel().get_targeted_paths();
             if !targets.is_empty() {
                 let dest = state.get_passive_panel().current_path.clone();
-                let rx = crate::fs::spawn_copy_task(targets, dest);
+                let rx = crate::fs::spawn_copy_task(targets, dest, context.config.settings.clone());
                 state.progress_rx = Some(rx);
                 state.active_popup = Some(PopupType::CopyProgress {
                     current_file: "Initializing...".to_string(),
@@ -627,8 +628,13 @@ pub async fn handle_action(
 /// Does NOT drop/recreate TerminalBackend to avoid double-restore.
 pub fn execute_shell_command(
     command_str: &str,
+    context: &AppContext,
     terminal_backend: &mut TerminalBackend,
 ) -> Result<()> {
+    if context.config.settings.automatic_update_env_variables {
+        crate::app::sys_helpers::refresh_env_vars();
+    }
+
     // Suspend TUI: leave alternate screen, disable raw mode
     terminal_backend.terminal.flush()?;
     disable_raw_mode()?;
@@ -671,8 +677,13 @@ pub fn execute_shell_command(
 pub fn execute_external_command(
     _target_path: &Path,
     utility_command: &str,
+    context: &AppContext,
     terminal_backend: &mut TerminalBackend,
 ) -> Result<()> {
+    if context.config.settings.automatic_update_env_variables {
+        crate::app::sys_helpers::refresh_env_vars();
+    }
+
     // Suspend TUI
     terminal_backend.terminal.flush()?;
     disable_raw_mode()?;

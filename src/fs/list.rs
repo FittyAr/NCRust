@@ -3,8 +3,188 @@ use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
 
+#[cfg(target_os = "windows")]
+fn read_directory_as_admin(path: &Path) -> Result<Vec<FileEntry>> {
+    use std::process::Command;
+    let temp_dir = std::env::temp_dir();
+    let temp_file = temp_dir.join(format!("ncrust_dir_{}.txt", std::process::id()));
+    let temp_file_str = temp_file.to_string_lossy().replace('"', "\\\"");
+    let path_str = path.to_string_lossy().replace('"', "\\\"");
+
+    // PowerShell script to run as admin. It will write Name|Length|Mode|LastWriteTime to a temp file.
+    // Mode contains 'd' if it is a directory.
+    let ps_cmd = format!(
+        "Get-ChildItem -Path \\\"{}\\\" -Force | % {{ \\\"$($_.Name)|$($_.Length)|$($_.Mode)|$($_.LastWriteTime.Ticks)\\\" }} | Out-File -FilePath \\\"{}\\\" -Encoding utf8",
+        path_str, temp_file_str
+    );
+
+    let ps_run = format!(
+        "Start-Process powershell -ArgumentList '-NoProfile -Command {}' -Verb RunAs -WindowStyle Hidden -Wait",
+        ps_cmd
+    );
+    let status = Command::new("powershell")
+        .args(&["-NoProfile", "-Command", &ps_run])
+        .status()?;
+
+    if status.success() && temp_file.exists() {
+        let content = std::fs::read_to_string(&temp_file)?;
+        let _ = std::fs::remove_file(&temp_file);
+        let mut entries = Vec::new();
+        for line in content.lines() {
+            let parts: Vec<&str> = line.split('|').collect();
+            if parts.len() >= 4 {
+                let name = parts[0].to_string();
+                let size: u64 = parts[1].parse().unwrap_or(0);
+                let mode = parts[2];
+                let is_dir = mode.contains('d') || mode.contains('D');
+                let ticks: i64 = parts[3].parse().unwrap_or(0);
+
+                let modified = if ticks > 0 {
+                    let epoch_ticks = 621355968000000000i64;
+                    let unix_ticks = ticks - epoch_ticks;
+                    let secs = unix_ticks / 10_000_000;
+                    if secs > 0 {
+                        Some(
+                            std::time::SystemTime::UNIX_EPOCH
+                                + std::time::Duration::from_secs(secs as u64),
+                        )
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+
+                let entry_path = path.join(&name);
+                entries.push(FileEntry {
+                    name,
+                    path: entry_path,
+                    size,
+                    is_dir,
+                    is_symlink: mode.contains('l') || mode.contains('L'),
+                    modified,
+                });
+            }
+        }
+        Ok(entries)
+    } else {
+        anyhow::bail!("Failed to read directory as admin")
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn read_directory_as_admin(path: &Path) -> Result<Vec<FileEntry>> {
+    use std::process::Command;
+    let py_cmd_simple = format!(
+        "import os; [print(f\"{{e.name}}|{{e.stat().st_size}}|{{1 if e.is_dir() else 0}}|{{1 if e.is_symlink() else 0}}|{{int(e.stat().st_mtime)}}\") for e in os.scandir('{}')]",
+        path.to_string_lossy().replace('\'', "\\'")
+    );
+    let output = Command::new("sudo")
+        .args(&["python3", "-c", &py_cmd_simple])
+        .output()?;
+    if output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let mut entries = Vec::new();
+        for line in stdout.lines() {
+            let parts: Vec<&str> = line.split('|').collect();
+            if parts.len() >= 5 {
+                let name = parts[0].to_string();
+                let size: u64 = parts[1].parse().unwrap_or(0);
+                let is_dir = parts[2] == "1";
+                let is_symlink = parts[3] == "1";
+                let mtime: u64 = parts[4].parse().unwrap_or(0);
+                let modified = if mtime > 0 {
+                    Some(std::time::SystemTime::UNIX_EPOCH + std::time::Duration::from_secs(mtime))
+                } else {
+                    None
+                };
+                let entry_path = path.join(&name);
+                entries.push(FileEntry {
+                    name,
+                    path: entry_path,
+                    size,
+                    is_dir,
+                    is_symlink,
+                    modified,
+                });
+            }
+        }
+        return Ok(entries);
+    }
+    anyhow::bail!("Failed to read directory as admin via sudo")
+}
+
+fn cmp_natural(a: &str, b: &str, case_sensitive: bool) -> std::cmp::Ordering {
+    let mut a_chars = a.chars().peekable();
+    let mut b_chars = b.chars().peekable();
+
+    loop {
+        match (a_chars.peek(), b_chars.peek()) {
+            (None, None) => return std::cmp::Ordering::Equal,
+            (None, Some(_)) => return std::cmp::Ordering::Less,
+            (Some(_), None) => return std::cmp::Ordering::Greater,
+            (Some(&ca), Some(&cb)) => {
+                if ca.is_ascii_digit() && cb.is_ascii_digit() {
+                    let mut num_a: u64 = 0;
+                    while let Some(&c) = a_chars.peek() {
+                        if c.is_ascii_digit() {
+                            num_a = num_a
+                                .saturating_mul(10)
+                                .saturating_add(c.to_digit(10).unwrap() as u64);
+                            a_chars.next();
+                        } else {
+                            break;
+                        }
+                    }
+                    let mut num_b: u64 = 0;
+                    while let Some(&c) = b_chars.peek() {
+                        if c.is_ascii_digit() {
+                            num_b = num_b
+                                .saturating_mul(10)
+                                .saturating_add(c.to_digit(10).unwrap() as u64);
+                            b_chars.next();
+                        } else {
+                            break;
+                        }
+                    }
+                    match num_a.cmp(&num_b) {
+                        std::cmp::Ordering::Equal => continue,
+                        ord => return ord,
+                    }
+                } else {
+                    let mut char_a = a_chars.next().unwrap();
+                    let mut char_b = b_chars.next().unwrap();
+                    if !case_sensitive {
+                        char_a = char_a.to_lowercase().next().unwrap_or(char_a);
+                        char_b = char_b.to_lowercase().next().unwrap_or(char_b);
+                    }
+                    match char_a.cmp(&char_b) {
+                        std::cmp::Ordering::Equal => continue,
+                        ord => return ord,
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn cmp_standard(a: &str, b: &str, case_sensitive: bool) -> std::cmp::Ordering {
+    if case_sensitive {
+        a.cmp(b)
+    } else {
+        a.to_lowercase().cmp(&b.to_lowercase())
+    }
+}
+
 /// Reads directory contents and returns a sorted list of FileEntry structs.
-pub fn read_directory(path: &Path, show_hidden: bool) -> Result<Vec<FileEntry>> {
+pub fn read_directory(
+    path: &Path,
+    show_hidden: bool,
+    case_sensitive_sort: bool,
+    treat_digits_as_numbers: bool,
+    _sorting_collation: &str,
+    req_admin_reading: bool,
+) -> Result<Vec<FileEntry>> {
     let mut entries = Vec::new();
 
     // 1. Add ".." parent directory entry if a parent exists
@@ -20,36 +200,51 @@ pub fn read_directory(path: &Path, show_hidden: bool) -> Result<Vec<FileEntry>> 
     }
 
     // 2. Read contents of the directory
-    let read_dir = fs::read_dir(path).context(format!("Failed to read directory: {:?}", path))?;
+    let read_res = fs::read_dir(path);
+    let read_entries = match read_res {
+        Ok(read_dir) => {
+            let mut items = Vec::new();
+            for entry in read_dir.flatten() {
+                let name = entry.file_name().to_string_lossy().into_owned();
 
-    for entry in read_dir.flatten() {
-        let name = entry.file_name().to_string_lossy().into_owned();
+                // Skip hidden files if not enabled in settings
+                if !show_hidden && name.starts_with('.') {
+                    continue;
+                }
 
-        // Skip hidden files if not enabled in settings
-        if !show_hidden && name.starts_with('.') {
-            continue;
+                let metadata = entry.metadata().ok();
+                let is_dir = metadata.as_ref().map(|m| m.is_dir()).unwrap_or(false);
+                let is_symlink = metadata.as_ref().map(|m| m.is_symlink()).unwrap_or(false);
+                let size = metadata.as_ref().map(|m| m.len()).unwrap_or(0);
+                let modified = metadata.and_then(|m| m.modified().ok());
+
+                items.push(FileEntry {
+                    name,
+                    path: entry.path(),
+                    size,
+                    is_dir,
+                    is_symlink,
+                    modified,
+                });
+            }
+            Ok(items)
         }
+        Err(e) => {
+            if req_admin_reading {
+                read_directory_as_admin(path)
+            } else {
+                Err(anyhow::anyhow!(e))
+            }
+        }
+    };
 
-        let metadata = entry.metadata().ok();
-        let is_dir = metadata.as_ref().map(|m| m.is_dir()).unwrap_or(false);
-        let is_symlink = metadata.as_ref().map(|m| m.is_symlink()).unwrap_or(false);
-        let size = metadata.as_ref().map(|m| m.len()).unwrap_or(0);
-        let modified = metadata.and_then(|m| m.modified().ok());
-
-        entries.push(FileEntry {
-            name,
-            path: entry.path(),
-            size,
-            is_dir,
-            is_symlink,
-            modified,
-        });
-    }
+    let mut read_entries = read_entries.context(format!("Failed to read directory: {:?}", path))?;
+    entries.append(&mut read_entries);
 
     // 3. Sort entries:
     //    - Pin ".." parent folder as first element
     //    - Directories come before files
-    //    - Alphabetical sort (case-insensitive) within those categories
+    //    - Respect sorting collation (treat_digits_as_numbers and case_sensitive_sort)
     entries.sort_by(|a, b| {
         if a.name == ".." {
             return std::cmp::Ordering::Less;
@@ -61,9 +256,67 @@ pub fn read_directory(path: &Path, show_hidden: bool) -> Result<Vec<FileEntry>> 
         match (a.is_dir, b.is_dir) {
             (true, false) => std::cmp::Ordering::Less,
             (false, true) => std::cmp::Ordering::Greater,
-            _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
+            _ => {
+                if treat_digits_as_numbers {
+                    cmp_natural(&a.name, &b.name, case_sensitive_sort)
+                } else {
+                    cmp_standard(&a.name, &b.name, case_sensitive_sort)
+                }
+            }
         }
     });
 
     Ok(entries)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cmp_natural() {
+        // Natural sorting: numbers are compared numerically
+        assert_eq!(
+            cmp_natural("file2", "file10", false),
+            std::cmp::Ordering::Less
+        );
+        assert_eq!(
+            cmp_natural("file10", "file2", false),
+            std::cmp::Ordering::Greater
+        );
+        assert_eq!(
+            cmp_natural("file2", "file2", false),
+            std::cmp::Ordering::Equal
+        );
+
+        // Case-insensitive by default in cmp_natural when case_sensitive=false
+        assert_eq!(
+            cmp_natural("File2", "file2", false),
+            std::cmp::Ordering::Equal
+        );
+
+        // Case-sensitive in cmp_natural when case_sensitive=true
+        assert_eq!(
+            cmp_natural("File2", "file2", true),
+            std::cmp::Ordering::Less
+        ); // 'F' < 'f'
+    }
+
+    #[test]
+    fn test_cmp_standard() {
+        // Standard sorting: alphabetical comparison
+        assert_eq!(
+            cmp_standard("file10", "file2", false),
+            std::cmp::Ordering::Less
+        ); // '1' < '2'
+
+        // Case-insensitive standard sorting
+        assert_eq!(
+            cmp_standard("File", "file", false),
+            std::cmp::Ordering::Equal
+        );
+
+        // Case-sensitive standard sorting
+        assert_eq!(cmp_standard("File", "file", true), std::cmp::Ordering::Less); // 'F' < 'f'
+    }
 }

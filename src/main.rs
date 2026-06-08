@@ -38,7 +38,11 @@ async fn main() -> Result<()> {
 
     // 4. Initialize context and state containers
     let context = app::AppContext::new(config);
-    let state = app::AppState::new(current_dir, right_dir);
+    let mut state = app::AppState::new(current_dir, right_dir);
+    state.case_sensitive_sort = context.config.settings.case_sensitive_sort;
+    state.treat_digits_as_numbers = context.config.settings.treat_digits_as_numbers;
+    state.sorting_collation = context.config.settings.sorting_collation.clone();
+    state.req_admin_reading = context.config.settings.req_admin_reading;
 
     // 5. Hand execution over to main loop
     app::run(context, state).await?;

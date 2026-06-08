@@ -15,7 +15,11 @@ pub fn handle(
                 match key.code {
                     KeyCode::Enter => {
                         for path in &paths {
-                            if let Err(e) = crate::fs::delete_sync(path) {
+                            if let Err(e) = crate::fs::delete_sync(
+                                path,
+                                context.config.settings.delete_to_recycle_bin,
+                                context.config.settings.req_admin_modification,
+                            ) {
                                 state.active_popup =
                                     Some(PopupType::Error(format!("Delete failed: {}", e)));
                                 return Ok(None);

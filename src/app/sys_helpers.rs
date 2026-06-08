@@ -369,3 +369,29 @@ pub fn find_next_in_editor(
 
     None
 }
+
+/// Refreshes the current process environment variables from the registry on Windows.
+pub fn refresh_env_vars() {
+    #[cfg(target_os = "windows")]
+    {
+        use std::process::Command;
+        let cmd = "[Environment]::GetEnvironmentVariables('Machine').GetEnumerator() | % { \"$($_.Key)=$($_.Value)\" }; [Environment]::GetEnvironmentVariables('User').GetEnumerator() | % { \"$($_.Key)=$($_.Value)\" }";
+        if let Ok(output) = Command::new("powershell")
+            .args(&["-NoProfile", "-Command", cmd])
+            .output()
+        {
+            if output.status.success() {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                for line in stdout.lines() {
+                    if let Some(pos) = line.find('=') {
+                        let key = &line[..pos];
+                        let val = &line[pos + 1..];
+                        unsafe {
+                            std::env::set_var(key, val);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

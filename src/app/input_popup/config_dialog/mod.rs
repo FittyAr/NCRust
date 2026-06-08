@@ -117,6 +117,10 @@ pub fn handle(
                     if settings.keybinding_preset != context.config.settings.keybinding_preset {
                         change_preset(context, &settings.keybinding_preset);
                     }
+                    state.case_sensitive_sort = settings.case_sensitive_sort;
+                    state.treat_digits_as_numbers = settings.treat_digits_as_numbers;
+                    state.sorting_collation = settings.sorting_collation.clone();
+                    state.req_admin_reading = settings.req_admin_reading;
                     context.config.settings = settings;
                     let _ = context.config.save();
                     state.refresh_both_panels(context.config.settings.show_hidden);
@@ -180,6 +184,10 @@ pub fn handle(
                 if settings.keybinding_preset != context.config.settings.keybinding_preset {
                     change_preset(context, &settings.keybinding_preset);
                 }
+                state.case_sensitive_sort = settings.case_sensitive_sort;
+                state.treat_digits_as_numbers = settings.treat_digits_as_numbers;
+                state.sorting_collation = settings.sorting_collation.clone();
+                state.req_admin_reading = settings.req_admin_reading;
                 context.config.settings = settings;
                 let _ = context.config.save();
                 state.refresh_both_panels(context.config.settings.show_hidden);

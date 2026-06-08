@@ -49,7 +49,7 @@ pub fn handle_cli_input(
                 let cmd = state.cli_input.trim().to_string();
                 state.cli_input.clear();
                 state.push_command_history(cmd.clone());
-                let _ = execute_shell_command(&cmd, terminal_backend);
+                let _ = execute_shell_command(&cmd, context, terminal_backend);
                 state.refresh_both_panels(context.config.settings.show_hidden);
                 return Ok(());
             }
@@ -67,7 +67,7 @@ pub fn handle_cli_input(
 }
 
 /// Enters highlighted directory or open files with standard OS handlers.
-pub fn handle_enter_key(state: &mut AppState, _show_hidden: bool) {
+pub fn handle_enter_key(state: &mut AppState, context: &crate::app::context::AppContext) {
     let mut target_dir = None;
     {
         let active = state.get_active_panel();
@@ -80,27 +80,38 @@ pub fn handle_enter_key(state: &mut AppState, _show_hidden: bool) {
                     .find_rule(&entry.name)
                     .cloned();
 
-                let cmd = if let Some(r) = rule {
-                    r.resolve_open_cmd(&entry.path)
+                let (cmd_to_run, should_spawn) = if let Some(r) = rule {
+                    (Some(r.resolve_open_cmd(&entry.path)), true)
                 } else if cfg!(target_os = "windows") {
-                    format!("start \"\" \"{}\"", path)
+                    if context.config.settings.use_windows_registered_types {
+                        (Some(format!("start \"\" \"{}\"", path)), true)
+                    } else {
+                        (None, false)
+                    }
                 } else {
-                    format!("xdg-open \"{}\" 2>/dev/null", path)
+                    (Some(format!("xdg-open \"{}\" 2>/dev/null", path)), true)
                 };
 
-                let args = if cfg!(target_os = "windows") {
-                    vec!["/c", &cmd]
-                } else {
-                    vec!["-c", &cmd]
-                };
+                if should_spawn {
+                    if let Some(cmd) = cmd_to_run {
+                        if context.config.settings.automatic_update_env_variables {
+                            crate::app::sys_helpers::refresh_env_vars();
+                        }
+                        let args = if cfg!(target_os = "windows") {
+                            vec!["/c", &cmd]
+                        } else {
+                            vec!["-c", &cmd]
+                        };
 
-                let _ = std::process::Command::new(if cfg!(target_os = "windows") {
-                    "cmd"
-                } else {
-                    "sh"
-                })
-                .args(&args)
-                .spawn();
+                        let _ = std::process::Command::new(if cfg!(target_os = "windows") {
+                            "cmd"
+                        } else {
+                            "sh"
+                        })
+                        .args(&args)
+                        .spawn();
+                    }
+                }
             }
         }
     }
