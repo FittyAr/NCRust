@@ -38,8 +38,7 @@ pub fn wipe_file(path: &Path) -> Result<()> {
         }
     }
 
-    std::fs::remove_file(path)
-        .with_context(|| format!("Removing file after wipe: {:?}", path))
+    std::fs::remove_file(path).with_context(|| format!("Removing file after wipe: {:?}", path))
 }
 
 /// Overwrites the entire contents of `path` with the repeating `chunk` pattern.

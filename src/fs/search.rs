@@ -63,9 +63,7 @@ async fn search_recursive(dir: &PathBuf, query: &SearchQuery, tx: &mpsc::Sender<
                 // 2. Optionally check file content
                 let content_matches = match &query.content {
                     None => true,
-                    Some(needle) => {
-                        file_contains(path.as_path(), needle).await
-                    }
+                    Some(needle) => file_contains(path.as_path(), needle).await,
                 };
 
                 if content_matches {

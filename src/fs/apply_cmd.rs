@@ -11,7 +11,10 @@ use tokio::sync::mpsc;
 /// ```
 /// let rx = apply_command("echo %f", vec![PathBuf::from("/tmp/a.txt")]);
 /// ```
-pub fn apply_command(cmd_template: String, targets: Vec<PathBuf>) -> mpsc::Receiver<ProgressUpdate> {
+pub fn apply_command(
+    cmd_template: String,
+    targets: Vec<PathBuf>,
+) -> mpsc::Receiver<ProgressUpdate> {
     let (tx, rx) = mpsc::channel(64);
 
     tokio::spawn(async move {

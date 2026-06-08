@@ -49,8 +49,7 @@ pub fn write_description(dir: &Path, filename: &str, description: &str) -> Resul
     }
 
     let output = lines.join("\n") + if lines.is_empty() { "" } else { "\n" };
-    std::fs::write(&desc_path, output)
-        .with_context(|| format!("Writing {:?}", desc_path))
+    std::fs::write(&desc_path, output).with_context(|| format!("Writing {:?}", desc_path))
 }
 
 // Expose remove_description utility function for full API completeness.

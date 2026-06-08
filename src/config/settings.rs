@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::app::state::{PanelViewMode, SortField};
+use serde::{Deserialize, Serialize};
 
 /// Confirmation settings — which operations require an explicit confirmation dialog.
 #[derive(Debug, Clone, Serialize, Deserialize)]

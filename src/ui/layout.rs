@@ -34,15 +34,13 @@ pub fn calculate_layout(area: Rect, state: &AppState) -> AppLayout {
         .split(area);
 
     // Determine panel width constraints based on individual visibility flags
-    let (left_constraint, right_constraint) = match (
-        state.left_panel_visible,
-        state.right_panel_visible,
-    ) {
-        (true, true) => (Constraint::Percentage(50), Constraint::Percentage(50)),
-        (true, false) => (Constraint::Percentage(100), Constraint::Length(0)),
-        (false, true) => (Constraint::Length(0), Constraint::Percentage(100)),
-        (false, false) => (Constraint::Percentage(50), Constraint::Percentage(50)),
-    };
+    let (left_constraint, right_constraint) =
+        match (state.left_panel_visible, state.right_panel_visible) {
+            (true, true) => (Constraint::Percentage(50), Constraint::Percentage(50)),
+            (true, false) => (Constraint::Percentage(100), Constraint::Length(0)),
+            (false, true) => (Constraint::Length(0), Constraint::Percentage(100)),
+            (false, false) => (Constraint::Percentage(50), Constraint::Percentage(50)),
+        };
 
     let panels_chunks = Layout::default()
         .direction(Direction::Horizontal)

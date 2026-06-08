@@ -8,20 +8,17 @@ use std::path::Path;
 pub fn create_symlink(src: &Path, dest: &Path) -> Result<()> {
     #[cfg(unix)]
     {
-        std::os::unix::fs::symlink(src, dest).with_context(|| {
-            format!("Creating symlink {:?} → {:?}", dest, src)
-        })
+        std::os::unix::fs::symlink(src, dest)
+            .with_context(|| format!("Creating symlink {:?} → {:?}", dest, src))
     }
     #[cfg(windows)]
     {
         if src.is_dir() {
-            std::os::windows::fs::symlink_dir(src, dest).with_context(|| {
-                format!("Creating dir symlink {:?} → {:?}", dest, src)
-            })
+            std::os::windows::fs::symlink_dir(src, dest)
+                .with_context(|| format!("Creating dir symlink {:?} → {:?}", dest, src))
         } else {
-            std::os::windows::fs::symlink_file(src, dest).with_context(|| {
-                format!("Creating file symlink {:?} → {:?}", dest, src)
-            })
+            std::os::windows::fs::symlink_file(src, dest)
+                .with_context(|| format!("Creating file symlink {:?} → {:?}", dest, src))
         }
     }
     #[cfg(not(any(unix, windows)))]
@@ -65,9 +62,6 @@ mod tests {
         create_hardlink(&src, &dest).expect("hardlink should succeed");
         assert!(dest.exists());
         // Both files should have the same content
-        assert_eq!(
-            std::fs::read(&src).unwrap(),
-            std::fs::read(&dest).unwrap()
-        );
+        assert_eq!(std::fs::read(&src).unwrap(), std::fs::read(&dest).unwrap());
     }
 }

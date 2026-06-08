@@ -38,8 +38,7 @@ impl HistoryStore {
             std::fs::create_dir_all(parent).context("Creating cache directory")?;
         }
         let toml_str = toml::to_string_pretty(self).context("Serializing history")?;
-        std::fs::write(&path, toml_str)
-            .with_context(|| format!("Writing history file {:?}", path))
+        std::fs::write(&path, toml_str).with_context(|| format!("Writing history file {:?}", path))
     }
 
     /// Adds a command to the front of the list, removing duplicates and capping at MAX_HISTORY.

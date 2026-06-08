@@ -22,8 +22,7 @@ impl AssocRule {
 
     /// Returns the resolved open command with `%f` substituted by the file path.
     pub fn resolve_open_cmd(&self, path: &std::path::Path) -> String {
-        self.open_cmd
-            .replace("%f", &path.to_string_lossy())
+        self.open_cmd.replace("%f", &path.to_string_lossy())
     }
 
     /// Returns the resolved view command with `%f` substituted by the file path.

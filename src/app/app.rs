@@ -197,7 +197,8 @@ async fn handle_action(
                 if let Some(ref r) = rule {
                     let cmd = r.resolve_view_cmd(&path);
                     if let Err(e) = execute_external_command(&path, &cmd, terminal_backend) {
-                        state.active_popup = Some(PopupType::Error(format!("Failed to run viewer: {}", e)));
+                        state.active_popup =
+                            Some(PopupType::Error(format!("Failed to run viewer: {}", e)));
                     }
                 } else {
                     let viewer = crate::ui::viewer::ViewerState::load(path);
@@ -272,7 +273,11 @@ async fn handle_action(
         Action::CompressFiles => {
             let targets = state.get_active_panel().get_targeted_paths();
             if !targets.is_empty() {
-                let default_name = targets.first().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "archive".to_string());
+                let default_name = targets
+                    .first()
+                    .and_then(|p| p.file_name())
+                    .map(|n| n.to_string_lossy().to_string())
+                    .unwrap_or_else(|| "archive".to_string());
                 let dest_dir = state.get_passive_panel().current_path.clone();
                 state.active_popup = Some(PopupType::CompressPrompt {
                     input: default_name,
@@ -283,7 +288,11 @@ async fn handle_action(
         }
         Action::ExtractArchive => {
             let active = state.get_active_panel();
-            if let Some(entry) = active.entries.get(active.cursor_index).filter(|e| !e.is_dir) {
+            if let Some(entry) = active
+                .entries
+                .get(active.cursor_index)
+                .filter(|e| !e.is_dir)
+            {
                 let dest = state.get_passive_panel().current_path.clone();
                 let rx = crate::fs::spawn_extract_task(entry.path.clone(), dest);
                 state.progress_rx = Some(rx);
@@ -329,8 +338,15 @@ async fn handle_action(
                     "6. Compress".to_string(),
                 ];
                 let has_archive = targets.iter().any(|p| {
-                    let ext = p.extension().and_then(|s| s.to_str()).unwrap_or("").to_lowercase();
-                    matches!(ext.as_str(), "zip" | "7z" | "rar" | "tar" | "gz" | "bz2" | "xz")
+                    let ext = p
+                        .extension()
+                        .and_then(|s| s.to_str())
+                        .unwrap_or("")
+                        .to_lowercase();
+                    matches!(
+                        ext.as_str(),
+                        "zip" | "7z" | "rar" | "tar" | "gz" | "bz2" | "xz"
+                    )
                 });
                 if has_archive {
                     items.push("7. Extract".to_string());
@@ -381,20 +397,44 @@ async fn handle_action(
         }
 
         // ── Panel view modes ────────────────────────────────────────────────────
-        Action::PanelViewBrief => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Brief; }
-        Action::PanelViewMedium => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Medium; }
-        Action::PanelViewFull => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Full; }
-        Action::PanelViewWide => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Wide; }
-        Action::PanelViewDetailed => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Detailed; }
-        Action::PanelViewDescriptions => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Descriptions; }
-        Action::PanelViewFileOwners => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::FileOwners; }
-        Action::PanelViewFileLinks => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::FileLinks; }
-        Action::PanelViewAltFull => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::AltFull; }
+        Action::PanelViewBrief => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Brief;
+        }
+        Action::PanelViewMedium => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Medium;
+        }
+        Action::PanelViewFull => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Full;
+        }
+        Action::PanelViewWide => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Wide;
+        }
+        Action::PanelViewDetailed => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Detailed;
+        }
+        Action::PanelViewDescriptions => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Descriptions;
+        }
+        Action::PanelViewFileOwners => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::FileOwners;
+        }
+        Action::PanelViewFileLinks => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::FileLinks;
+        }
+        Action::PanelViewAltFull => {
+            state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::AltFull;
+        }
 
         // ── Panel visibility ────────────────────────────────────────────────────
-        Action::TogglePanelLeft => { state.left_panel_visible = !state.left_panel_visible; }
-        Action::TogglePanelRight => { state.right_panel_visible = !state.right_panel_visible; }
-        Action::ToggleBothPanels => { state.both_panels_hidden = !state.both_panels_hidden; }
+        Action::TogglePanelLeft => {
+            state.left_panel_visible = !state.left_panel_visible;
+        }
+        Action::TogglePanelRight => {
+            state.right_panel_visible = !state.right_panel_visible;
+        }
+        Action::ToggleBothPanels => {
+            state.both_panels_hidden = !state.both_panels_hidden;
+        }
         Action::ToggleLongNames => {
             let panel = state.get_active_panel_mut();
             panel.show_long_names = !panel.show_long_names;
@@ -407,10 +447,18 @@ async fn handle_action(
             state.quick_view_active = !state.quick_view_active;
             if state.quick_view_active {
                 let active = state.get_active_panel();
-                if let Some(entry) = active.entries.get(active.cursor_index).filter(|e| !e.is_dir) {
+                if let Some(entry) = active
+                    .entries
+                    .get(active.cursor_index)
+                    .filter(|e| !e.is_dir)
+                {
                     let path = entry.path.clone();
                     let content = crate::ui::quickview::load_quick_view_content(&path);
-                    state.active_popup = Some(PopupType::QuickViewPanel { path, content, scroll: 0 });
+                    state.active_popup = Some(PopupType::QuickViewPanel {
+                        path,
+                        content,
+                        scroll: 0,
+                    });
                 }
             } else {
                 if let Some(PopupType::QuickViewPanel { .. }) = state.active_popup {
@@ -468,7 +516,8 @@ async fn handle_action(
                             });
                         }
                         Err(e) => {
-                            state.active_popup = Some(PopupType::Error(format!("Cannot read attrs: {}", e)));
+                            state.active_popup =
+                                Some(PopupType::Error(format!("Cannot read attrs: {}", e)));
                         }
                     }
                 }
@@ -487,11 +536,9 @@ async fn handle_action(
             let active = state.get_active_panel();
             if let Some(entry) = active.entries.get(active.cursor_index) {
                 if entry.name != ".." {
-                    let current_desc = crate::fs::read_description(
-                        &active.current_path.clone(),
-                        &entry.name,
-                    )
-                    .unwrap_or_default();
+                    let current_desc =
+                        crate::fs::read_description(&active.current_path.clone(), &entry.name)
+                            .unwrap_or_default();
                     state.active_popup = Some(PopupType::DescribeFilePrompt {
                         path: entry.path.clone(),
                         current_desc: current_desc.clone(),
@@ -502,7 +549,11 @@ async fn handle_action(
         }
         Action::ArchiveCommands => {
             let active = state.get_active_panel();
-            if let Some(entry) = active.entries.get(active.cursor_index).filter(|e| !e.is_dir) {
+            if let Some(entry) = active
+                .entries
+                .get(active.cursor_index)
+                .filter(|e| !e.is_dir)
+            {
                 state.active_popup = Some(PopupType::ArchiveCommandsMenu {
                     archive_path: entry.path.clone(),
                     items: vec![
@@ -558,15 +609,24 @@ async fn handle_action(
         }
         Action::CommandHistory => {
             let entries = state.command_history.clone();
-            state.active_popup = Some(PopupType::CommandHistoryList { entries, cursor_idx: 0 });
+            state.active_popup = Some(PopupType::CommandHistoryList {
+                entries,
+                cursor_idx: 0,
+            });
         }
         Action::FileViewHistory => {
             let entries = state.file_view_history.clone();
-            state.active_popup = Some(PopupType::FileViewHistoryList { entries, cursor_idx: 0 });
+            state.active_popup = Some(PopupType::FileViewHistoryList {
+                entries,
+                cursor_idx: 0,
+            });
         }
         Action::FoldersHistory => {
             let entries = state.folders_history.clone();
-            state.active_popup = Some(PopupType::FoldersHistoryList { entries, cursor_idx: 0 });
+            state.active_popup = Some(PopupType::FoldersHistoryList {
+                entries,
+                cursor_idx: 0,
+            });
         }
 
         // ── Commands ────────────────────────────────────────────────────────────
@@ -577,12 +637,20 @@ async fn handle_action(
                 Ok(diff) => {
                     for entry in &diff {
                         if entry.status != crate::fs::CompareStatus::Equal {
-                            if let Some(e) = state.left_panel.entries.iter().find(|e| e.name == entry.name) {
+                            if let Some(e) = state
+                                .left_panel
+                                .entries
+                                .iter()
+                                .find(|e| e.name == entry.name)
+                            {
                                 state.left_panel.selected_paths.insert(e.path.clone());
                             }
                         }
                     }
-                    state.active_popup = Some(PopupType::CompareFoldersResult { diff, cursor_idx: 0 });
+                    state.active_popup = Some(PopupType::CompareFoldersResult {
+                        diff,
+                        cursor_idx: 0,
+                    });
                 }
                 Err(e) => {
                     state.active_popup = Some(PopupType::Error(format!("Compare failed: {}", e)));
@@ -609,21 +677,32 @@ async fn handle_action(
             });
         }
         Action::FilePanelFilter => {
-            let current = state.get_active_panel().filter_mask.clone().unwrap_or_default();
+            let current = state
+                .get_active_panel()
+                .filter_mask
+                .clone()
+                .unwrap_or_default();
             state.active_popup = Some(PopupType::FilePanelFilterPrompt { input: current });
         }
         Action::TaskList => {
             let tasks = get_process_list();
-            state.active_popup = Some(PopupType::TaskListDialog { tasks, cursor_idx: 0 });
+            state.active_popup = Some(PopupType::TaskListDialog {
+                tasks,
+                cursor_idx: 0,
+            });
         }
 
         Action::SaveSetup => {
             state.active_popup = Some(PopupType::SaveSetupConfirm);
         }
         Action::SystemSettings => {
-            state.active_popup = Some(PopupType::Info(
-                "System settings: edit ~/.config/ncrust/config.toml directly.".to_string(),
-            ));
+            state.active_popup = Some(PopupType::ConfigurationDialog {
+                active_tab: 0,
+                cursor_idx: 0,
+                editing_value: false,
+                edit_buffer: String::new(),
+                settings: context.config.settings.clone(),
+            });
         }
 
         // ── Folder shortcuts navigation ──────────────────────────────────────────
@@ -635,21 +714,28 @@ async fn handle_action(
                 panel.selected_paths.clear();
                 state.refresh_both_panels(context.config.settings.show_hidden);
             } else {
-                state.active_popup = Some(PopupType::Info(
-                    format!("No folder shortcut assigned to Ctrl+Alt+{}", n),
-                ));
+                state.active_popup = Some(PopupType::Info(format!(
+                    "No folder shortcut assigned to Ctrl+Alt+{}",
+                    n
+                )));
             }
         }
 
         // ── Stubs ─────────────────────────────────────────────────────────────
         Action::PluginMenu => {
-            state.active_popup = Some(PopupType::Info("Plugin system: not yet implemented.".to_string()));
+            state.active_popup = Some(PopupType::Info(
+                "Plugin system: not yet implemented.".to_string(),
+            ));
         }
         Action::ScreensList => {
-            state.active_popup = Some(PopupType::Info("Screens list: not yet implemented.".to_string()));
+            state.active_popup = Some(PopupType::Info(
+                "Screens list: not yet implemented.".to_string(),
+            ));
         }
         Action::VideoMode => {
-            state.active_popup = Some(PopupType::Info("Video mode: resize your terminal manually.".to_string()));
+            state.active_popup = Some(PopupType::Info(
+                "Video mode: resize your terminal manually.".to_string(),
+            ));
         }
     }
     Ok(())
@@ -774,27 +860,40 @@ fn handle_popup_input(
                         state.active_popup = None;
                         let (tx, rx) = tokio::sync::mpsc::channel(100);
                         tokio::spawn(async move {
-                            let _ = tx.send(crate::fs::ProgressUpdate {
-                                current_file: "Downloading 7z...".to_string(),
-                                files_copied: 0,
-                                total_files: 1,
-                                bytes_copied: 0,
-                                total_bytes: 1,
-                                error: None,
-                            }).await;
-
-                            if let Err(e) = crate::fs::external_tools::ensure_external_tools().await {
-                                let _ = tx.send(crate::fs::ProgressUpdate {
-                                    current_file: "Completed".to_string(),
-                                    files_copied: 0, total_files: 1, bytes_copied: 0, total_bytes: 1,
-                                    error: Some(format!("Failed to download: {}", e)),
-                                }).await;
-                            } else {
-                                let _ = tx.send(crate::fs::ProgressUpdate {
-                                    current_file: "Completed".to_string(),
-                                    files_copied: 1, total_files: 1, bytes_copied: 1, total_bytes: 1,
+                            let _ = tx
+                                .send(crate::fs::ProgressUpdate {
+                                    current_file: "Downloading 7z...".to_string(),
+                                    files_copied: 0,
+                                    total_files: 1,
+                                    bytes_copied: 0,
+                                    total_bytes: 1,
                                     error: None,
-                                }).await;
+                                })
+                                .await;
+
+                            if let Err(e) = crate::fs::external_tools::ensure_external_tools().await
+                            {
+                                let _ = tx
+                                    .send(crate::fs::ProgressUpdate {
+                                        current_file: "Completed".to_string(),
+                                        files_copied: 0,
+                                        total_files: 1,
+                                        bytes_copied: 0,
+                                        total_bytes: 1,
+                                        error: Some(format!("Failed to download: {}", e)),
+                                    })
+                                    .await;
+                            } else {
+                                let _ = tx
+                                    .send(crate::fs::ProgressUpdate {
+                                        current_file: "Completed".to_string(),
+                                        files_copied: 1,
+                                        total_files: 1,
+                                        bytes_copied: 1,
+                                        total_bytes: 1,
+                                        error: None,
+                                    })
+                                    .await;
                             }
                         });
 
@@ -824,8 +923,12 @@ fn handle_popup_input(
                 let term_height = crossterm::terminal::size().map(|(_, h)| h).unwrap_or(24);
                 let edit_height = ((term_height as u16 * 90 / 100).saturating_sub(3)) as usize;
 
-                let is_ctrl = key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL);
-                let is_shift = key.modifiers.contains(crossterm::event::KeyModifiers::SHIFT);
+                let is_ctrl = key
+                    .modifiers
+                    .contains(crossterm::event::KeyModifiers::CONTROL);
+                let is_shift = key
+                    .modifiers
+                    .contains(crossterm::event::KeyModifiers::SHIFT);
 
                 match key.code {
                     crossterm::event::KeyCode::Char(c) if !is_ctrl => {
@@ -950,17 +1053,20 @@ fn handle_popup_input(
                     crossterm::event::KeyCode::Char('r') if is_ctrl => {
                         match std::fs::read_to_string(&path) {
                             Ok(content) => {
-                                let reloaded_lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
+                                let reloaded_lines: Vec<String> =
+                                    content.lines().map(|s| s.to_string()).collect();
                                 lines = if reloaded_lines.is_empty() {
                                     vec![String::new()]
                                 } else {
                                     reloaded_lines
                                 };
-                                cursor_x = cursor_x.min(lines.get(cursor_y).map(|l| l.len()).unwrap_or(0));
+                                cursor_x =
+                                    cursor_x.min(lines.get(cursor_y).map(|l| l.len()).unwrap_or(0));
                                 is_dirty = false;
                             }
                             Err(e) => {
-                                state.active_popup = Some(PopupType::Error(format!("Failed to reload: {}", e)));
+                                state.active_popup =
+                                    Some(PopupType::Error(format!("Failed to reload: {}", e)));
                                 return Ok(None);
                             }
                         }
@@ -968,24 +1074,29 @@ fn handle_popup_input(
                     crossterm::event::KeyCode::Char('d') if is_ctrl => {
                         match std::fs::read_to_string(&path) {
                             Ok(content) => {
-                                let reloaded_lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
+                                let reloaded_lines: Vec<String> =
+                                    content.lines().map(|s| s.to_string()).collect();
                                 lines = if reloaded_lines.is_empty() {
                                     vec![String::new()]
                                 } else {
                                     reloaded_lines
                                 };
-                                cursor_x = cursor_x.min(lines.get(cursor_y).map(|l| l.len()).unwrap_or(0));
+                                cursor_x =
+                                    cursor_x.min(lines.get(cursor_y).map(|l| l.len()).unwrap_or(0));
                                 is_dirty = false;
                             }
                             Err(e) => {
-                                state.active_popup = Some(PopupType::Error(format!("Failed to reload: {}", e)));
+                                state.active_popup =
+                                    Some(PopupType::Error(format!("Failed to reload: {}", e)));
                                 return Ok(None);
                             }
                         }
                     }
                     crossterm::event::KeyCode::F(7) if is_shift => {
                         if let Some(ref q) = last_search {
-                            if let Some((found_x, found_y)) = find_next_in_editor(&lines, cursor_x, cursor_y, q) {
+                            if let Some((found_x, found_y)) =
+                                find_next_in_editor(&lines, cursor_x, cursor_y, q)
+                            {
                                 cursor_x = found_x;
                                 cursor_y = found_y;
                                 if cursor_y < scroll_y || cursor_y >= scroll_y + edit_height {
@@ -1022,7 +1133,9 @@ fn handle_popup_input(
                     }
                     crossterm::event::KeyCode::F(3) => {
                         if let Some(ref q) = last_search {
-                            if let Some((found_x, found_y)) = find_next_in_editor(&lines, cursor_x, cursor_y, q) {
+                            if let Some((found_x, found_y)) =
+                                find_next_in_editor(&lines, cursor_x, cursor_y, q)
+                            {
                                 cursor_x = found_x;
                                 cursor_y = found_y;
                                 if cursor_y < scroll_y || cursor_y >= scroll_y + edit_height {
@@ -1061,7 +1174,9 @@ fn handle_popup_input(
                 let term_height = crossterm::terminal::size().map(|(_, h)| h).unwrap_or(24);
                 let edit_height = ((term_height as u16 * 90 / 100).saturating_sub(3)) as usize;
 
-                let is_ctrl = key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL);
+                let is_ctrl = key
+                    .modifiers
+                    .contains(crossterm::event::KeyModifiers::CONTROL);
 
                 match key.code {
                     crossterm::event::KeyCode::Char(c) if !is_ctrl => {
@@ -1085,11 +1200,15 @@ fn handle_popup_input(
                     crossterm::event::KeyCode::Enter => {
                         let q = query.clone();
                         if !q.is_empty() {
-                            if let Some((found_x, found_y)) = find_next_in_editor(&lines, cursor_x, cursor_y, &q) {
+                            if let Some((found_x, found_y)) =
+                                find_next_in_editor(&lines, cursor_x, cursor_y, &q)
+                            {
                                 let new_cursor_x = found_x;
                                 let new_cursor_y = found_y;
                                 let mut new_scroll_y = scroll_y;
-                                if new_cursor_y < new_scroll_y || new_cursor_y >= new_scroll_y + edit_height {
+                                if new_cursor_y < new_scroll_y
+                                    || new_cursor_y >= new_scroll_y + edit_height
+                                {
                                     new_scroll_y = new_cursor_y.saturating_sub(edit_height / 2);
                                 }
                                 state.active_popup = Some(PopupType::InternalEditor {
@@ -1103,7 +1222,8 @@ fn handle_popup_input(
                                 });
                             } else {
                                 // Show "Text not found" popup message to satisfy the request.
-                                state.active_popup = Some(PopupType::Error("Text not found".to_string()));
+                                state.active_popup =
+                                    Some(PopupType::Error("Text not found".to_string()));
                             }
                         } else {
                             state.active_popup = Some(PopupType::InternalEditor {
@@ -1391,10 +1511,8 @@ fn handle_popup_input(
                                 if let Some(fname) = src.file_name() {
                                     let dst = dest_dir.join(fname);
                                     if let Err(e) = crate::fs::rename_or_move_sync(src, &dst) {
-                                        state.active_popup = Some(PopupType::Error(format!(
-                                            "Move failed: {}",
-                                            e
-                                        )));
+                                        state.active_popup =
+                                            Some(PopupType::Error(format!("Move failed: {}", e)));
                                         break;
                                     }
                                 }
@@ -1420,7 +1538,9 @@ fn handle_popup_input(
                 focus_content,
             } => {
                 match key.code {
-                    crossterm::event::KeyCode::Tab | crossterm::event::KeyCode::Up | crossterm::event::KeyCode::Down => {
+                    crossterm::event::KeyCode::Tab
+                    | crossterm::event::KeyCode::Up
+                    | crossterm::event::KeyCode::Down => {
                         state.active_popup = Some(PopupType::SearchPrompt {
                             query: query.clone(),
                             content_query: content_query.clone(),
@@ -1466,7 +1586,11 @@ fn handle_popup_input(
                         let c_q = content_query.clone();
                         let search_root = search_root.clone();
                         if !q.is_empty() || !c_q.is_empty() {
-                            let results = search_files_recursive(&search_root, &q, if c_q.is_empty() { None } else { Some(&c_q) });
+                            let results = search_files_recursive(
+                                &search_root,
+                                &q,
+                                if c_q.is_empty() { None } else { Some(&c_q) },
+                            );
                             state.active_popup = Some(PopupType::SearchResults {
                                 query: if q.is_empty() { c_q } else { q },
                                 results,
@@ -1770,18 +1894,27 @@ fn handle_popup_input(
                 }
                 return Err(());
             }
-            PopupType::SelectGroupPrompt { ref mode, ref query } => {
+            PopupType::SelectGroupPrompt {
+                ref mode,
+                ref query,
+            } => {
                 match key.code {
                     crossterm::event::KeyCode::Char(c) => {
                         let mut new_q = query.clone();
                         new_q.push(c);
-                        state.active_popup = Some(PopupType::SelectGroupPrompt { mode: mode.clone(), query: new_q });
+                        state.active_popup = Some(PopupType::SelectGroupPrompt {
+                            mode: mode.clone(),
+                            query: new_q,
+                        });
                         return Ok(None);
                     }
                     crossterm::event::KeyCode::Backspace => {
                         let mut new_q = query.clone();
                         new_q.pop();
-                        state.active_popup = Some(PopupType::SelectGroupPrompt { mode: mode.clone(), query: new_q });
+                        state.active_popup = Some(PopupType::SelectGroupPrompt {
+                            mode: mode.clone(),
+                            query: new_q,
+                        });
                         return Ok(None);
                     }
                     crossterm::event::KeyCode::Enter => {
@@ -1789,28 +1922,44 @@ fn handle_popup_input(
                         let query = query.clone();
                         state.active_popup = None;
                         match mode {
-                            crate::app::state::SelectMode::Add => state.get_active_panel_mut().select_group(&query),
-                            crate::app::state::SelectMode::Remove => state.get_active_panel_mut().unselect_group(&query),
+                            crate::app::state::SelectMode::Add => {
+                                state.get_active_panel_mut().select_group(&query)
+                            }
+                            crate::app::state::SelectMode::Remove => {
+                                state.get_active_panel_mut().unselect_group(&query)
+                            }
                         }
                         return Ok(None);
                     }
-                    crossterm::event::KeyCode::Esc => { state.active_popup = None; return Ok(None); }
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
                     _ => {}
                 }
                 return Err(());
             }
-            PopupType::ApplyCommandPrompt { ref input, ref targets } => {
+            PopupType::ApplyCommandPrompt {
+                ref input,
+                ref targets,
+            } => {
                 match key.code {
                     crossterm::event::KeyCode::Char(c) => {
                         let mut new_input = input.clone();
                         new_input.push(c);
-                        state.active_popup = Some(PopupType::ApplyCommandPrompt { input: new_input, targets: targets.clone() });
+                        state.active_popup = Some(PopupType::ApplyCommandPrompt {
+                            input: new_input,
+                            targets: targets.clone(),
+                        });
                         return Ok(None);
                     }
                     crossterm::event::KeyCode::Backspace => {
                         let mut new_input = input.clone();
                         new_input.pop();
-                        state.active_popup = Some(PopupType::ApplyCommandPrompt { input: new_input, targets: targets.clone() });
+                        state.active_popup = Some(PopupType::ApplyCommandPrompt {
+                            input: new_input,
+                            targets: targets.clone(),
+                        });
                         return Ok(None);
                     }
                     crossterm::event::KeyCode::Enter => {
@@ -1822,23 +1971,35 @@ fn handle_popup_input(
                             state.progress_rx = Some(rx);
                             state.active_popup = Some(PopupType::CopyProgress {
                                 current_file: "Running command...".to_string(),
-                                files_copied: 0, total_files: 0, bytes_copied: 0, total_bytes: 0,
+                                files_copied: 0,
+                                total_files: 0,
+                                bytes_copied: 0,
+                                total_bytes: 0,
                             });
                         }
                         return Ok(None);
                     }
-                    crossterm::event::KeyCode::Esc => { state.active_popup = None; return Ok(None); }
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
                     _ => {}
                 }
                 return Err(());
             }
-            PopupType::DescribeFilePrompt { ref path, ref current_desc, ref input } => {
+            PopupType::DescribeFilePrompt {
+                ref path,
+                ref current_desc,
+                ref input,
+            } => {
                 match key.code {
                     crossterm::event::KeyCode::Char(c) => {
                         let mut new_input = input.clone();
                         new_input.push(c);
                         state.active_popup = Some(PopupType::DescribeFilePrompt {
-                            path: path.clone(), current_desc: current_desc.clone(), input: new_input,
+                            path: path.clone(),
+                            current_desc: current_desc.clone(),
+                            input: new_input,
                         });
                         return Ok(None);
                     }
@@ -1846,7 +2007,9 @@ fn handle_popup_input(
                         let mut new_input = input.clone();
                         new_input.pop();
                         state.active_popup = Some(PopupType::DescribeFilePrompt {
-                            path: path.clone(), current_desc: current_desc.clone(), input: new_input,
+                            path: path.clone(),
+                            current_desc: current_desc.clone(),
+                            input: new_input,
                         });
                         return Ok(None);
                     }
@@ -1856,26 +2019,41 @@ fn handle_popup_input(
                         state.active_popup = None;
                         if let Some(dir) = p.parent() {
                             if let Some(name) = p.file_name() {
-                                let _ = crate::fs::write_description(dir, &name.to_string_lossy(), &desc);
+                                let _ = crate::fs::write_description(
+                                    dir,
+                                    &name.to_string_lossy(),
+                                    &desc,
+                                );
                             }
                         }
                         state.refresh_both_panels(context.config.settings.show_hidden);
                         return Ok(None);
                     }
-                    crossterm::event::KeyCode::Esc => { state.active_popup = None; return Ok(None); }
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
                     _ => {}
                 }
                 return Err(());
             }
-            PopupType::CreateLinkPrompt { ref src, ref dest_input, ref kind } => {
+            PopupType::CreateLinkPrompt {
+                ref src,
+                ref dest_input,
+                ref kind,
+            } => {
                 match key.code {
                     crossterm::event::KeyCode::Char('s') | crossterm::event::KeyCode::Char('h') => {
                         let new_kind = match key.code {
-                            crossterm::event::KeyCode::Char('s') => crate::app::state::LinkKind::Symbolic,
+                            crossterm::event::KeyCode::Char('s') => {
+                                crate::app::state::LinkKind::Symbolic
+                            }
                             _ => crate::app::state::LinkKind::Hard,
                         };
                         state.active_popup = Some(PopupType::CreateLinkPrompt {
-                            src: src.clone(), dest_input: dest_input.clone(), kind: new_kind,
+                            src: src.clone(),
+                            dest_input: dest_input.clone(),
+                            kind: new_kind,
                         });
                         return Ok(None);
                     }
@@ -1883,7 +2061,9 @@ fn handle_popup_input(
                         let mut new_input = dest_input.clone();
                         new_input.push(c);
                         state.active_popup = Some(PopupType::CreateLinkPrompt {
-                            src: src.clone(), dest_input: new_input, kind: kind.clone(),
+                            src: src.clone(),
+                            dest_input: new_input,
+                            kind: kind.clone(),
                         });
                         return Ok(None);
                     }
@@ -1891,7 +2071,9 @@ fn handle_popup_input(
                         let mut new_input = dest_input.clone();
                         new_input.pop();
                         state.active_popup = Some(PopupType::CreateLinkPrompt {
-                            src: src.clone(), dest_input: new_input, kind: kind.clone(),
+                            src: src.clone(),
+                            dest_input: new_input,
+                            kind: kind.clone(),
                         });
                         return Ok(None);
                     }
@@ -1901,17 +2083,25 @@ fn handle_popup_input(
                         let dest = state.get_passive_panel().current_path.join(dest_input);
                         state.active_popup = None;
                         let result = match kind {
-                            crate::app::state::LinkKind::Symbolic => crate::fs::create_symlink(&s, &dest),
-                            crate::app::state::LinkKind::Hard => crate::fs::create_hardlink(&s, &dest),
+                            crate::app::state::LinkKind::Symbolic => {
+                                crate::fs::create_symlink(&s, &dest)
+                            }
+                            crate::app::state::LinkKind::Hard => {
+                                crate::fs::create_hardlink(&s, &dest)
+                            }
                         };
                         if let Err(e) = result {
-                            state.active_popup = Some(PopupType::Error(format!("Link failed: {}", e)));
+                            state.active_popup =
+                                Some(PopupType::Error(format!("Link failed: {}", e)));
                         } else {
                             state.refresh_both_panels(context.config.settings.show_hidden);
                         }
                         return Ok(None);
                     }
-                    crossterm::event::KeyCode::Esc => { state.active_popup = None; return Ok(None); }
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
                     _ => {}
                 }
                 return Err(());
@@ -1921,13 +2111,15 @@ fn handle_popup_input(
                     crossterm::event::KeyCode::Char(c) => {
                         let mut new_input = input.clone();
                         new_input.push(c);
-                        state.active_popup = Some(PopupType::FilePanelFilterPrompt { input: new_input });
+                        state.active_popup =
+                            Some(PopupType::FilePanelFilterPrompt { input: new_input });
                         return Ok(None);
                     }
                     crossterm::event::KeyCode::Backspace => {
                         let mut new_input = input.clone();
                         new_input.pop();
-                        state.active_popup = Some(PopupType::FilePanelFilterPrompt { input: new_input });
+                        state.active_popup =
+                            Some(PopupType::FilePanelFilterPrompt { input: new_input });
                         return Ok(None);
                     }
                     crossterm::event::KeyCode::Enter => {
@@ -1937,12 +2129,18 @@ fn handle_popup_input(
                         panel.filter_mask = if mask.is_empty() { None } else { Some(mask) };
                         return Ok(None);
                     }
-                    crossterm::event::KeyCode::Esc => { state.active_popup = None; return Ok(None); }
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
                     _ => {}
                 }
                 return Err(());
             }
-            PopupType::TaskListDialog { mut tasks, mut cursor_idx } => {
+            PopupType::TaskListDialog {
+                mut tasks,
+                mut cursor_idx,
+            } => {
                 match key.code {
                     crossterm::event::KeyCode::Esc => {
                         state.active_popup = None;
@@ -1969,7 +2167,10 @@ fn handle_popup_input(
                                     }
                                 }
                                 Err(e) => {
-                                    state.active_popup = Some(PopupType::Error(format!("Failed to kill process: {}", e)));
+                                    state.active_popup = Some(PopupType::Error(format!(
+                                        "Failed to kill process: {}",
+                                        e
+                                    )));
                                     return Ok(None);
                                 }
                             }
@@ -2002,10 +2203,13 @@ fn handle_popup_input(
                     crossterm::event::KeyCode::Enter => {
                         match context.config.save() {
                             Ok(_) => {
-                                state.active_popup = Some(PopupType::Info("Configuration saved successfully.".to_string()));
+                                state.active_popup = Some(PopupType::Info(
+                                    "Configuration saved successfully.".to_string(),
+                                ));
                             }
                             Err(e) => {
-                                state.active_popup = Some(PopupType::Error(format!("Failed to save setup: {}", e)));
+                                state.active_popup =
+                                    Some(PopupType::Error(format!("Failed to save setup: {}", e)));
                             }
                         }
                         return Ok(None);
@@ -2018,7 +2222,194 @@ fn handle_popup_input(
                 }
                 return Ok(None);
             }
-            PopupType::FileAttributesDialog { mut attrs, mut mode_input } => {
+            PopupType::ConfigurationDialog {
+                mut active_tab,
+                mut cursor_idx,
+                mut editing_value,
+                mut edit_buffer,
+                mut settings,
+            } => {
+                let max_rows = match active_tab {
+                    0 => 18, // System
+                    1 => 33, // Panel
+                    2 => 35, // Interface
+                    3 => 16, // Confirmations
+                    4 => 11, // Language & Plugins
+                    5 => 39, // Editor/Viewer
+                    6 => 5,  // Colors
+                    _ => 5,
+                };
+
+                let is_ctrl = key
+                    .modifiers
+                    .contains(crossterm::event::KeyModifiers::CONTROL);
+
+                if editing_value {
+                    match key.code {
+                        crossterm::event::KeyCode::Char(c) if !is_ctrl => {
+                            edit_buffer.push(c);
+                        }
+                        crossterm::event::KeyCode::Backspace => {
+                            edit_buffer.pop();
+                        }
+                        crossterm::event::KeyCode::Esc => {
+                            editing_value = false;
+                        }
+                        crossterm::event::KeyCode::Enter => {
+                            if active_tab == 5 && cursor_idx == 1 {
+                                settings.default_editor = edit_buffer.clone();
+                            }
+                            editing_value = false;
+                        }
+                        _ => {}
+                    }
+                    state.active_popup = Some(PopupType::ConfigurationDialog {
+                        active_tab,
+                        cursor_idx,
+                        editing_value,
+                        edit_buffer,
+                        settings,
+                    });
+                    return Ok(None);
+                }
+
+                match key.code {
+                    crossterm::event::KeyCode::Esc => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
+                    crossterm::event::KeyCode::Left => {
+                        if active_tab > 0 {
+                            active_tab -= 1;
+                        } else {
+                            active_tab = 6;
+                        }
+                        cursor_idx = 0;
+                    }
+                    crossterm::event::KeyCode::Right => {
+                        if active_tab < 6 {
+                            active_tab += 1;
+                        } else {
+                            active_tab = 0;
+                        }
+                        cursor_idx = 0;
+                    }
+                    crossterm::event::KeyCode::Up => {
+                        if cursor_idx > 0 {
+                            cursor_idx -= 1;
+                        } else {
+                            cursor_idx = max_rows - 1;
+                        }
+                    }
+                    crossterm::event::KeyCode::Down => {
+                        if cursor_idx < max_rows - 1 {
+                            cursor_idx += 1;
+                        } else {
+                            cursor_idx = 0;
+                        }
+                    }
+                    crossterm::event::KeyCode::Char(' ') | crossterm::event::KeyCode::Enter => {
+                        let ok_idx = max_rows - 2;
+                        let cancel_idx = max_rows - 1;
+
+                        if cursor_idx == ok_idx {
+                            if settings.theme != context.config.settings.theme {
+                                change_theme(context, state, &settings.theme);
+                            }
+                            if settings.keybinding_preset
+                                != context.config.settings.keybinding_preset
+                            {
+                                change_preset(context, &settings.keybinding_preset);
+                            }
+                            context.config.settings = settings;
+                            let _ = context.config.save();
+                            state.refresh_both_panels(context.config.settings.show_hidden);
+                            state.active_popup = None;
+                            return Ok(None);
+                        } else if cursor_idx == cancel_idx {
+                            state.active_popup = None;
+                            return Ok(None);
+                        }
+
+                        match active_tab {
+                            1 => match cursor_idx {
+                                0 => settings.show_hidden = !settings.show_hidden,
+                                5 => settings.sort_reverse = !settings.sort_reverse,
+                                _ => {}
+                            },
+                            2 => match cursor_idx {
+                                1 => settings.mouse_support = !settings.mouse_support,
+                                32 => {
+                                    settings.keybinding_preset =
+                                        match settings.keybinding_preset.as_str() {
+                                            "norton" => "vim".to_string(),
+                                            "vim" => "modern".to_string(),
+                                            _ => "norton".to_string(),
+                                        };
+                                }
+                                _ => {}
+                            },
+                            3 => match cursor_idx {
+                                2 => {
+                                    settings.confirmations.confirm_overwrite =
+                                        !settings.confirmations.confirm_overwrite
+                                }
+                                4 => {
+                                    settings.confirmations.confirm_delete =
+                                        !settings.confirmations.confirm_delete
+                                }
+                                13 => {
+                                    settings.confirmations.confirm_quit =
+                                        !settings.confirmations.confirm_quit
+                                }
+                                _ => {}
+                            },
+                            5 => {
+                                if cursor_idx == 1 {
+                                    editing_value = true;
+                                    edit_buffer = settings.default_editor.clone();
+                                }
+                            }
+                            6 => {
+                                if cursor_idx == 0 {
+                                    settings.theme = match settings.theme.as_str() {
+                                        "slate" => "classic_blue".to_string(),
+                                        _ => "slate".to_string(),
+                                    };
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    crossterm::event::KeyCode::F(9) => {
+                        if settings.theme != context.config.settings.theme {
+                            change_theme(context, state, &settings.theme);
+                        }
+                        if settings.keybinding_preset != context.config.settings.keybinding_preset {
+                            change_preset(context, &settings.keybinding_preset);
+                        }
+                        context.config.settings = settings;
+                        let _ = context.config.save();
+                        state.refresh_both_panels(context.config.settings.show_hidden);
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
+                    _ => {}
+                }
+
+                state.active_popup = Some(PopupType::ConfigurationDialog {
+                    active_tab,
+                    cursor_idx,
+                    editing_value,
+                    edit_buffer,
+                    settings,
+                });
+                return Ok(None);
+            }
+            PopupType::FileAttributesDialog {
+                mut attrs,
+                mut mode_input,
+            } => {
                 match key.code {
                     crossterm::event::KeyCode::Esc => {
                         state.active_popup = None;
@@ -2032,20 +2423,27 @@ fn handle_popup_input(
                     crossterm::event::KeyCode::Backspace => {
                         mode_input.pop();
                     }
-                    crossterm::event::KeyCode::Char('r') | crossterm::event::KeyCode::Char('R') | crossterm::event::KeyCode::Char(' ') => {
+                    crossterm::event::KeyCode::Char('r')
+                    | crossterm::event::KeyCode::Char('R')
+                    | crossterm::event::KeyCode::Char(' ') => {
                         attrs.readonly = !attrs.readonly;
                     }
                     crossterm::event::KeyCode::Enter => {
                         if !mode_input.is_empty() {
                             if let Ok(mode) = u32::from_str_radix(&mode_input, 8) {
                                 if let Err(e) = crate::fs::attrs::set_unix_mode(&attrs.path, mode) {
-                                    state.active_popup = Some(PopupType::Error(format!("Failed to set unix mode: {}", e)));
+                                    state.active_popup = Some(PopupType::Error(format!(
+                                        "Failed to set unix mode: {}",
+                                        e
+                                    )));
                                     return Ok(None);
                                 }
                             }
                         }
-                        if let Err(e) = crate::fs::attrs::set_readonly(&attrs.path, attrs.readonly) {
-                            state.active_popup = Some(PopupType::Error(format!("Failed to set readonly: {}", e)));
+                        if let Err(e) = crate::fs::attrs::set_readonly(&attrs.path, attrs.readonly)
+                        {
+                            state.active_popup =
+                                Some(PopupType::Error(format!("Failed to set readonly: {}", e)));
                             return Ok(None);
                         }
                         state.refresh_both_panels(context.config.settings.show_hidden);
@@ -2100,7 +2498,7 @@ fn kill_process(pid: u32) -> std::io::Result<()> {
 
 fn trigger_menu_item(
     state: &mut AppState,
-    context: &mut AppContext,
+    _context: &mut AppContext,
     menu_idx: usize,
     item_idx: usize,
 ) -> Option<Action> {
@@ -2111,15 +2509,49 @@ fn trigger_menu_item(
             // Left / Right panel menu — both have the same layout
             let is_right = menu_idx == 4;
             match item_idx {
-                0 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Brief; None }
-                1 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Medium; None }
-                2 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Full; None }
-                3 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Wide; None }
-                4 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Detailed; None }
-                5 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Descriptions; None }
-                6 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::FileOwners; None }
-                7 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::FileLinks; None }
-                8 => { state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::AltFull; None }
+                0 => {
+                    state.get_active_panel_mut().view_mode =
+                        crate::app::state::PanelViewMode::Brief;
+                    None
+                }
+                1 => {
+                    state.get_active_panel_mut().view_mode =
+                        crate::app::state::PanelViewMode::Medium;
+                    None
+                }
+                2 => {
+                    state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Full;
+                    None
+                }
+                3 => {
+                    state.get_active_panel_mut().view_mode = crate::app::state::PanelViewMode::Wide;
+                    None
+                }
+                4 => {
+                    state.get_active_panel_mut().view_mode =
+                        crate::app::state::PanelViewMode::Detailed;
+                    None
+                }
+                5 => {
+                    state.get_active_panel_mut().view_mode =
+                        crate::app::state::PanelViewMode::Descriptions;
+                    None
+                }
+                6 => {
+                    state.get_active_panel_mut().view_mode =
+                        crate::app::state::PanelViewMode::FileOwners;
+                    None
+                }
+                7 => {
+                    state.get_active_panel_mut().view_mode =
+                        crate::app::state::PanelViewMode::FileLinks;
+                    None
+                }
+                8 => {
+                    state.get_active_panel_mut().view_mode =
+                        crate::app::state::PanelViewMode::AltFull;
+                    None
+                }
                 // 9 = separator
                 10 => Some(Action::InfoPanel),
                 11 => Some(Action::QuickView),
@@ -2127,11 +2559,19 @@ fn trigger_menu_item(
                 13 => Some(Action::SortModes),
                 14 => Some(Action::ToggleLongNames),
                 15 => {
-                    if is_right { Some(Action::TogglePanelRight) } else { Some(Action::TogglePanelLeft) }
+                    if is_right {
+                        Some(Action::TogglePanelRight)
+                    } else {
+                        Some(Action::TogglePanelLeft)
+                    }
                 }
                 16 => Some(Action::Refresh),
                 17 => {
-                    if is_right { Some(Action::DriveSelectRight) } else { Some(Action::DriveSelectLeft) }
+                    if is_right {
+                        Some(Action::DriveSelectRight)
+                    } else {
+                        Some(Action::DriveSelectLeft)
+                    }
                 }
                 _ => None,
             }
@@ -2199,44 +2639,8 @@ fn trigger_menu_item(
         3 => {
             // Options menu
             match item_idx {
-                0 | 1 | 2 => {
-                    // System/Panel/Interface settings — show info stub
-                    state.active_popup = Some(PopupType::Info(
-                        "Edit settings file: ~/.config/ncrust/config.toml".to_string(),
-                    ));
-                    None
-                }
-                // 3 = separator
-                4 | 5 | 6 => {
-                    state.active_popup = Some(PopupType::Info(
-                        "File descriptions: use Ctrl+Z on files.".to_string(),
-                    ));
-                    None
-                }
-                // 7 = separator
-                8 | 9 | 10 => {
-                    state.active_popup = Some(PopupType::Info(
-                        "Viewer/Editor settings: edit config.toml [viewer] / [editor] sections.".to_string(),
-                    ));
-                    None
-                }
-                // 11 = separator
-                12 | 13 => {
-                    state.active_popup = Some(PopupType::Info(
-                        "Colors: edit the [theme] section in config.toml.".to_string(),
-                    ));
-                    None
-                }
-                // 14 = separator
-                15 => { change_theme(context, state, "slate"); None }
-                16 => { change_theme(context, state, "classic_blue"); None }
-                // 17 = separator
-                18 => { change_preset(context, "norton"); None }
-                19 => { change_preset(context, "vim"); None }
-                20 => { change_preset(context, "modern"); None }
-                // 21 = separator
-                22 => Some(Action::ToggleHidden),
-                23 => Some(Action::SaveSetup),
+                0 => Some(Action::SystemSettings),
+                2 => Some(Action::SaveSetup),
                 _ => None,
             }
         }
@@ -2270,6 +2674,7 @@ fn get_system_drives() -> Vec<String> {
 /// Returns a list of running OS processes.
 /// On Linux reads from /proc; on other platforms returns an empty list.
 fn get_process_list() -> Vec<crate::app::state::ProcessEntry> {
+    #[allow(unused_mut)]
     let mut processes = Vec::new();
 
     #[cfg(target_os = "linux")]
@@ -2289,7 +2694,11 @@ fn get_process_list() -> Vec<crate::app::state::ProcessEntry> {
                     let memory_kb = read_proc_memory(pid);
                     processes.push(crate::app::state::ProcessEntry {
                         pid,
-                        name: if proc_name.is_empty() { format!("[{}]", pid) } else { proc_name },
+                        name: if proc_name.is_empty() {
+                            format!("[{}]", pid)
+                        } else {
+                            proc_name
+                        },
                         memory_kb,
                     });
                 }
@@ -2383,10 +2792,7 @@ fn build_info_panel_lines(state: &AppState) -> Vec<String> {
         if !entry.is_dir {
             lines.push(format!("Size    : {} bytes", entry.size));
             if entry.size >= 1024 {
-                lines.push(format!(
-                    "        : {:.2} KB",
-                    entry.size as f64 / 1024.0
-                ));
+                lines.push(format!("        : {:.2} KB", entry.size as f64 / 1024.0));
             }
             if entry.size >= 1024 * 1024 {
                 lines.push(format!(
@@ -2415,8 +2821,17 @@ fn build_info_panel_lines(state: &AppState) -> Vec<String> {
     ));
 
     let total_files = panel.entries.iter().filter(|e| !e.is_dir).count();
-    let total_dirs = panel.entries.iter().filter(|e| e.is_dir && e.name != "..").count();
-    let total_size: u64 = panel.entries.iter().filter(|e| !e.is_dir).map(|e| e.size).sum();
+    let total_dirs = panel
+        .entries
+        .iter()
+        .filter(|e| e.is_dir && e.name != "..")
+        .count();
+    let total_size: u64 = panel
+        .entries
+        .iter()
+        .filter(|e| !e.is_dir)
+        .map(|e| e.size)
+        .sum();
 
     lines.push(format!("Files   : {}", total_files));
     lines.push(format!("Folders : {}", total_dirs));
@@ -2629,8 +3044,16 @@ fn execute_external_command(
     disable_raw_mode()?;
     execute!(std::io::stdout(), LeaveAlternateScreen, Show)?;
 
-    let shell = if cfg!(target_os = "windows") { "cmd" } else { "sh" };
-    let flag = if cfg!(target_os = "windows") { "/c" } else { "-c" };
+    let shell = if cfg!(target_os = "windows") {
+        "cmd"
+    } else {
+        "sh"
+    };
+    let flag = if cfg!(target_os = "windows") {
+        "/c"
+    } else {
+        "-c"
+    };
     let mut child = std::process::Command::new(shell)
         .arg(flag)
         .arg(utility_command)
@@ -2701,9 +3124,14 @@ fn handle_enter_key(state: &mut AppState, _show_hidden: bool) {
 
 /// Ascends to parent folder directory.
 fn handle_backspace_key(state: &mut AppState, show_hidden: bool) {
-    let parent_path = state.get_active_panel().current_path.parent().map(|p| p.to_path_buf());
+    let parent_path = state
+        .get_active_panel()
+        .current_path
+        .parent()
+        .map(|p| p.to_path_buf());
     if let Some(parent) = parent_path {
-        let current_dir_name = state.get_active_panel()
+        let current_dir_name = state
+            .get_active_panel()
             .current_path
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
@@ -2730,12 +3158,17 @@ fn handle_backspace_key(state: &mut AppState, show_hidden: bool) {
     }
 }
 
-fn find_next_in_editor(lines: &[String], current_x: usize, current_y: usize, query: &str) -> Option<(usize, usize)> {
+fn find_next_in_editor(
+    lines: &[String],
+    current_x: usize,
+    current_y: usize,
+    query: &str,
+) -> Option<(usize, usize)> {
     if query.is_empty() || lines.is_empty() {
         return None;
     }
     let q_lower = query.to_lowercase();
-    
+
     // 1. Search current line forward (starting at current_x + 1)
     if current_y < lines.len() {
         let line = &lines[current_y];
@@ -2757,11 +3190,15 @@ fn find_next_in_editor(lines: &[String], current_x: usize, current_y: usize, que
     // 3. Wrap around: Search from start of file up to current_y
     for y in 0..=current_y {
         let line = &lines[y];
-        let limit = if y == current_y { current_x } else { line.len() };
+        let limit = if y == current_y {
+            current_x
+        } else {
+            line.len()
+        };
         if let Some(pos) = line[..limit].to_lowercase().find(&q_lower) {
             return Some((pos, y));
         }
     }
-    
+
     None
 }

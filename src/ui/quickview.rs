@@ -30,11 +30,12 @@ pub fn draw_quick_view(
     let block = Block::default()
         .borders(Borders::ALL)
         .border_style(Style::default().fg(parse_color(&theme.popup_border)))
-        .title(
-            ratatui::widgets::block::Title::from(
-                Span::styled(title, Style::default().fg(parse_color(&theme.header_fg)).add_modifier(Modifier::BOLD))
-            )
-        )
+        .title(ratatui::widgets::block::Title::from(Span::styled(
+            title,
+            Style::default()
+                .fg(parse_color(&theme.header_fg))
+                .add_modifier(Modifier::BOLD),
+        )))
         .style(Style::default().bg(parse_color(&theme.panel_bg)));
 
     let visible_height = area.height.saturating_sub(2) as usize;
@@ -68,7 +69,10 @@ pub fn load_quick_view_content(path: &std::path::Path) -> Vec<String> {
                         _ => "Archive",
                     };
                     let mut lines = vec![
-                        format!("Archive: {}", path.file_name().unwrap_or_default().to_string_lossy()),
+                        format!(
+                            "Archive: {}",
+                            path.file_name().unwrap_or_default().to_string_lossy()
+                        ),
                         format!("Format: {}", format_name),
                         format!("Files count: {}", files.len()),
                         "────────────────────────────────────────".to_string(),
@@ -81,11 +85,9 @@ pub fn load_quick_view_content(path: &std::path::Path) -> Vec<String> {
                 Err(e) => vec![format!("[Error reading archive: {}]", e)],
             }
         }
-        _ => {
-            match std::fs::read_to_string(path) {
-                Ok(text) => text.lines().map(|l| l.to_string()).collect(),
-                Err(_) => vec!["[Binary file — cannot preview]".to_string()],
-            }
-        }
+        _ => match std::fs::read_to_string(path) {
+            Ok(text) => text.lines().map(|l| l.to_string()).collect(),
+            Err(_) => vec!["[Binary file — cannot preview]".to_string()],
+        },
     }
 }

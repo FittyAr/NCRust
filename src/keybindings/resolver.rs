@@ -225,8 +225,10 @@ mod tests {
 
     #[test]
     fn test_key_event_to_string_ctrl_alt() {
-        let key_ctrl_alt_1 =
-            KeyEvent::new(KeyCode::Char('1'), KeyModifiers::CONTROL | KeyModifiers::ALT);
+        let key_ctrl_alt_1 = KeyEvent::new(
+            KeyCode::Char('1'),
+            KeyModifiers::CONTROL | KeyModifiers::ALT,
+        );
         assert_eq!(key_event_to_string(key_ctrl_alt_1), "Ctrl+Alt+1");
     }
 

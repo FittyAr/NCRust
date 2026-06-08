@@ -1,8 +1,8 @@
+use crate::fs::archive::{compress_zip, extract_archive};
 use anyhow::Result;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tokio::sync::mpsc;
-use crate::fs::archive::{extract_archive, compress_zip};
 
 #[derive(Debug, Clone)]
 pub struct ProgressUpdate {
@@ -239,7 +239,7 @@ pub fn spawn_extract_task(
                 error: Some(format!("Extraction failed: {}", e)),
             });
         } else {
-             let _ = tx.blocking_send(ProgressUpdate {
+            let _ = tx.blocking_send(ProgressUpdate {
                 current_file: "Completed".to_string(),
                 files_copied: 1,
                 total_files: 1,
@@ -259,7 +259,7 @@ pub fn spawn_compress_task(
     let (tx, rx) = mpsc::channel(100);
     tokio::task::spawn_blocking(move || {
         if let Err(e) = compress_zip(sources, &dest_archive, &tx) {
-             let _ = tx.blocking_send(ProgressUpdate {
+            let _ = tx.blocking_send(ProgressUpdate {
                 current_file: dest_archive.to_string_lossy().into_owned(),
                 files_copied: 0,
                 total_files: 0,
@@ -268,7 +268,7 @@ pub fn spawn_compress_task(
                 error: Some(format!("Compression failed: {}", e)),
             });
         } else {
-             let _ = tx.blocking_send(ProgressUpdate {
+            let _ = tx.blocking_send(ProgressUpdate {
                 current_file: "Completed".to_string(),
                 files_copied: 1,
                 total_files: 1,

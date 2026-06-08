@@ -1,11 +1,11 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
+use flate2::read::GzDecoder;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
+use tar::Archive;
 use tokio::sync::mpsc;
 use zip::ZipArchive;
-use flate2::read::GzDecoder;
-use tar::Archive;
 
 use crate::fs::ops_worker::ProgressUpdate;
 
@@ -45,7 +45,9 @@ pub fn extract_archive(
         ArchiveFormat::Zip => extract_zip(archive_path, dest_dir, tx),
         ArchiveFormat::TarGz => extract_tar_gz(archive_path, dest_dir, tx),
         ArchiveFormat::SevenZ => extract_7z(archive_path, dest_dir, tx),
-        ArchiveFormat::Rar | ArchiveFormat::Iso => extract_via_external_7z(archive_path, dest_dir, tx),
+        ArchiveFormat::Rar | ArchiveFormat::Iso => {
+            extract_via_external_7z(archive_path, dest_dir, tx)
+        }
         ArchiveFormat::Unsupported => Err(anyhow!("Unsupported archive format")),
     }
 }
@@ -68,7 +70,11 @@ fn extract_zip(
             None => continue,
         };
 
-        let file_name = outpath.file_name().unwrap_or_default().to_string_lossy().into_owned();
+        let file_name = outpath
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .into_owned();
 
         let _ = tx.blocking_send(ProgressUpdate {
             current_file: file_name,
@@ -109,8 +115,12 @@ fn extract_tar_gz(
     for entry in archive.entries()? {
         let mut file = entry?;
         let path = file.path()?;
-        
-        let file_name = path.file_name().unwrap_or_default().to_string_lossy().into_owned();
+
+        let file_name = path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .into_owned();
 
         let _ = tx.blocking_send(ProgressUpdate {
             current_file: file_name,
@@ -147,7 +157,8 @@ fn extract_7z(
         });
 
         sevenz_rust::default_entry_extract_fn(entry, reader, dest)
-    }).map_err(|e| anyhow!("7z extraction failed: {:?}", e))?;
+    })
+    .map_err(|e| anyhow!("7z extraction failed: {:?}", e))?;
 
     Ok(())
 }
@@ -188,7 +199,7 @@ pub fn compress_zip(
             i += 1;
         }
     }
-    
+
     zip.finish()?;
     Ok(())
 }
@@ -202,7 +213,9 @@ fn extract_via_external_7z(
 
     let bin_path = get_external_7z_path().ok_or_else(|| anyhow!("Could not determine 7z path"))?;
     if !bin_path.exists() && cfg!(target_os = "windows") {
-        return Err(anyhow!("7z tool is not downloaded yet. Please wait for the background download to finish."));
+        return Err(anyhow!(
+            "7z tool is not downloaded yet. Please wait for the background download to finish."
+        ));
     }
 
     fs::create_dir_all(dest_dir)?;
@@ -267,6 +280,8 @@ pub fn list_archive_files(path: &Path) -> Result<Vec<String>> {
             }
             Ok(list)
         }
-        _ => Err(anyhow!("Unsupported archive format or listing not supported")),
+        _ => Err(anyhow!(
+            "Unsupported archive format or listing not supported"
+        )),
     }
 }

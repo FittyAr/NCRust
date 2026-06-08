@@ -82,7 +82,10 @@ fn visible_range(panel: &PanelState, height: usize) -> (usize, usize) {
     } else {
         start
     };
-    (start, start + height.min(panel.entries.len().saturating_sub(start)))
+    (
+        start,
+        start + height.min(panel.entries.len().saturating_sub(start)),
+    )
 }
 
 fn build_row_style(
@@ -295,7 +298,11 @@ fn render_wide(
                 is_active,
                 theme,
             );
-            Row::new(vec![Cell::from(entry_display_name(&entry.name, entry.is_dir))]).style(style)
+            Row::new(vec![Cell::from(entry_display_name(
+                &entry.name,
+                entry.is_dir,
+            ))])
+            .style(style)
         })
         .collect();
 
@@ -331,9 +338,7 @@ fn render_detailed(
                 is_active,
                 theme,
             );
-            let (perm_str, owner) = if let Ok(attrs) =
-                crate::fs::attrs::read_attrs(&entry.path)
-            {
+            let (perm_str, owner) = if let Ok(attrs) = crate::fs::attrs::read_attrs(&entry.path) {
                 (format_unix_mode(attrs.mode), attrs.owner)
             } else {
                 ("?????????".to_string(), "?".to_string())
@@ -400,8 +405,7 @@ fn render_descriptions(
                 is_active,
                 theme,
             );
-            let desc =
-                read_description(&panel.current_path, &entry.name).unwrap_or_default();
+            let desc = read_description(&panel.current_path, &entry.name).unwrap_or_default();
             Row::new(vec![
                 Cell::from(entry_display_name(&entry.name, entry.is_dir)),
                 Cell::from(desc),
@@ -584,8 +588,11 @@ fn render_brief(
                     is_active,
                     theme,
                 );
-                Row::new(vec![Cell::from(entry_display_name(&entry.name, entry.is_dir))])
-                    .style(style)
+                Row::new(vec![Cell::from(entry_display_name(
+                    &entry.name,
+                    entry.is_dir,
+                ))])
+                .style(style)
             })
             .collect();
 

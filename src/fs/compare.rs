@@ -93,10 +93,7 @@ fn scan_directory(dir: &Path) -> Result<HashMap<String, FileSummary>> {
     Ok(map)
 }
 
-fn mtime_eq(
-    a: Option<std::time::SystemTime>,
-    b: Option<std::time::SystemTime>,
-) -> bool {
+fn mtime_eq(a: Option<std::time::SystemTime>, b: Option<std::time::SystemTime>) -> bool {
     match (a, b) {
         (Some(ta), Some(tb)) => {
             // Allow 1-second tolerance (FAT32 filesystem granularity)
@@ -135,12 +132,9 @@ mod tests {
         write_file(left_dir.path(), "differ.txt", b"version A");
         write_file(right_dir.path(), "differ.txt", b"version B longer");
 
-        let results =
-            compare_directories(left_dir.path(), right_dir.path()).expect("compare");
+        let results = compare_directories(left_dir.path(), right_dir.path()).expect("compare");
 
-        let find = |name: &str| {
-            results.iter().find(|e| e.name == name).map(|e| &e.status)
-        };
+        let find = |name: &str| results.iter().find(|e| e.name == name).map(|e| &e.status);
 
         assert_eq!(find("left_only.rs"), Some(&CompareStatus::OnlyLeft));
         assert_eq!(find("right_only.rs"), Some(&CompareStatus::OnlyRight));

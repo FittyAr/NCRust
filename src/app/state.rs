@@ -312,6 +312,14 @@ pub enum PopupType {
         items: Vec<String>,
         cursor_idx: usize,
     },
+
+    ConfigurationDialog {
+        active_tab: usize,
+        cursor_idx: usize,
+        editing_value: bool,
+        edit_buffer: String,
+        settings: crate::config::settings::Settings,
+    },
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -620,8 +628,7 @@ impl AppState {
         if let Ok(entries) = fs::read_directory(&right_path, show_hidden) {
             self.right_panel.entries = entries;
             if self.right_panel.cursor_index >= self.right_panel.entries.len() {
-                self.right_panel.cursor_index =
-                    self.right_panel.entries.len().saturating_sub(1);
+                self.right_panel.cursor_index = self.right_panel.entries.len().saturating_sub(1);
             }
         }
     }

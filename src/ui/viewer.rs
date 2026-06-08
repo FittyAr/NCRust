@@ -173,7 +173,13 @@ fn render_hex(
             // ASCII portion
             let ascii_str: String = chunk
                 .iter()
-                .map(|&b| if (0x20..=0x7e).contains(&b) { b as char } else { '.' })
+                .map(|&b| {
+                    if (0x20..=0x7e).contains(&b) {
+                        b as char
+                    } else {
+                        '.'
+                    }
+                })
                 .collect();
 
             let line_str = format!("{:08X}  {}  {}", offset, hex_padded, ascii_str);
