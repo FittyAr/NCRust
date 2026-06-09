@@ -1,4 +1,4 @@
-use crossterm::event::{self, Event as CrossEvent, KeyEvent, MouseEvent};
+  use crossterm::event::{self, Event as CrossEvent, KeyEvent, MouseEvent};
 use std::time::Duration;
 use tokio::sync::mpsc;
 
@@ -10,6 +10,8 @@ pub enum Event {
     Mouse(MouseEvent),
     /// Terminal window resized
     Resize(u16, u16),
+    /// Modifier state changed (poll on tick for Windows compatibility)
+    ModifiersChanged(crossterm::event::KeyModifiers),
     /// Periodic tick event for UI updates
     Tick,
 }
@@ -24,6 +26,11 @@ impl EventHandler {
         let (sender, receiver) = mpsc::channel(100);
 
         std::thread::spawn(move || {
+            #[cfg(windows)]
+            let mut last_modifiers = crossterm::event::KeyModifiers::empty();
+            #[cfg(windows)]
+            let mut has_focus = true;
+
             loop {
                 // Poll for new input event with timeout
                 match event::poll(tick_rate) {
@@ -31,6 +38,20 @@ impl EventHandler {
                     {
                         #[allow(clippy::collapsible_match)]
                         match event::read() {
+                            Ok(CrossEvent::FocusGained) => {
+                                #[cfg(windows)]
+                                { has_focus = true; }
+                            }
+                            Ok(CrossEvent::FocusLost) => {
+                                #[cfg(windows)]
+                                {
+                                    has_focus = false;
+                                    if !last_modifiers.is_empty() {
+                                        last_modifiers = crossterm::event::KeyModifiers::empty();
+                                        let _ = sender.blocking_send(Event::ModifiersChanged(last_modifiers));
+                                    }
+                                }
+                            }
                             Ok(CrossEvent::Key(key)) => {
                                 if sender.blocking_send(Event::Key(key)).is_err() {
                                     break;
@@ -50,7 +71,36 @@ impl EventHandler {
                         }
                     }
                     Ok(false) => {
-                        // Timeout reached, send Tick event
+                        // Timeout reached, check modifiers if on Windows, then send Tick event
+                        #[cfg(windows)]
+                        {
+                            if has_focus {
+                                use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
+                                    GetAsyncKeyState, VK_CONTROL, VK_MENU, VK_SHIFT,
+                                };
+                                use crossterm::event::KeyModifiers;
+
+                                unsafe {
+                                    let mut current_modifiers = KeyModifiers::empty();
+
+                                    if (GetAsyncKeyState(VK_CONTROL as i32) as u16 & 0x8000) != 0 {
+                                        current_modifiers |= KeyModifiers::CONTROL;
+                                    }
+                                    if (GetAsyncKeyState(VK_MENU as i32) as u16 & 0x8000) != 0 {
+                                        current_modifiers |= KeyModifiers::ALT;
+                                    }
+                                    if (GetAsyncKeyState(VK_SHIFT as i32) as u16 & 0x8000) != 0 {
+                                        current_modifiers |= KeyModifiers::SHIFT;
+                                    }
+
+                                    if current_modifiers != last_modifiers {
+                                        last_modifiers = current_modifiers;
+                                        let _ = sender.blocking_send(Event::ModifiersChanged(current_modifiers));
+                                    }
+                                }
+                            }
+                        }
+
                         if sender.blocking_send(Event::Tick).is_err() {
                             break;
                         }

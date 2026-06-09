@@ -44,13 +44,15 @@ echo ==========================================
 echo       NCRust TUI Manager Helper Shell
 echo ==========================================
 echo  1. Run NCRust TUI (cargo run)
-echo  2. Run unit tests (cargo test)
-echo  3. Run cargo check compiler validation
-echo  4. Run clippy static checks (cargo clippy)
-echo  5. Clean build directory (cargo clean)
-echo  6. Exit
+echo  2. Run NCRust TUI Standalone (cargo run -- --standalone)
+echo  3. Run unit tests (cargo test)
+echo  4. Run cargo check compiler validation
+echo  5. Run clippy static checks (cargo clippy)
+echo  6. Run format check (cargo fmt)
+echo  7. Clean build directory (cargo clean)
+echo  8. Exit
 echo ==========================================
-set /p opt="Choose an option (1-6): "
+set /p opt="Choose an option (1-8): "
 
 if "%opt%"=="1" (
     echo [INFO] Launching NCRust...
@@ -59,30 +61,42 @@ if "%opt%"=="1" (
     goto menu
 )
 if "%opt%"=="2" (
+    echo [INFO] Launching NCRust Standalone...
+    cargo run -- --standalone
+    pause
+    goto menu
+)
+if "%opt%"=="3" (
     echo [INFO] Running cargo test...
     cargo test
     pause
     goto menu
 )
-if "%opt%"=="3" (
+if "%opt%"=="4" (
     echo [INFO] Running cargo check...
     cargo check
     pause
     goto menu
 )
-if "%opt%"=="4" (
+if "%opt%"=="5" (
     echo [INFO] Running cargo clippy...
     cargo clippy --all-targets -- -D warnings
     pause
     goto menu
 )
-if "%opt%"=="5" (
+if "%opt%"=="6" (
+    echo [INFO] Running cargo fmt check...
+    cargo fmt --all -- --check
+    pause
+    goto menu
+)
+if "%opt%"=="7" (
     echo [INFO] Cleaning workspace target...
     cargo clean
     pause
     goto menu
 )
-if "%opt%"=="6" (
+if "%opt%"=="8" (
     exit /b 0
 )
 

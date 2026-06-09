@@ -13,6 +13,11 @@ mod ui;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // 0. Check if we need to spawn a standalone terminal window
+    if terminal::standalone::check_and_launch_standalone().unwrap_or(false) {
+        return Ok(());
+    }
+
     // 1. Load configuration TOML profiles
     let config =
         config::AppConfig::load_or_create().context("Failed to initialize config files")?;

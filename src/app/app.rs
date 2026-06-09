@@ -148,6 +148,9 @@ pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
                             .await?;
                     }
                 }
+                Event::ModifiersChanged(modifiers) => {
+                    state.current_modifiers = modifiers;
+                }
                 Event::Resize(w, h) => {
                     log::debug!("Terminal resized to {}x{}", w, h);
                 }

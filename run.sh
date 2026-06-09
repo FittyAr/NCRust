@@ -47,13 +47,14 @@ show_menu() {
     echo -e "${CYAN}${BOLD}==========================================${RESET}"
     echo -e "${CYAN}${BOLD}      NCRust TUI Manager Helper Shell     ${RESET}"
     echo -e "${CYAN}${BOLD}==========================================${RESET}"
-    echo -e "  ${BOLD}1.${RESET} Run NCRust TUI            ${YELLOW}(cargo run)${RESET}"
-    echo -e "  ${BOLD}2.${RESET} Run unit tests             ${YELLOW}(cargo test)${RESET}"
-    echo -e "  ${BOLD}3.${RESET} Compiler validation        ${YELLOW}(cargo check)${RESET}"
-    echo -e "  ${BOLD}4.${RESET} Static analysis            ${YELLOW}(cargo clippy -- -D warnings)${RESET}"
-    echo -e "  ${BOLD}5.${RESET} Format check               ${YELLOW}(cargo fmt --all -- --check)${RESET}"
-    echo -e "  ${BOLD}6.${RESET} Clean build directory      ${YELLOW}(cargo clean)${RESET}"
-    echo -e "  ${BOLD}7.${RESET} Exit"
+    echo -e "  ${BOLD}1.${RESET} Run NCRust TUI             ${YELLOW}(cargo run)${RESET}"
+    echo -e "  ${BOLD}2.${RESET} Run NCRust TUI Standalone  ${YELLOW}(cargo run -- --standalone)${RESET}"
+    echo -e "  ${BOLD}3.${RESET} Run unit tests             ${YELLOW}(cargo test)${RESET}"
+    echo -e "  ${BOLD}4.${RESET} Compiler validation        ${YELLOW}(cargo check)${RESET}"
+    echo -e "  ${BOLD}5.${RESET} Static analysis            ${YELLOW}(cargo clippy -- -D warnings)${RESET}"
+    echo -e "  ${BOLD}6.${RESET} Format check               ${YELLOW}(cargo fmt --all -- --check)${RESET}"
+    echo -e "  ${BOLD}7.${RESET} Clean build directory      ${YELLOW}(cargo clean)${RESET}"
+    echo -e "  ${BOLD}8.${RESET} Exit"
     echo -e "${CYAN}${BOLD}==========================================${RESET}"
 }
 
@@ -69,7 +70,7 @@ run_and_pause() {
 
 while true; do
     show_menu
-    read -rp "Choose an option (1-7): " opt
+    read -rp "Choose an option (1-8): " opt
 
     case "$opt" in
         1)
@@ -77,31 +78,35 @@ while true; do
             run_and_pause cargo run
             ;;
         2)
+            echo -e "\n${GREEN}[INFO]${RESET} Launching NCRust (Standalone)...\n"
+            run_and_pause cargo run -- --standalone
+            ;;
+        3)
             echo -e "\n${GREEN}[INFO]${RESET} Running cargo test...\n"
             run_and_pause cargo test
             ;;
-        3)
+        4)
             echo -e "\n${GREEN}[INFO]${RESET} Running cargo check...\n"
             run_and_pause cargo check
             ;;
-        4)
+        5)
             echo -e "\n${GREEN}[INFO]${RESET} Running cargo clippy...\n"
             run_and_pause cargo clippy --all-targets -- -D warnings
             ;;
-        5)
+        6)
             echo -e "\n${GREEN}[INFO]${RESET} Running cargo fmt check...\n"
             run_and_pause cargo fmt --all -- --check
             ;;
-        6)
+        7)
             echo -e "\n${GREEN}[INFO]${RESET} Cleaning workspace target...\n"
             run_and_pause cargo clean
             ;;
-        7)
+        8)
             echo -e "${CYAN}Bye!${RESET}"
             exit 0
             ;;
         *)
-            echo -e "${YELLOW}[WARN]${RESET} Invalid option. Please choose 1-7."
+            echo -e "${YELLOW}[WARN]${RESET} Invalid option. Please choose 1-8."
             sleep 1
             ;;
     esac
