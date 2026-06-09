@@ -26,6 +26,8 @@ pub struct ViewerState {
     pub mode: ViewerMode,
     /// Vertical scroll offset (line or hex row index).
     pub scroll: usize,
+    /// Last search query
+    pub last_search: Option<String>,
 }
 
 impl ViewerState {
@@ -45,6 +47,7 @@ impl ViewerState {
             raw,
             mode,
             scroll: 0,
+            last_search: None,
         }
     }
 
@@ -96,14 +99,14 @@ pub fn render_viewer(
 
     let block = Block::default()
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(parse_color(&theme.popup_border)))
+        .border_style(Style::default().fg(parse_color(&theme.panel_border)))
         .title(Span::styled(
             title,
             Style::default()
                 .fg(parse_color(&theme.header_fg))
                 .add_modifier(Modifier::BOLD),
         ))
-        .style(Style::default().bg(parse_color(&theme.popup_bg)));
+        .style(Style::default().bg(parse_color(&theme.panel_bg)));
 
     match state.mode {
         ViewerMode::Text => render_text(f, area, state, block, theme),
@@ -133,7 +136,7 @@ fn render_text(
 
     let para = Paragraph::new(lines)
         .block(block)
-        .style(Style::default().fg(parse_color(&theme.popup_fg)))
+        .style(Style::default().fg(parse_color(&theme.panel_fg)))
         .wrap(Wrap { trim: false });
 
     f.render_widget(para, area);
@@ -190,6 +193,6 @@ fn render_hex(
 
     let para = Paragraph::new(lines)
         .block(block)
-        .style(Style::default().fg(parse_color(&theme.popup_fg)));
+        .style(Style::default().fg(parse_color(&theme.panel_fg)));
     f.render_widget(para, area);
 }

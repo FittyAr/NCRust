@@ -150,6 +150,21 @@ pub fn handle(
                 }
                 Err(())
             }
+            PopupType::ConfirmDiscardEditorChanges => {
+                match key.code {
+                    KeyCode::Enter | KeyCode::Char('y') | KeyCode::Char('Y') => {
+                        state.active_popup = None;
+                        state.close_current_screen();
+                        return Ok(None);
+                    }
+                    KeyCode::Esc | KeyCode::Char('n') | KeyCode::Char('N') => {
+                        state.active_popup = None;
+                        return Ok(None);
+                    }
+                    _ => {}
+                }
+                Err(())
+            }
             PopupType::ConfirmClearHistory { history_type } => {
                 match key.code {
                     KeyCode::Enter => {

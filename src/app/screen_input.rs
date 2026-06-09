@@ -222,8 +222,23 @@ fn handle_editor_screen(
                     }
                 }
             }
+            KeyCode::F(4) => {
+                let path = ed.path.clone();
+                let mut viewer_state = crate::ui::viewer::ViewerState::load(path);
+                viewer_state.mode = crate::ui::viewer::ViewerMode::Hex;
+                state.push_screen(Screen::Viewer(viewer_state));
+                return Ok(());
+            }
+            KeyCode::F(8) => {
+                state.active_popup = Some(PopupType::ConfirmDiscardEditorChanges);
+                return Ok(());
+            }
             KeyCode::Esc | KeyCode::F(10) => {
-                state.close_current_screen();
+                if ed.is_dirty {
+                    state.active_popup = Some(PopupType::ConfirmDiscardEditorChanges);
+                } else {
+                    state.close_current_screen();
+                }
                 return Ok(());
             }
             _ => {}
@@ -260,6 +275,24 @@ fn handle_viewer_screen(
                 }
             }
             KeyCode::F(4) => vw.toggle_mode(),
+            KeyCode::F(7) => {
+                state.active_popup = Some(PopupType::ViewerSearchPrompt {
+                    query: String::new(),
+                });
+                return Ok(());
+            }
+            KeyCode::F(3) => {
+                if let Some(ref q) = vw.last_search {
+                    if vw.mode == crate::ui::viewer::ViewerMode::Text {
+                        // basic search downward from current scroll
+                        if let Some(found_idx) = vw.lines.iter().enumerate().skip(vw.scroll + 1).find(|(_, l)| l.to_lowercase().contains(&q.to_lowercase())).map(|(i, _)| i) {
+                            vw.scroll = found_idx;
+                        } else if let Some(found_idx) = vw.lines.iter().enumerate().take(vw.scroll + 1).find(|(_, l)| l.to_lowercase().contains(&q.to_lowercase())).map(|(i, _)| i) {
+                            vw.scroll = found_idx;
+                        }
+                    }
+                }
+            }
             KeyCode::Esc | KeyCode::F(10) => {
                 state.close_current_screen();
                 return Ok(());

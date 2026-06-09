@@ -28,6 +28,7 @@ pub mod select_group;
 pub mod task_list;
 pub mod tree_view;
 pub mod user_menu;
+pub mod viewer;
 
 use crate::app::context::AppContext;
 use crate::app::state::{AppState, PopupType};
@@ -49,6 +50,7 @@ pub fn handle_popup_input(
             | PopupType::ConfirmInterrupt
             | PopupType::ConfirmOverwrite { .. }
             | PopupType::ConfirmReload { .. }
+            | PopupType::ConfirmDiscardEditorChanges
             | PopupType::ConfirmClearHistory { .. } => confirm_dialogs::handle(state, key, context),
             PopupType::ConfirmDelete { .. } | PopupType::WipeConfirm { .. } => {
                 delete::handle(state, key, context)
@@ -57,6 +59,9 @@ pub fn handle_popup_input(
             PopupType::UserMenu => user_menu::handle(state, key, context),
             PopupType::EditorSearchPrompt { .. } => {
                 editor::handle(state, key, context)
+            }
+            PopupType::ViewerSearchPrompt { .. } => {
+                viewer::handle(state, key, context)
             }
             PopupType::Menu { .. } => menu::handle(state, key, context),
             PopupType::ScreensMenu { .. } => screens_menu::handle(state, key, context),

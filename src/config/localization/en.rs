@@ -62,8 +62,16 @@ pub fn get_default_english_translation(key: &str) -> String {
         "fkey_alt_history" => "History",
         "fkey_alt_video" => "Video",
         "fkey_alt_tree" => "Tree",
-        "fkey_alt_viewhs" => "ViewHs",
-        "fkey_alt_foldhs" => "FoldHs",
+        "fkey_viewhs" => "ViewHs",
+        "fkey_foldhs" => "FoldHs",
+        "fkey_ed_save" => "Save",
+        "fkey_ed_hex" => "Hex",
+        "fkey_ed_search" => "Search",
+        "fkey_ed_discard" => "Discar",
+        "fkey_ed_quit" => "Quit",
+        "fkey_vw_hex" => "Hex",
+        "fkey_vw_search" => "Search",
+        "fkey_vw_quit" => "Quit",
 
         // Top menu categories
         "menu_left" => "&Left",
@@ -234,9 +242,13 @@ pub fn get_default_english_translation(key: &str) -> String {
         "label_dirs" => "dirs",
 
         // Viewer & Quickview
+        "editor_discard_title" => " Discard Changes ",
+        "editor_discard_prompt" => "Discard unsaved changes? [Y/N]",
+        "viewer_title_bar" => " Viewer: [{}] {} ",
+        "viewer_search_title" => " Viewer Search ",
+        "viewer_search_text" => "Search for: {}",
         "view_text_mode" => "Text",
         "view_hex_mode" => "Hex",
-        "viewer_title_bar" => " [{}] {}  | F2=Hex/Text  Esc=Close ",
         "quickview_title" => " Quick View: {} ",
         "quickview_archive" => "Archive: {}",
         "quickview_format" => "Format: {}",

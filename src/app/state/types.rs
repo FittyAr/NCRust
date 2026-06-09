@@ -286,6 +286,10 @@ pub enum PopupType {
     EditorSearchPrompt {
         query: String,
     },
+    ConfirmDiscardEditorChanges,
+    ViewerSearchPrompt {
+        query: String,
+    },
     QuickViewPanel {
         path: PathBuf,
         content: Vec<String>,

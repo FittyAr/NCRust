@@ -53,6 +53,7 @@ pub fn handle(
                                     raw,
                                     mode: crate::ui::viewer::ViewerMode::Text,
                                     scroll: 0,
+                                    last_search: None,
                                 };
                                 state.push_screen(Screen::Viewer(vw));
                                 state.active_popup = None;

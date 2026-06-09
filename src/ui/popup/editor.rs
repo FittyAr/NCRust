@@ -5,7 +5,7 @@ use crate::config::localization::t;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
+    style::Style,
     widgets::{Block, Borders, Clear, Paragraph},
 };
 use std::path::Path;
@@ -19,7 +19,7 @@ pub fn render_editor_widget(
     cursor_y: usize,
     scroll_y: usize,
     is_dirty: bool,
-    _theme: &crate::config::theme::Theme,
+    theme: &crate::config::theme::Theme,
 ) {
     let title = t("editor_title")
         .replacen("{}", &path.to_string_lossy(), 1)
@@ -27,9 +27,14 @@ pub fn render_editor_widget(
 
     let block = Block::default()
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan))
-        .title(title)
-        .style(Style::default().bg(Color::Blue));
+        .border_style(Style::default().fg(parse_color(&theme.panel_border)))
+        .title(ratatui::text::Span::styled(
+            title,
+            Style::default()
+                .fg(parse_color(&theme.header_fg))
+                .add_modifier(ratatui::style::Modifier::BOLD),
+        ))
+        .style(Style::default().bg(parse_color(&theme.panel_bg)));
 
     let inner = block.inner(area);
     let chunks = Layout::default()
@@ -49,7 +54,7 @@ pub fn render_editor_widget(
         text.push(ratatui::text::Line::from(format!("{}{}", prefix, line)));
     }
 
-    let paragraph = Paragraph::new(text).style(Style::default().fg(Color::White));
+    let paragraph = Paragraph::new(text).style(Style::default().fg(parse_color(&theme.panel_fg)));
 
     f.render_widget(block, area);
     f.render_widget(paragraph, edit_area);
@@ -60,8 +65,8 @@ pub fn render_editor_widget(
         .replacen("{}", &lines.len().to_string(), 1)
         .replacen("{}", &(cursor_y + 1).to_string(), 1)
         .replacen("{}", &(cursor_x + 1).to_string(), 1);
-    let status_para =
-        Paragraph::new(status_text).style(Style::default().bg(Color::Cyan).fg(Color::Black));
+    let status_para = Paragraph::new(status_text)
+        .style(Style::default().bg(parse_color(&theme.header_fg)).fg(parse_color(&theme.header_bg)));
     f.render_widget(status_para, status_area);
 
     // Draw the terminal blinking cursor at the editing position
@@ -91,7 +96,7 @@ pub fn render_editor_popup(
             f.render_widget(Clear, search_area);
             let block = Block::default()
                 .borders(Borders::ALL)
-                .border_style(Style::default().fg(Color::Yellow))
+                .border_style(Style::default().fg(parse_color(&theme.popup_border)))
                 .title(t("editor_search_title"))
                 .style(Style::default().bg(parse_color(&theme.popup_bg)));
 
@@ -102,6 +107,21 @@ pub fn render_editor_popup(
                 .style(Style::default().fg(parse_color(&theme.popup_fg)));
 
             f.render_widget(paragraph, search_area);
+            true
+        }
+        PopupType::ConfirmDiscardEditorChanges => {
+            let area = centered_rect(50, 20, size);
+            f.render_widget(Clear, area);
+            let block = Block::default()
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(parse_color(&theme.popup_border)))
+                .title(t("editor_discard_title"))
+                .style(Style::default().bg(parse_color(&theme.popup_bg)));
+            let text = ratatui::text::Line::from(vec![
+                ratatui::text::Span::styled(t("editor_discard_prompt"), Style::default().fg(parse_color(&theme.popup_fg)))
+            ]);
+            let para = Paragraph::new(text).block(block).alignment(ratatui::layout::Alignment::Center);
+            f.render_widget(para, area);
             true
         }
         _ => false,

@@ -7,6 +7,7 @@ pub mod info;
 pub mod menus;
 pub mod prompts;
 pub mod screens_menu;
+pub mod viewer;
 
 use crate::app::context::AppContext;
 use crate::app::state::{AppState, PopupType};
@@ -72,6 +73,9 @@ fn render_specific_popup(
         return;
     }
     if editor::render_editor_popup(f, popup, theme, size) {
+        return;
+    }
+    if viewer::render_viewer_popup(f, popup, theme, size) {
         return;
     }
     if history_lists::render_history_lists_popup(f, popup, theme, size) {
