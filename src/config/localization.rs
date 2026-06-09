@@ -12,14 +12,20 @@ pub struct LanguageFile {
 
 static CURRENT_TRANSLATIONS: OnceLock<RwLock<HashMap<String, String>>> = OnceLock::new();
 
-/// Discovers all JSON language files in both the configuration directory and the local project root.
+/// Discovers all JSON language files in both the configuration directory and the local project root,
+/// including the built-in "English" option.
 pub fn discover_languages() -> Vec<(String, PathBuf)> {
     let mut langs = Vec::new();
+    langs.push(("English".to_string(), PathBuf::new()));
 
     // 1. Scan the project's root folder 'lang'
     let project_lang_dir = PathBuf::from("lang");
     if project_lang_dir.exists() {
-        langs.extend(discover_languages_in_dir(&project_lang_dir));
+        for (name, path) in discover_languages_in_dir(&project_lang_dir) {
+            if !langs.iter().any(|(n, _)| n == &name) {
+                langs.push((name, path));
+            }
+        }
     }
 
     // 2. Scan the user's config directory 'lang'
@@ -65,8 +71,19 @@ pub fn get_default_english_translation(key: &str) -> String {
 }
 
 /// Loads a language by its full name into the global active translation map.
-/// Falls back to empty map (so t() falls back to English) if not found.
+/// Falls back to empty map (so t() falls back to English) if not found or if English is requested.
 pub fn load_language(language_name: &str) {
+    if language_name == "English" {
+        if let Some(lock) = CURRENT_TRANSLATIONS.get() {
+            if let Ok(mut writer) = lock.write() {
+                *writer = HashMap::new();
+            }
+        } else {
+            let _ = CURRENT_TRANSLATIONS.set(RwLock::new(HashMap::new()));
+        }
+        return;
+    }
+
     let langs = discover_languages();
 
     // Find the file path for the given language name

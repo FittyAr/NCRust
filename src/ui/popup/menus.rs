@@ -134,7 +134,7 @@ pub fn render_menu_popup(
                 4 => 42,
                 _ => 2,
             };
-            let dropdown_width = 30;
+            let dropdown_width = 37;
             let dropdown_height = (items.len() + 2) as u16;
             let dropdown_rect = Rect::new(dropdown_x, 1, dropdown_width, dropdown_height);
 

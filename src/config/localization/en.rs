@@ -61,6 +61,11 @@ pub fn get_default_english_translation(key: &str) -> String {
         "menu_change_drive" => "Change drive",
 
         // Files menu items
+        "menu_view" => "View",
+        "menu_edit" => "Edit",
+        "menu_copy" => "Copy",
+        "menu_rename_move" => "Rename/Move",
+        "menu_delete" => "Delete",
         "menu_link" => "Link",
         "menu_make_folder" => "Make Folder",
         "menu_wipe" => "Wipe",
