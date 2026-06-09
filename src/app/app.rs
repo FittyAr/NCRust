@@ -96,6 +96,9 @@ pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
         if let Some(event) = event_handler.next().await {
             match event {
                 Event::Key(key) => {
+                    // Always track the most recent keyboard modifiers
+                    state.current_modifiers = key.modifiers;
+
                     // Filter out KeyRelease events on Windows to prevent double-step triggers
                     if key.kind == crossterm::event::KeyEventKind::Release {
                         continue;

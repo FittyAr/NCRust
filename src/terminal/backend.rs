@@ -1,6 +1,7 @@
 use anyhow::Result;
 use crossterm::{
     cursor::{Hide, Show},
+    event::{KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags},
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
@@ -19,7 +20,12 @@ impl TerminalBackend {
     pub fn init() -> Result<Self> {
         enable_raw_mode()?;
         let mut stdout = io::stdout();
-        execute!(stdout, EnterAlternateScreen, Hide)?;
+        execute!(
+            stdout,
+            EnterAlternateScreen,
+            Hide,
+            PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::REPORT_EVENT_TYPES)
+        )?;
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         Ok(Self { terminal })
@@ -28,7 +34,12 @@ impl TerminalBackend {
     /// Restores the original terminal state by disabling raw mode and leaving alternate screen.
     pub fn restore(&mut self) -> Result<()> {
         disable_raw_mode()?;
-        execute!(io::stdout(), LeaveAlternateScreen, Show)?;
+        execute!(
+            io::stdout(),
+            LeaveAlternateScreen,
+            Show,
+            PopKeyboardEnhancementFlags
+        )?;
         Ok(())
     }
 }

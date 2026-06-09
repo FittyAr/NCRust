@@ -24,7 +24,7 @@ pub fn draw_ui(f: &mut Frame, context: &AppContext, state: &AppState) {
         menu::render_menu(f, layout.menu_rect, context, state);
     }
     if layout.fkeys_rect.height > 0 {
-        fkeys::render_fkeys(f, layout.fkeys_rect, context);
+        fkeys::render_fkeys(f, layout.fkeys_rect, context, state);
     }
     cli::render_cli(f, layout.cli_rect, state, context);
 

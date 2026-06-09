@@ -82,6 +82,15 @@ fn insert_common_norton_bindings(map: &mut HashMap<String, Action>) {
     map.insert("Ctrl+L".to_string(), Action::InfoPanel);
     map.insert("Ctrl+q".to_string(), Action::QuickView);
     map.insert("Ctrl+Q".to_string(), Action::QuickView);
+    map.insert("Ctrl+F3".to_string(), Action::SortByName);
+    map.insert("Ctrl+F4".to_string(), Action::SortByExtension);
+    map.insert("Ctrl+F5".to_string(), Action::SortByWriteTime);
+    map.insert("Ctrl+F6".to_string(), Action::SortBySize);
+    map.insert("Ctrl+F7".to_string(), Action::SortUnsorted);
+    map.insert("Ctrl+F8".to_string(), Action::SortByCreationTime);
+    map.insert("Ctrl+F9".to_string(), Action::SortByAccessTime);
+    map.insert("Ctrl+F10".to_string(), Action::SortByDescription);
+    map.insert("Ctrl+F11".to_string(), Action::SortByOwner);
     map.insert("Ctrl+F12".to_string(), Action::SortModes);
     map.insert("Ctrl+n".to_string(), Action::ToggleLongNames);
     map.insert("Ctrl+N".to_string(), Action::ToggleLongNames);
@@ -107,6 +116,9 @@ fn insert_common_norton_bindings(map: &mut HashMap<String, Action>) {
     // ── Alt+F actions ────────────────────────────────────────────────────────
     map.insert("Alt+F1".to_string(), Action::DriveSelectLeft);
     map.insert("Alt+F2".to_string(), Action::DriveSelectRight);
+    map.insert("Alt+F3".to_string(), Action::View);
+    map.insert("Alt+F4".to_string(), Action::Edit);
+    map.insert("Alt+F5".to_string(), Action::PrintFile);
     map.insert("Alt+F6".to_string(), Action::CreateLink);
     map.insert("Alt+F7".to_string(), Action::FindFile);
     map.insert("Alt+F8".to_string(), Action::CommandHistory);

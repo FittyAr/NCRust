@@ -56,6 +56,9 @@ pub struct AppState {
     pub disable_panel_update_object_count: u32,
     pub free_space_left: Option<u64>,
     pub free_space_right: Option<u64>,
+
+    // ── Keyboard State ────────────────────────────────────────────────────────
+    pub current_modifiers: crossterm::event::KeyModifiers,
 }
 
 impl AppState {
@@ -87,6 +90,7 @@ impl AppState {
             disable_panel_update_object_count: 0,
             free_space_left: None,
             free_space_right: None,
+            current_modifiers: crossterm::event::KeyModifiers::empty(),
         }
     }
 

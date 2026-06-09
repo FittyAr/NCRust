@@ -59,6 +59,26 @@ pub enum Action {
     /// Open Sort Modes dialog (Ctrl+F12)
     SortModes,
 
+    // ── Sorting ──────────────────────────────────────────────────────────────
+    /// Sort by Name (Ctrl+F3)
+    SortByName,
+    /// Sort by Extension (Ctrl+F4)
+    SortByExtension,
+    /// Sort by Write Time (Ctrl+F5)
+    SortByWriteTime,
+    /// Sort by Size (Ctrl+F6)
+    SortBySize,
+    /// Unsorted (Ctrl+F7)
+    SortUnsorted,
+    /// Sort by Creation Time (Ctrl+F8)
+    SortByCreationTime,
+    /// Sort by Access Time (Ctrl+F9)
+    SortByAccessTime,
+    /// Sort by Description (Ctrl+F10)
+    SortByDescription,
+    /// Sort by Owner (Ctrl+F11)
+    SortByOwner,
+
     // ── F-key actions ────────────────────────────────────────────────────────
     /// Open help dialog (F1)
     Help,
@@ -86,6 +106,8 @@ pub enum Action {
     ScreensList,
 
     // ── File operations ──────────────────────────────────────────────────────
+    /// Print file (Alt+F5)
+    PrintFile,
     /// Create a symbolic or hard link to the selected item (Alt+F6)
     CreateLink,
     /// Secure overwrite-then-delete (Alt+Del)

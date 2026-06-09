@@ -34,6 +34,36 @@ pub fn get_default_english_translation(key: &str) -> String {
         "fkey_delete" => "Delete",
         "fkey_pulldn" => "PullDn",
         "fkey_quit" => "Quit",
+        "fkey_plugin" => "Plugin",
+        "fkey_screen" => "Screen",
+
+        // F-keys with Ctrl
+        "fkey_ctrl_left" => "Left",
+        "fkey_ctrl_right" => "Right",
+        "fkey_ctrl_name" => "Name",
+        "fkey_ctrl_extens" => "Extens",
+        "fkey_ctrl_time" => "Time",
+        "fkey_ctrl_size" => "Size",
+        "fkey_ctrl_unsort" => "Unsort",
+        "fkey_ctrl_creatn" => "Creatn",
+        "fkey_ctrl_access" => "Access",
+        "fkey_ctrl_descr" => "Descr",
+        "fkey_ctrl_owner" => "Owner",
+        "fkey_ctrl_sort" => "Sort",
+
+        // F-keys with Alt
+        "fkey_alt_left" => "Left",
+        "fkey_alt_right" => "Right",
+        "fkey_alt_view" => "View",
+        "fkey_alt_edit" => "Edit",
+        "fkey_alt_print" => "Print",
+        "fkey_alt_mklink" => "MkLink",
+        "fkey_alt_find" => "Find",
+        "fkey_alt_history" => "History",
+        "fkey_alt_video" => "Video",
+        "fkey_alt_tree" => "Tree",
+        "fkey_alt_viewhs" => "ViewHs",
+        "fkey_alt_foldhs" => "FoldHs",
 
         // Top menu categories
         "menu_left" => "&Left",
