@@ -2,8 +2,10 @@ use crate::fs::FileEntry;
 use crate::ui::theme_apply::parse_color;
 use ratatui::style::{Color, Style};
 
+use serde::{Deserialize, Serialize};
+
 /// A file highlight rule: files matching the glob mask get a specific foreground color.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HighlightRule {
     /// Glob pattern (e.g. "*.rs", "*.{zip,tar}")
     pub mask: String,
@@ -25,19 +27,19 @@ impl HighlightRule {
 pub fn default_highlight_rules() -> Vec<HighlightRule> {
     vec![
         // Directories — bright cyan
-        HighlightRule::new("[DIR]", "Cyan"),
+        HighlightRule::new("[DIR]", "LightCyan"),
         // Source code — green
-        HighlightRule::new("*.{rs,py,js,ts,c,cpp,h,go,java,kt,rb,swift}", "Green"),
+        HighlightRule::new("*.{rs,py,js,ts,c,cpp,h,go,java,kt,rb,swift}", "LightGreen"),
         // Archives — red / magenta
-        HighlightRule::new("*.{zip,tar,gz,bz2,xz,7z,rar,zst}", "Red"),
+        HighlightRule::new("*.{zip,tar,gz,bz2,xz,7z,rar,zst}", "LightRed"),
         // Images — yellow
-        HighlightRule::new("*.{jpg,jpeg,png,gif,bmp,svg,webp,ico}", "Yellow"),
+        HighlightRule::new("*.{jpg,jpeg,png,gif,bmp,svg,webp,ico}", "LightYellow"),
         // Documents
         HighlightRule::new("*.{md,txt,pdf,doc,docx,odt}", "White"),
         // Executables
         HighlightRule::new("*.{sh,exe,bat,AppImage}", "LightGreen"),
         // Config / data
-        HighlightRule::new("*.{toml,yaml,yml,json,ini,cfg,conf}", "LightCyan"),
+        HighlightRule::new("*.{toml,yaml,yml,json,ini,cfg,conf}", "Cyan"),
     ]
 }
 

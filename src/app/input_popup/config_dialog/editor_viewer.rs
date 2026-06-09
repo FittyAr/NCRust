@@ -5,7 +5,7 @@ pub fn handle_row(
     settings: &mut Settings,
     editing_value: &mut bool,
     edit_buffer: &mut String,
-) {
+) -> Option<crate::app::state::PopupType> {
     match cursor_idx {
         0 => settings.editor_use_external = !settings.editor_use_external,
         1 => {
@@ -113,4 +113,5 @@ pub fn handle_row(
         }
         _ => {}
     }
+    None
 }

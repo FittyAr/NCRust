@@ -5,7 +5,7 @@ pub fn handle_row(
     settings: &mut Settings,
     _editing_value: &mut bool,
     _edit_buffer: &mut String,
-) {
+) -> Option<crate::app::state::PopupType> {
     match cursor_idx {
         0 => {
             let discovered = crate::config::localization::discover_languages();
@@ -46,4 +46,5 @@ pub fn handle_row(
         }
         _ => {}
     }
+    None
 }

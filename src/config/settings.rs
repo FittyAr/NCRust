@@ -200,6 +200,9 @@ pub struct Settings {
     pub viewer_max_line_width: u32,
     pub viewer_autodetect_codepage: bool,
     pub viewer_default_codepage: String,
+
+    // ── NEW Colors settings (Tab 6 interactive) ──────────────────────────────
+    pub highlight_rules: Vec<crate::ui::highlight::HighlightRule>,
 }
 
 impl Default for Settings {
@@ -349,6 +352,9 @@ impl Default for Settings {
             viewer_max_line_width: 10000,
             viewer_autodetect_codepage: true,
             viewer_default_codepage: "1252".to_string(),
+
+            // Tab 6
+            highlight_rules: crate::ui::highlight::default_highlight_rules(),
         }
     }
 }

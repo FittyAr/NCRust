@@ -1,5 +1,7 @@
 pub mod config_dialog;
+pub mod color_groups;
 pub mod editor;
+pub mod files_highlighting;
 pub mod history_lists;
 pub mod info;
 pub mod menus;
@@ -48,6 +50,12 @@ pub fn render_popup(
         return;
     }
     if config_dialog::render_config_dialog_popup(f, popup, theme, size) {
+        return;
+    }
+    if color_groups::render_color_groups_popup(f, popup, theme, size) {
+        return;
+    }
+    if files_highlighting::render_files_highlighting_popup(f, popup, theme, size) {
         return;
     }
     if info::render_info_popup(f, popup, theme, size) {

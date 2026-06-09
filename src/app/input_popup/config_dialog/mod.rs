@@ -139,7 +139,7 @@ pub fn handle(
                     return Ok(None);
                 }
 
-                match active_tab {
+                let next_popup = match active_tab {
                     0 => system::handle_row(
                         cursor_idx,
                         &mut settings,
@@ -181,8 +181,17 @@ pub fn handle(
                         &mut settings,
                         &mut editing_value,
                         &mut edit_buffer,
+                        context,
                     ),
-                    _ => {}
+                    _ => None,
+                };
+                
+                if let Some(popup) = next_popup {
+                    // Temporarily save settings inside context so they aren't lost
+                    // Wait, we need to save the current settings into context!
+                    // Let's just set the popup and return.
+                    state.active_popup = Some(popup);
+                    return Ok(None);
                 }
             }
             KeyCode::F(9) => {

@@ -1,6 +1,7 @@
 pub mod apply_command;
 pub mod compress;
 pub mod config_dialog;
+pub mod color_groups;
 pub mod confirm_dialogs;
 pub mod context_menu;
 pub mod copy;
@@ -13,6 +14,7 @@ pub mod drive_select;
 pub mod editor;
 pub mod file_attributes;
 pub mod file_filter;
+pub mod files_highlighting;
 pub mod history_list;
 pub mod hotlist;
 pub mod menu;
@@ -74,6 +76,8 @@ pub fn handle_popup_input(
             PopupType::TaskListDialog { .. } => task_list::handle(state, key, context),
             PopupType::SaveSetupConfirm => save_setup::handle(state, key, context),
             PopupType::ConfigurationDialog { .. } => config_dialog::handle(state, key, context),
+            PopupType::ColorGroupsDialog { .. } => color_groups::handle(state, key, context),
+            PopupType::FilesHighlightingDialog { .. } => files_highlighting::handle(state, key, context),
             PopupType::FileAttributesDialog { .. } => file_attributes::handle(state, key, context),
             PopupType::CommandHistoryList { .. }
             | PopupType::FileViewHistoryList { .. }

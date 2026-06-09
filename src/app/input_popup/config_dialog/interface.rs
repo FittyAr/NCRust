@@ -5,7 +5,7 @@ pub fn handle_row(
     settings: &mut Settings,
     editing_value: &mut bool,
     edit_buffer: &mut String,
-) {
+) -> Option<crate::app::state::PopupType> {
     match cursor_idx {
         0 => settings.interface_clock = !settings.interface_clock,
         1 => settings.mouse_support = !settings.mouse_support,
@@ -135,4 +135,5 @@ pub fn handle_row(
         }
         _ => {}
     }
+    None
 }

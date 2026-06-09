@@ -67,21 +67,22 @@ impl AppConfig {
 
         // 3. Theme Loading
         let theme_name = &settings.theme;
-        let theme: Theme = if theme_name == "classic_blue" {
+        let themes_dir = paths::get_themes_dir();
+        let theme_path = themes_dir.join(format!("{}.toml", theme_name));
+        
+        let theme: Theme = if theme_path.exists() {
+            let content = fs::read_to_string(&theme_path).context("Failed to read theme file")?;
+            toml::from_str(&content).unwrap_or_else(|_| {
+                if theme_name == "classic_blue" {
+                    Theme::classic_blue()
+                } else {
+                    Theme::default()
+                }
+            })
+        } else if theme_name == "classic_blue" {
             Theme::classic_blue()
-        } else if theme_name == "slate" {
-            Theme::default()
         } else {
-            let themes_dir = paths::get_themes_dir();
-            let theme_path = themes_dir.join(format!("{}.toml", theme_name));
-            if theme_path.exists() {
-                let content =
-                    fs::read_to_string(&theme_path).context("Failed to read theme file")?;
-                toml::from_str(&content).unwrap_or_default()
-            } else {
-                // Default fallback
-                Theme::default()
-            }
+            Theme::default()
         };
 
         Ok(Self {
@@ -100,6 +101,16 @@ impl AppConfig {
         let keybindings_path = paths::get_keybindings_file_path();
         let keybindings_toml = toml::to_string_pretty(&self.keybindings)?;
         fs::write(keybindings_path, keybindings_toml)?;
+
+        // Save active theme
+        let theme_name = &self.settings.theme;
+        let themes_dir = paths::get_themes_dir();
+        if !themes_dir.exists() {
+            fs::create_dir_all(&themes_dir)?;
+        }
+        let theme_path = themes_dir.join(format!("{}.toml", theme_name));
+        let theme_toml = toml::to_string_pretty(&self.theme)?;
+        fs::write(theme_path, theme_toml)?;
 
         Ok(())
     }

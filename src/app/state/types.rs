@@ -316,4 +316,18 @@ pub enum PopupType {
         edit_buffer: String,
         settings: crate::config::settings::Settings,
     },
+
+    // ── Colors Configuration ──────────────────────────────────────────────────
+    ColorGroupsDialog {
+        cursor_idx: usize,
+        editing: bool,
+        edit_buffer: String,
+        theme: crate::config::theme::Theme,
+    },
+    FilesHighlightingDialog {
+        cursor_idx: usize,
+        editing: bool,
+        edit_buffer: String,
+        rules: Vec<crate::ui::highlight::HighlightRule>,
+    },
 }

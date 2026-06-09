@@ -5,7 +5,7 @@ pub fn handle_row(
     settings: &mut Settings,
     _editing_value: &mut bool,
     _edit_buffer: &mut String,
-) {
+) -> Option<crate::app::state::PopupType> {
     match cursor_idx {
         0 => settings.show_hidden = !settings.show_hidden,
         1 => settings.highlight_files = !settings.highlight_files,
@@ -114,4 +114,5 @@ pub fn handle_row(
         }
         _ => {}
     }
+    None
 }
