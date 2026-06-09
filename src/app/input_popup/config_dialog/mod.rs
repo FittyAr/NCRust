@@ -25,16 +25,43 @@ pub fn handle(
         mut settings,
     }) = state.active_popup.clone()
     {
-        let max_rows = match active_tab {
-            0 => 19, // System (17 settings + 2 buttons)
-            1 => 35, // Panel (33 settings + 2 buttons)
-            2 => 39, // Interface (37 settings + 2 buttons)
-            3 => 16, // Confirmations (14 settings + 2 buttons)
-            4 => 13, // Language & Plugins (11 settings + 2 buttons)
-            5 => 41, // Editor/Viewer (39 settings + 2 buttons)
-            6 => 5,  // Colors (3 settings + 2 buttons)
-            _ => 5,
+        let get_rows_for_tab = |tab: usize,
+                                settings: &crate::config::settings::Settings,
+                                editing: bool,
+                                c_idx: usize,
+                                buf: &str|
+         -> Vec<(String, crate::ui::popup::config_dialog::RowType)> {
+            let mut rows = Vec::new();
+            match tab {
+                0 => crate::ui::popup::config_dialog::system::populate_rows(settings, &mut rows),
+                1 => crate::ui::popup::config_dialog::panel::populate_rows(settings, &mut rows),
+                2 => crate::ui::popup::config_dialog::interface::populate_rows(
+                    settings, editing, c_idx, buf, &mut rows,
+                ),
+                3 => crate::ui::popup::config_dialog::confirmations::populate_rows(
+                    settings, &mut rows,
+                ),
+                4 => crate::ui::popup::config_dialog::plugins::populate_rows(settings, &mut rows),
+                5 => crate::ui::popup::config_dialog::editor_viewer::populate_rows(
+                    settings, editing, c_idx, buf, &mut rows,
+                ),
+                6 => crate::ui::popup::config_dialog::colors::populate_rows(settings, &mut rows),
+                _ => {}
+            }
+            rows
         };
+
+        let is_selectable =
+            |idx: usize, rows: &[(String, crate::ui::popup::config_dialog::RowType)]| -> bool {
+                if idx >= rows.len() {
+                    true // OK and Cancel buttons
+                } else {
+                    matches!(
+                        rows[idx].1,
+                        crate::ui::popup::config_dialog::RowType::Setting(_)
+                    )
+                }
+            };
 
         let is_ctrl = key.modifiers.contains(KeyModifiers::CONTROL);
 
@@ -50,12 +77,19 @@ pub fn handle(
                     editing_value = false;
                 }
                 KeyCode::Enter => {
-                    if active_tab == 5 && cursor_idx == 1 {
-                        settings.default_editor = edit_buffer.clone();
-                    } else if active_tab == 5 && cursor_idx == 22 {
-                        settings.viewer_command = edit_buffer.clone();
-                    } else if active_tab == 2 && cursor_idx == 14 {
-                        settings.interface_window_title_addons = edit_buffer.clone();
+                    let mut current_rows =
+                        get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+                    // Extract setting ID
+                    if cursor_idx < current_rows.len() {
+                        if let crate::ui::popup::config_dialog::RowType::Setting(setting_id) = current_rows[cursor_idx].1 {
+                            if active_tab == 5 && setting_id == 1 {
+                                settings.default_editor = edit_buffer.clone();
+                            } else if active_tab == 5 && setting_id == 22 {
+                                settings.viewer_command = edit_buffer.clone();
+                            } else if active_tab == 2 && setting_id == 14 {
+                                settings.interface_window_title_addons = edit_buffer.clone();
+                            }
+                        }
                     }
                     editing_value = false;
                 }
@@ -71,6 +105,20 @@ pub fn handle(
             return Ok(None);
         }
 
+        let mut current_rows =
+            get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+        let max_rows = current_rows.len() + 2;
+        
+        // Ensure initial cursor_idx is selectable
+        if !is_selectable(cursor_idx, &current_rows) {
+            while cursor_idx < max_rows && !is_selectable(cursor_idx, &current_rows) {
+                cursor_idx += 1;
+            }
+            if cursor_idx >= max_rows {
+                cursor_idx = 0;
+            }
+        }
+
         match key.code {
             KeyCode::Esc => {
                 state.active_popup = None;
@@ -83,6 +131,10 @@ pub fn handle(
                     active_tab = 6;
                 }
                 cursor_idx = 0;
+                current_rows = get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+                while cursor_idx < current_rows.len() && !is_selectable(cursor_idx, &current_rows) {
+                    cursor_idx += 1;
+                }
             }
             KeyCode::Right => {
                 if active_tab < 6 {
@@ -91,19 +143,33 @@ pub fn handle(
                     active_tab = 0;
                 }
                 cursor_idx = 0;
+                current_rows = get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+                while cursor_idx < current_rows.len() && !is_selectable(cursor_idx, &current_rows) {
+                    cursor_idx += 1;
+                }
             }
             KeyCode::Up => {
-                if cursor_idx > 0 {
-                    cursor_idx -= 1;
-                } else {
-                    cursor_idx = max_rows - 1;
+                loop {
+                    if cursor_idx > 0 {
+                        cursor_idx -= 1;
+                    } else {
+                        cursor_idx = max_rows - 1;
+                    }
+                    if is_selectable(cursor_idx, &current_rows) {
+                        break;
+                    }
                 }
             }
             KeyCode::Down => {
-                if cursor_idx < max_rows - 1 {
-                    cursor_idx += 1;
-                } else {
-                    cursor_idx = 0;
+                loop {
+                    if cursor_idx < max_rows - 1 {
+                        cursor_idx += 1;
+                    } else {
+                        cursor_idx = 0;
+                    }
+                    if is_selectable(cursor_idx, &current_rows) {
+                        break;
+                    }
                 }
             }
             KeyCode::Char(' ') | KeyCode::Enter => {
@@ -139,45 +205,55 @@ pub fn handle(
                     return Ok(None);
                 }
 
+                // Map visual cursor_idx to actual setting ID
+                let setting_id = if cursor_idx < current_rows.len() {
+                    match current_rows[cursor_idx].1 {
+                        crate::ui::popup::config_dialog::RowType::Setting(id) => id,
+                        _ => return Ok(None),
+                    }
+                } else {
+                    return Ok(None);
+                };
+
                 let next_popup = match active_tab {
                     0 => system::handle_row(
-                        cursor_idx,
+                        setting_id,
                         &mut settings,
                         &mut editing_value,
                         &mut edit_buffer,
                     ),
                     1 => panel::handle_row(
-                        cursor_idx,
+                        setting_id,
                         &mut settings,
                         &mut editing_value,
                         &mut edit_buffer,
                     ),
                     2 => interface::handle_row(
-                        cursor_idx,
+                        setting_id,
                         &mut settings,
                         &mut editing_value,
                         &mut edit_buffer,
                     ),
                     3 => confirmations::handle_row(
-                        cursor_idx,
+                        setting_id,
                         &mut settings,
                         &mut editing_value,
                         &mut edit_buffer,
                     ),
                     4 => plugins::handle_row(
-                        cursor_idx,
+                        setting_id,
                         &mut settings,
                         &mut editing_value,
                         &mut edit_buffer,
                     ),
                     5 => editor_viewer::handle_row(
-                        cursor_idx,
+                        setting_id,
                         &mut settings,
                         &mut editing_value,
                         &mut edit_buffer,
                     ),
                     6 => colors::handle_row(
-                        cursor_idx,
+                        setting_id,
                         &mut settings,
                         &mut editing_value,
                         &mut edit_buffer,
@@ -185,11 +261,8 @@ pub fn handle(
                     ),
                     _ => None,
                 };
-                
+
                 if let Some(popup) = next_popup {
-                    // Temporarily save settings inside context so they aren't lost
-                    // Wait, we need to save the current settings into context!
-                    // Let's just set the popup and return.
                     state.active_popup = Some(popup);
                     return Ok(None);
                 }
@@ -236,6 +309,10 @@ pub fn handle(
                         if hotkey == lower_c {
                             active_tab = i;
                             cursor_idx = 0;
+                            current_rows = get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+                            while cursor_idx < current_rows.len() && !is_selectable(cursor_idx, &current_rows) {
+                                cursor_idx += 1;
+                            }
                             break;
                         }
                     }

@@ -6,6 +6,14 @@ pub mod panel;
 pub mod plugins;
 pub mod system;
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum RowType {
+    Setting(usize),
+    Title,
+    Subtitle,
+    Hint,
+}
+
 use super::centered_rect;
 use crate::app::state::PopupType;
 use crate::ui::theme_apply::parse_color;
@@ -104,7 +112,7 @@ pub fn render_config_dialog_popup(
             }
             f.render_widget(Paragraph::new(Line::from(tab_spans)), header_area);
 
-            let mut rows: Vec<(String, bool)> = Vec::new();
+            let mut rows: Vec<(String, RowType)> = Vec::new();
 
             match active_tab {
                 0 => system::populate_rows(settings, &mut rows),
@@ -129,39 +137,42 @@ pub fn render_config_dialog_popup(
                 _ => {}
             }
 
-            rows.push((crate::config::localization::t("btn_ok"), false));
-            rows.push((crate::config::localization::t("btn_cancel"), false));
+            rows.push((crate::config::localization::t("btn_ok"), RowType::Setting(9998)));
+            rows.push((crate::config::localization::t("btn_cancel"), RowType::Setting(9999)));
 
             let list_height = content_area.height as usize;
             let scroll_start = cursor_idx.saturating_sub(list_height / 2);
             let mut list_spans = Vec::new();
 
-            for (i, (label, is_stub)) in
+            for (i, (label, row_type)) in
                 rows.iter().enumerate().skip(scroll_start).take(list_height)
             {
                 let is_cursor = i == *cursor_idx;
 
-                let display_label = if *is_stub {
-                    format!("{} *", label)
-                } else {
-                    label.clone()
+                let style = match row_type {
+                    RowType::Title => Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    RowType::Subtitle => Style::default().fg(Color::Yellow),
+                    RowType::Hint => Style::default().fg(Color::DarkGray),
+                    RowType::Setting(_) => {
+                        if is_cursor {
+                            Style::default()
+                                .bg(parse_color(&theme.selection_bg))
+                                .fg(parse_color(&theme.selection_fg))
+                                .add_modifier(Modifier::BOLD)
+                        } else {
+                            Style::default().fg(parse_color(&theme.popup_fg))
+                        }
+                    }
                 };
 
-                let style = if is_cursor {
-                    Style::default()
-                        .bg(parse_color(&theme.selection_bg))
-                        .fg(parse_color(&theme.selection_fg))
-                        .add_modifier(Modifier::BOLD)
-                } else if *is_stub {
-                    Style::default().fg(Color::DarkGray)
-                } else {
-                    Style::default().fg(parse_color(&theme.popup_fg))
+                let display_label = match row_type {
+                    RowType::Title => format!("━━━ {} ━━━", label),
+                    RowType::Subtitle => format!("  {}", label),
+                    RowType::Setting(_) => format!("  {}  ", label),
+                    RowType::Hint => format!("  {}  ", label),
                 };
 
-                list_spans.push(Line::from(Span::styled(
-                    format!("  {}  ", display_label),
-                    style,
-                )));
+                list_spans.push(Line::from(Span::styled(display_label, style)));
             }
 
             f.render_widget(Paragraph::new(list_spans), content_area);

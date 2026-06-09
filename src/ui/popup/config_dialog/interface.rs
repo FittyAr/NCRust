@@ -1,24 +1,26 @@
 use crate::config::settings::Settings;
 use crate::config::localization::t;
+use super::RowType;
 
 pub fn populate_rows(
     settings: &Settings,
     editing_value: bool,
     cursor_idx: usize,
     edit_buffer: &str,
-    rows: &mut Vec<(String, bool)>,
+    rows: &mut Vec<(String, RowType)>,
 ) {
+    rows.push(("General".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
             if settings.interface_clock { "x" } else { " " },
             t("int_clock")
         ),
-        false,
+        RowType::Setting(0),
     ));
     rows.push((
         format!("[{}] {}", if settings.mouse_support { "x" } else { " " }, t("int_mouse")),
-        false,
+        RowType::Setting(1),
     ));
     rows.push((
         format!(
@@ -30,7 +32,7 @@ pub fn populate_rows(
             },
             t("int_key_bar")
         ),
-        false,
+        RowType::Setting(2),
     ));
     rows.push((
         format!(
@@ -42,7 +44,7 @@ pub fn populate_rows(
             },
             t("int_menu_bar")
         ),
-        false,
+        RowType::Setting(3),
     ));
     rows.push((
         format!(
@@ -50,8 +52,10 @@ pub fn populate_rows(
             t("int_screensaver"),
             settings.interface_screen_saver_minutes
         ),
-        false,
+        RowType::Setting(4),
     ));
+    
+    rows.push(("Progress Indicators".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -62,7 +66,7 @@ pub fn populate_rows(
             },
             t("int_copy_progress")
         ),
-        false,
+        RowType::Setting(5),
     ));
     rows.push((
         format!(
@@ -74,7 +78,7 @@ pub fn populate_rows(
             },
             t("int_copy_time")
         ),
-        false,
+        RowType::Setting(6),
     ));
     rows.push((
         format!(
@@ -86,8 +90,10 @@ pub fn populate_rows(
             },
             t("int_delete_progress")
         ),
-        false,
+        RowType::Setting(7),
     ));
+    
+    rows.push(("Terminal & Rendering".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -98,7 +104,7 @@ pub fn populate_rows(
             },
             t("int_ctrl_pgup")
         ),
-        false,
+        RowType::Setting(8),
     ));
     rows.push((
         format!(
@@ -110,7 +116,7 @@ pub fn populate_rows(
             },
             t("int_vt")
         ),
-        false,
+        RowType::Setting(9),
     ));
     rows.push((
         format!(
@@ -122,7 +128,7 @@ pub fn populate_rows(
             },
             t("int_fullwidth")
         ),
-        false,
+        RowType::Setting(10),
     ));
     rows.push((
         format!(
@@ -134,11 +140,13 @@ pub fn populate_rows(
             },
             t("int_cleartype")
         ),
-        false,
+        RowType::Setting(11),
     ));
+    
+    rows.push(("Window".to_string(), RowType::Title));
     rows.push((
         format!("{} [ {} ]", t("int_icon"), settings.interface_console_icon),
-        false,
+        RowType::Setting(12),
     ));
     rows.push((
         format!(
@@ -150,12 +158,14 @@ pub fn populate_rows(
             },
             t("int_icon_admin")
         ),
-        false,
+        RowType::Setting(13),
     ));
-    if editing_value && cursor_idx == 14 {
+    
+    let is_editing_title = editing_value && cursor_idx == rows.len();
+    if is_editing_title {
         rows.push((
             format!("{} [ {}◄ ]", t("int_title_addons"), edit_buffer),
-            false,
+            RowType::Setting(14),
         ));
     } else {
         rows.push((
@@ -164,10 +174,12 @@ pub fn populate_rows(
                 t("int_title_addons"),
                 settings.interface_window_title_addons
             ),
-            false,
+            RowType::Setting(14),
         ));
     }
-    rows.push((t("int_diag_title"), false));
+    
+    // t("int_diag_title") was index 15
+    rows.push((t("int_diag_title"), RowType::Title));
     rows.push((
         format!(
             "  [{}] {}",
@@ -178,7 +190,7 @@ pub fn populate_rows(
             },
             t("int_diag_history")
         ),
-        false,
+        RowType::Setting(16),
     ));
     rows.push((
         format!(
@@ -190,7 +202,7 @@ pub fn populate_rows(
             },
             t("int_diag_blocks")
         ),
-        false,
+        RowType::Setting(17),
     ));
     rows.push((
         format!(
@@ -202,7 +214,7 @@ pub fn populate_rows(
             },
             t("int_diag_del")
         ),
-        false,
+        RowType::Setting(18),
     ));
     rows.push((
         format!(
@@ -214,7 +226,7 @@ pub fn populate_rows(
             },
             t("int_diag_auto")
         ),
-        false,
+        RowType::Setting(19),
     ));
     rows.push((
         format!(
@@ -226,7 +238,7 @@ pub fn populate_rows(
             },
             t("int_diag_backspace")
         ),
-        false,
+        RowType::Setting(20),
     ));
     rows.push((
         format!(
@@ -238,16 +250,18 @@ pub fn populate_rows(
             },
             t("int_diag_mouse")
         ),
-        false,
+        RowType::Setting(21),
     ));
-    rows.push((t("int_menu_title"), false));
+    
+    // t("int_menu_title") was index 22
+    rows.push((t("int_menu_title"), RowType::Title));
     rows.push((
         format!(
             "  {} < {} >",
             t("int_menu_left"),
             settings.menu_left_click_outside
         ),
-        false,
+        RowType::Setting(23),
     ));
     rows.push((
         format!(
@@ -255,7 +269,7 @@ pub fn populate_rows(
             t("int_menu_right"),
             settings.menu_right_click_outside
         ),
-        false,
+        RowType::Setting(24),
     ));
     rows.push((
         format!(
@@ -263,9 +277,11 @@ pub fn populate_rows(
             t("int_menu_middle"),
             settings.menu_middle_click_outside
         ),
-        false,
+        RowType::Setting(25),
     ));
-    rows.push((t("int_cmd_title"), false));
+    
+    // t("int_cmd_title") was index 26
+    rows.push((t("int_cmd_title"), RowType::Title));
     rows.push((
         format!(
             "  [{}] {}",
@@ -276,7 +292,7 @@ pub fn populate_rows(
             },
             t("int_cmd_blocks")
         ),
-        false,
+        RowType::Setting(27),
     ));
     rows.push((
         format!(
@@ -288,7 +304,7 @@ pub fn populate_rows(
             },
             t("int_cmd_del")
         ),
-        false,
+        RowType::Setting(28),
     ));
     rows.push((
         format!(
@@ -300,7 +316,7 @@ pub fn populate_rows(
             },
             t("int_cmd_auto")
         ),
-        false,
+        RowType::Setting(29),
     ));
     rows.push((
         format!(
@@ -308,13 +324,15 @@ pub fn populate_rows(
             t("int_cmd_prompt"),
             settings.cmdline_prompt_format
         ),
-        false,
+        RowType::Setting(30),
     ));
     rows.push((
         format!("  {} [ {} ]", t("int_cmd_home"), settings.cmdline_use_home_dir),
-        false,
+        RowType::Setting(31),
     ));
-    rows.push((t("int_auto_title"), false));
+    
+    // t("int_auto_title") was index 32
+    rows.push((t("int_auto_title"), RowType::Title));
     rows.push((
         format!(
             "  [{}] {}",
@@ -325,7 +343,7 @@ pub fn populate_rows(
             },
             t("int_auto_list")
         ),
-        false,
+        RowType::Setting(33),
     ));
     rows.push((
         format!(
@@ -337,7 +355,7 @@ pub fn populate_rows(
             },
             t("int_auto_modal")
         ),
-        false,
+        RowType::Setting(34),
     ));
     rows.push((
         format!(
@@ -349,10 +367,13 @@ pub fn populate_rows(
             },
             t("int_auto_append")
         ),
-        false,
+        RowType::Setting(35),
     ));
+    
+    rows.push(("Keybindings".to_string(), RowType::Title));
     rows.push((
         format!("{} < {} >", t("int_keybindings"), settings.keybinding_preset),
-        false,
+        RowType::Setting(36),
     ));
 }
+

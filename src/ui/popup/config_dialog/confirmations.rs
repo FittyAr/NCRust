@@ -1,7 +1,9 @@
 use crate::config::settings::Settings;
 use crate::config::localization::t;
+use super::RowType;
 
-pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
+pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
+    rows.push(("File Operations".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -12,7 +14,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_copy")
         ),
-        false,
+        RowType::Setting(0),
     ));
     rows.push((
         format!(
@@ -24,7 +26,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_move")
         ),
-        false,
+        RowType::Setting(1),
     ));
     rows.push((
         format!(
@@ -36,7 +38,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_overwrite")
         ),
-        false,
+        RowType::Setting(2),
     ));
     rows.push((
         format!(
@@ -48,7 +50,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_drag_drop")
         ),
-        false,
+        RowType::Setting(3),
     ));
     rows.push((
         format!(
@@ -60,7 +62,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_delete")
         ),
-        false,
+        RowType::Setting(4),
     ));
     rows.push((
         format!(
@@ -72,8 +74,10 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_delete_non_empty")
         ),
-        false,
+        RowType::Setting(5),
     ));
+    
+    rows.push(("Drives & System".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -84,7 +88,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_interrupt")
         ),
-        false,
+        RowType::Setting(6),
     ));
     rows.push((
         format!(
@@ -96,7 +100,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_disconnect")
         ),
-        false,
+        RowType::Setting(7),
     ));
     rows.push((
         format!(
@@ -108,7 +112,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_delete_subst")
         ),
-        false,
+        RowType::Setting(8),
     ));
     rows.push((
         format!(
@@ -120,7 +124,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_detach_vdisk")
         ),
-        false,
+        RowType::Setting(9),
     ));
     rows.push((
         format!(
@@ -132,8 +136,10 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_hotplug")
         ),
-        false,
+        RowType::Setting(10),
     ));
+    
+    rows.push(("General".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -144,7 +150,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_reload")
         ),
-        false,
+        RowType::Setting(11),
     ));
     rows.push((
         format!(
@@ -156,7 +162,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_clear_history")
         ),
-        false,
+        RowType::Setting(12),
     ));
     rows.push((
         format!(
@@ -168,6 +174,6 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("conf_exit")
         ),
-        false,
+        RowType::Setting(13),
     ));
 }

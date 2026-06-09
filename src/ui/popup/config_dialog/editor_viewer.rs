@@ -1,13 +1,15 @@
-use crate::config::settings::Settings;
+ use crate::config::settings::Settings;
 use crate::config::localization::t;
+use super::RowType;
 
 pub fn populate_rows(
     settings: &Settings,
     editing_value: bool,
     cursor_idx: usize,
     edit_buffer: &str,
-    rows: &mut Vec<(String, bool)>,
+    rows: &mut Vec<(String, RowType)>,
 ) {
+    rows.push(("Editor Settings".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -18,20 +20,24 @@ pub fn populate_rows(
             },
             t("ed_external")
         ),
-        true,
+        RowType::Setting(0),
     ));
-    if editing_value && cursor_idx == 1 {
-        rows.push((format!("{} [ {}◄ ]", t("ed_command"), edit_buffer), false));
+    
+    let is_editing_editor = editing_value && cursor_idx == rows.len();
+    if is_editing_editor {
+        rows.push((format!("{} [ {}◄ ]", t("ed_command"), edit_buffer), RowType::Setting(1)));
     } else {
         rows.push((
             format!("{} [ {} ]", t("ed_command"), settings.default_editor),
-            false,
+            RowType::Setting(1),
         ));
     }
-    rows.push((t("ed_internal_title"), true));
+    
+    // t("ed_internal_title") was index 2
+    rows.push((t("ed_internal_title"), RowType::Subtitle));
     rows.push((
         format!("{} < {} >", t("ed_expand_tabs"), settings.editor_expand_tabs),
-        true,
+        RowType::Setting(3),
     ));
     rows.push((
         format!(
@@ -43,7 +49,7 @@ pub fn populate_rows(
             },
             t("ed_persistent_blocks")
         ),
-        true,
+        RowType::Setting(4),
     ));
     rows.push((
         format!(
@@ -55,7 +61,7 @@ pub fn populate_rows(
             },
             t("ed_cursor_beyond_eol")
         ),
-        true,
+        RowType::Setting(5),
     ));
     rows.push((
         format!(
@@ -67,7 +73,7 @@ pub fn populate_rows(
             },
             t("ed_del_removes_blocks")
         ),
-        true,
+        RowType::Setting(6),
     ));
     rows.push((
         format!(
@@ -79,7 +85,7 @@ pub fn populate_rows(
             },
             t("ed_select_found")
         ),
-        true,
+        RowType::Setting(7),
     ));
     rows.push((
         format!(
@@ -91,7 +97,7 @@ pub fn populate_rows(
             },
             t("ed_auto_indent")
         ),
-        true,
+        RowType::Setting(8),
     ));
     rows.push((
         format!(
@@ -103,12 +109,14 @@ pub fn populate_rows(
             },
             t("ed_cursor_at_end")
         ),
-        true,
+        RowType::Setting(9),
     ));
     rows.push((
         format!("  {} [ {} ]", t("ed_tab_size"), settings.editor_tab_size),
-        true,
+        RowType::Setting(10),
     ));
+    
+    rows.push(("Editor Appearance & Saving".to_string(), RowType::Title));
     rows.push((
         format!(
             "  [{}] {}",
@@ -119,7 +127,7 @@ pub fn populate_rows(
             },
             t("ed_show_scrollbar")
         ),
-        true,
+        RowType::Setting(11),
     ));
     rows.push((
         format!(
@@ -131,7 +139,7 @@ pub fn populate_rows(
             },
             t("ed_show_white_space")
         ),
-        true,
+        RowType::Setting(12),
     ));
     rows.push((
         format!(
@@ -143,7 +151,7 @@ pub fn populate_rows(
             },
             t("ed_show_line_numbers")
         ),
-        true,
+        RowType::Setting(13),
     ));
     rows.push((
         format!(
@@ -155,7 +163,7 @@ pub fn populate_rows(
             },
             t("ed_save_pos")
         ),
-        true,
+        RowType::Setting(14),
     ));
     rows.push((
         format!(
@@ -167,7 +175,7 @@ pub fn populate_rows(
             },
             t("ed_save_bookmarks")
         ),
-        true,
+        RowType::Setting(15),
     ));
     rows.push((
         format!(
@@ -179,7 +187,7 @@ pub fn populate_rows(
             },
             t("ed_allow_opened_writing")
         ),
-        true,
+        RowType::Setting(16),
     ));
     rows.push((
         format!(
@@ -191,7 +199,7 @@ pub fn populate_rows(
             },
             t("ed_lock_readonly")
         ),
-        true,
+        RowType::Setting(17),
     ));
     rows.push((
         format!(
@@ -203,7 +211,7 @@ pub fn populate_rows(
             },
             t("ed_warn_readonly")
         ),
-        true,
+        RowType::Setting(18),
     ));
     rows.push((
         format!(
@@ -215,7 +223,7 @@ pub fn populate_rows(
             },
             t("ed_detect_codepage")
         ),
-        true,
+        RowType::Setting(19),
     ));
     rows.push((
         format!(
@@ -223,8 +231,10 @@ pub fn populate_rows(
             t("ed_default_codepage"),
             settings.editor_default_codepage
         ),
-        true,
+        RowType::Setting(20),
     ));
+    
+    rows.push(("Viewer Settings".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -235,17 +245,21 @@ pub fn populate_rows(
             },
             t("vi_external")
         ),
-        true,
+        RowType::Setting(21),
     ));
-    if editing_value && cursor_idx == 22 {
-        rows.push((format!("{} [ {}◄ ]", t("vi_command"), edit_buffer), false));
+    
+    let is_editing_viewer = editing_value && cursor_idx == rows.len();
+    if is_editing_viewer {
+        rows.push((format!("{} [ {}◄ ]", t("vi_command"), edit_buffer), RowType::Setting(22)));
     } else {
         rows.push((
             format!("{} [ {} ]", t("vi_command"), settings.viewer_command),
-            true,
+            RowType::Setting(22),
         ));
     }
-    rows.push((t("vi_internal_title"), true));
+    
+    // t("vi_internal_title") was index 23
+    rows.push((t("vi_internal_title"), RowType::Subtitle));
     rows.push((
         format!(
             "  [{}] {}",
@@ -256,7 +270,7 @@ pub fn populate_rows(
             },
             t("vi_persistent_selection")
         ),
-        true,
+        RowType::Setting(24),
     ));
     rows.push((
         format!(
@@ -268,11 +282,11 @@ pub fn populate_rows(
             },
             t("vi_scrolling_arrows")
         ),
-        true,
+        RowType::Setting(25),
     ));
     rows.push((
         format!("  {} [ {} ]", t("vi_tab_size"), settings.viewer_tab_size),
-        true,
+        RowType::Setting(26),
     ));
     rows.push((
         format!(
@@ -284,8 +298,10 @@ pub fn populate_rows(
             },
             t("vi_visible_zero")
         ),
-        true,
+        RowType::Setting(27),
     ));
+    
+    rows.push(("Viewer Appearance & Saving".to_string(), RowType::Title));
     rows.push((
         format!(
             "  [{}] {}",
@@ -296,7 +312,7 @@ pub fn populate_rows(
             },
             t("vi_show_scrollbar")
         ),
-        true,
+        RowType::Setting(28),
     ));
     rows.push((
         format!(
@@ -308,7 +324,7 @@ pub fn populate_rows(
             },
             t("vi_save_pos")
         ),
-        true,
+        RowType::Setting(29),
     ));
     rows.push((
         format!(
@@ -320,7 +336,7 @@ pub fn populate_rows(
             },
             t("vi_save_mode")
         ),
-        true,
+        RowType::Setting(30),
     ));
     rows.push((
         format!(
@@ -332,7 +348,7 @@ pub fn populate_rows(
             },
             t("vi_save_codepage")
         ),
-        true,
+        RowType::Setting(31),
     ));
     rows.push((
         format!(
@@ -344,7 +360,7 @@ pub fn populate_rows(
             },
             t("vi_save_wrap")
         ),
-        true,
+        RowType::Setting(32),
     ));
     rows.push((
         format!(
@@ -356,7 +372,7 @@ pub fn populate_rows(
             },
             t("vi_save_bookmarks")
         ),
-        true,
+        RowType::Setting(33),
     ));
     rows.push((
         format!(
@@ -368,7 +384,7 @@ pub fn populate_rows(
             },
             t("vi_detect_dump")
         ),
-        true,
+        RowType::Setting(34),
     ));
     rows.push((
         format!(
@@ -376,7 +392,7 @@ pub fn populate_rows(
             t("vi_max_line"),
             settings.viewer_max_line_width
         ),
-        true,
+        RowType::Setting(35),
     ));
     rows.push((
         format!(
@@ -388,7 +404,7 @@ pub fn populate_rows(
             },
             t("vi_detect_codepage")
         ),
-        true,
+        RowType::Setting(36),
     ));
     rows.push((
         format!(
@@ -396,7 +412,7 @@ pub fn populate_rows(
             t("vi_default_codepage"),
             settings.viewer_default_codepage
         ),
-        true,
+        RowType::Setting(37),
     ));
-    rows.push((t("vi_codepages_hint"), true));
+    rows.push((t("vi_codepages_hint"), RowType::Hint)); // 38
 }

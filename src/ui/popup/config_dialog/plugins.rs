@@ -1,26 +1,31 @@
 use crate::config::localization::t;
 use crate::config::settings::Settings;
+use super::RowType;
 
-pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
+pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
+    rows.push(("Language".to_string(), RowType::Title));
     rows.push((
         format!(
             "{}: < {} >",
             t("lang_label"),
             settings.language
         ),
-        false,
+        RowType::Setting(0),
     ));
+    
+    rows.push(("Plugins Configuration".to_string(), RowType::Title));
     rows.push((
         format!(
             "{}: [ArcLite | EMenu | HlfViewer | NetBox]",
             t("plugins_config")
         ),
-        false,
-    ));
+        RowType::Hint,
+    )); // 1
+    
     rows.push((
         t("plugins_manager_settings"),
-        false,
-    ));
+        RowType::Title,
+    )); // 2
     rows.push((
         format!(
             "  [{}] {}",
@@ -31,7 +36,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("oem_support")
         ),
-        false,
+        RowType::Setting(3),
     ));
     rows.push((
         format!(
@@ -43,12 +48,13 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("scan_symlinks")
         ),
-        false,
+        RowType::Setting(4),
     ));
+    
     rows.push((
         format!("  {}", t("plugin_selection")),
-        false,
-    ));
+        RowType::Subtitle,
+    )); // 5
     rows.push((
         format!(
             "    [{}] {}",
@@ -59,7 +65,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("file_processing")
         ),
-        false,
+        RowType::Setting(6),
     ));
     rows.push((
         format!(
@@ -71,7 +77,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("show_std_association")
         ),
-        false,
+        RowType::Setting(7),
     ));
     rows.push((
         format!(
@@ -83,7 +89,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("even_if_one")
         ),
-        false,
+        RowType::Setting(8),
     ));
     rows.push((
         format!(
@@ -95,7 +101,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("search_results")
         ),
-        false,
+        RowType::Setting(9),
     ));
     rows.push((
         format!(
@@ -107,6 +113,6 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("prefix_processing")
         ),
-        false,
+        RowType::Setting(10),
     ));
 }

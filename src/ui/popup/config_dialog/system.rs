@@ -1,7 +1,9 @@
 use crate::config::settings::Settings;
 use crate::config::localization::t;
+use super::RowType;
 
-pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
+pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
+    rows.push(("File Operations".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -12,7 +14,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_delete_recycle")
         ),
-        false,
+        RowType::Setting(0),
     ));
     rows.push((
         format!(
@@ -24,7 +26,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_system_copy")
         ),
-        false,
+        RowType::Setting(1),
     ));
     rows.push((
         format!(
@@ -36,7 +38,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_copy_opened")
         ),
-        false,
+        RowType::Setting(2),
     ));
     rows.push((
         format!(
@@ -48,8 +50,10 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_scan_symlinks")
         ),
-        false,
+        RowType::Setting(3),
     ));
+    
+    rows.push(("History".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -60,7 +64,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_save_cmd_hist")
         ),
-        false,
+        RowType::Setting(4),
     ));
     rows.push((
         format!(
@@ -72,7 +76,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_save_folder_hist")
         ),
-        false,
+        RowType::Setting(5),
     ));
     rows.push((
         format!(
@@ -84,8 +88,10 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_save_view_hist")
         ),
-        false,
+        RowType::Setting(6),
     ));
+    
+    rows.push(("Environment".to_string(), RowType::Title));
     rows.push((
         format!(
             "[{}] {}",
@@ -96,7 +102,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_windows_types")
         ),
-        false,
+        RowType::Setting(7),
     ));
     rows.push((
         format!(
@@ -108,9 +114,11 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_auto_update_env")
         ),
-        false,
+        RowType::Setting(8),
     ));
-    rows.push((t("sys_req_admin"), false));
+    
+    rows.push(("Permissions".to_string(), RowType::Title));
+    rows.push((t("sys_req_admin"), RowType::Subtitle));
     rows.push((
         format!(
             "  [{}] {}",
@@ -121,7 +129,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_admin_mod")
         ),
-        false,
+        RowType::Setting(10),
     ));
     rows.push((
         format!(
@@ -129,7 +137,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             if settings.req_admin_reading { "x" } else { " " },
             t("sys_admin_read")
         ),
-        false,
+        RowType::Setting(11),
     ));
     rows.push((
         format!(
@@ -141,11 +149,13 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_admin_privs")
         ),
-        false,
+        RowType::Setting(12),
     ));
+    
+    rows.push(("Sorting & Saving".to_string(), RowType::Title));
     rows.push((
         format!("{} < {} >", t("sys_sort_collation"), settings.sorting_collation),
-        false,
+        RowType::Setting(13),
     ));
     rows.push((
         format!(
@@ -157,7 +167,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_digits_numbers")
         ),
-        false,
+        RowType::Setting(14),
     ));
     rows.push((
         format!(
@@ -169,7 +179,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             },
             t("sys_case_sensitive")
         ),
-        false,
+        RowType::Setting(15),
     ));
     rows.push((
         format!(
@@ -177,6 +187,6 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, bool)>) {
             if settings.auto_save_setup { "x" } else { " " },
             t("sys_auto_save")
         ),
-        false,
+        RowType::Setting(16),
     ));
 }
