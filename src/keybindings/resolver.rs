@@ -144,6 +144,8 @@ fn parse_action_name(name: &str) -> Option<Action> {
         "quit" => Some(Action::Quit),
         "plugin_menu" => Some(Action::PluginMenu),
         "screens_list" => Some(Action::ScreensList),
+        "next_screen" => Some(Action::NextScreen),
+        "prev_screen" => Some(Action::PrevScreen),
 
         // ── File operations ──────────────────────────────────────────────────
         "create_link" => Some(Action::CreateLink),

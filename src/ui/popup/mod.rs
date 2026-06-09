@@ -6,9 +6,10 @@ pub mod history_lists;
 pub mod info;
 pub mod menus;
 pub mod prompts;
+pub mod screens_menu;
 
 use crate::app::context::AppContext;
-use crate::app::state::AppState;
+use crate::app::state::{AppState, PopupType};
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
@@ -29,6 +30,24 @@ pub fn render_popup(
     let theme = &context.config.theme;
     let size = f.size();
 
+    // If the active popup is a ScreensMenu that suspended another popup, render the suspended one first!
+    if let PopupType::ScreensMenu { suspended_popup: Some(suspended), .. } = popup {
+        render_specific_popup(f, suspended, state, context, left_rect, right_rect, theme, size);
+    }
+
+    render_specific_popup(f, popup, state, context, left_rect, right_rect, theme, size);
+}
+
+fn render_specific_popup(
+    f: &mut ratatui::Frame,
+    popup: &PopupType,
+    state: &AppState,
+    _context: &AppContext,
+    left_rect: Rect,
+    right_rect: Rect,
+    theme: &crate::config::theme::Theme,
+    size: Rect,
+) {
     if prompts::render_prompt_popup(f, popup, theme, size) {
         return;
     }
@@ -40,6 +59,15 @@ pub fn render_popup(
         left_rect,
         right_rect,
         state,
+    ) {
+        return;
+    }
+    if screens_menu::render_screens_menu(
+        f,
+        popup,
+        state,
+        theme,
+        size,
     ) {
         return;
     }

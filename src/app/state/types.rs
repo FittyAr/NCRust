@@ -100,6 +100,40 @@ pub enum LinkKind {
 }
 
 #[derive(Debug, Clone)]
+pub struct EditorState {
+    pub path: PathBuf,
+    pub lines: Vec<String>,
+    pub cursor_x: usize,
+    pub cursor_y: usize,
+    pub scroll_y: usize,
+    pub is_dirty: bool,
+    pub last_search: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TerminalState {
+    pub command: String,
+    pub output_lines: Vec<String>,
+    pub is_running: bool,
+    #[allow(dead_code)]
+    pub pid: Option<u32>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TerminalUpdate {
+    pub screen_idx: usize,
+    pub line: Option<String>, // Some(line) = new output, None = process exited
+}
+
+#[derive(Debug, Clone)]
+pub enum Screen {
+    Panels,
+    Viewer(crate::ui::viewer::ViewerState),
+    Editor(EditorState),
+    Terminal(TerminalState),
+}
+
+#[derive(Debug, Clone)]
 pub enum PopupType {
     // ── Basic ────────────────────────────────────────────────────────────────
     Help,
@@ -154,15 +188,7 @@ pub enum PopupType {
         is_move: bool,
         input: Option<String>,
     },
-    ConfirmReload {
-        path: PathBuf,
-        lines: Vec<String>,
-        cursor_x: usize,
-        cursor_y: usize,
-        scroll_y: usize,
-        is_dirty: bool,
-        last_search: Option<String>,
-    },
+    ConfirmReload,
     ConfirmClearHistory {
         history_type: String,
     },
@@ -250,28 +276,15 @@ pub enum PopupType {
         cursor_idx: usize,
     },
 
-    // ── Editors / viewers ─────────────────────────────────────────────────────
-    InternalEditor {
-        path: PathBuf,
-        lines: Vec<String>,
-        cursor_x: usize,
-        cursor_y: usize,
-        scroll_y: usize,
-        is_dirty: bool,
-        last_search: Option<String>,
+    // ── Screens Menu ──────────────────────────────────────────────────────────
+    ScreensMenu {
+        cursor_idx: usize,
+        suspended_popup: Option<Box<PopupType>>,
     },
+
+    // ── Editors / viewers (Popups for active screens) ─────────────────────────
     EditorSearchPrompt {
-        path: PathBuf,
-        lines: Vec<String>,
-        cursor_x: usize,
-        cursor_y: usize,
-        scroll_y: usize,
-        is_dirty: bool,
-        last_search: Option<String>,
         query: String,
-    },
-    InternalViewer {
-        viewer: crate::ui::viewer::ViewerState,
     },
     QuickViewPanel {
         path: PathBuf,

@@ -104,6 +104,10 @@ pub enum Action {
     PluginMenu,
     /// Show screens list (F12)
     ScreensList,
+    /// Next Screen (Ctrl+Tab)
+    NextScreen,
+    /// Previous Screen (Ctrl+Shift+Tab)
+    PrevScreen,
 
     // ── File operations ──────────────────────────────────────────────────────
     /// Print file (Alt+F5)

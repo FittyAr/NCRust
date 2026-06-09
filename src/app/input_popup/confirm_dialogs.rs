@@ -122,55 +122,28 @@ pub fn handle(
                 }
                 Err(())
             }
-            PopupType::ConfirmReload {
-                path,
-                lines,
-                cursor_x,
-                cursor_y,
-                scroll_y,
-                is_dirty,
-                last_search,
-            } => {
+            PopupType::ConfirmReload => {
                 match key.code {
                     KeyCode::Enter => {
-                        match std::fs::read_to_string(&path) {
-                            Ok(content) => {
-                                let reloaded_lines: Vec<String> =
-                                    content.lines().map(|s| s.to_string()).collect();
-                                state.active_popup = Some(PopupType::InternalEditor {
-                                    path,
-                                    lines: if reloaded_lines.is_empty() {
-                                        vec![String::new()]
-                                    } else {
-                                        reloaded_lines
-                                    },
-                                    cursor_x: cursor_x.min(
-                                        content.lines().nth(cursor_y).map(|l| l.len()).unwrap_or(0),
-                                    ),
-                                    cursor_y,
-                                    scroll_y,
-                                    is_dirty: false,
-                                    last_search,
-                                });
-                            }
-                            Err(e) => {
-                                state.active_popup =
-                                    Some(PopupType::Error(format!("Failed to reload: {}", e)));
+                        if let Some(crate::app::state::Screen::Editor(ed)) = state.screens.get_mut(state.active_screen_idx) {
+                            match std::fs::read_to_string(&ed.path) {
+                                Ok(content) => {
+                                    let reloaded_lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
+                                    ed.lines = if reloaded_lines.is_empty() { vec![String::new()] } else { reloaded_lines };
+                                    ed.cursor_x = ed.cursor_x.min(ed.lines.get(ed.cursor_y).map(|l| l.len()).unwrap_or(0));
+                                    ed.is_dirty = false;
+                                }
+                                Err(e) => {
+                                    state.active_popup = Some(PopupType::Error(format!("Failed to reload: {}", e)));
+                                    return Ok(None);
+                                }
                             }
                         }
+                        state.active_popup = None;
                         return Ok(None);
                     }
                     KeyCode::Esc => {
-                        // Return to editor with unchanged state
-                        state.active_popup = Some(PopupType::InternalEditor {
-                            path,
-                            lines,
-                            cursor_x,
-                            cursor_y,
-                            scroll_y,
-                            is_dirty,
-                            last_search,
-                        });
+                        state.active_popup = None;
                         return Ok(None);
                     }
                     _ => {}

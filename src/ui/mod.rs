@@ -28,51 +28,85 @@ pub fn draw_ui(f: &mut Frame, context: &AppContext, state: &AppState) {
     }
     cli::render_cli(f, layout.cli_rect, state, context);
 
-    // 3. Draw panels (unless Ctrl+O hides both)
-    if !state.both_panels_hidden {
-        let left_active = state.active_panel == ActivePanel::Left;
-        let right_active = state.active_panel == ActivePanel::Right;
+    // 3. Draw active screen
+    if let Some(screen) = state.screens.get(state.active_screen_idx) {
+        match screen {
+            crate::app::state::Screen::Panels => {
+                if !state.both_panels_hidden {
+                    let left_active = state.active_panel == ActivePanel::Left;
+                    let right_active = state.active_panel == ActivePanel::Right;
 
-        // Left panel
-        if state.left_panel_visible && layout.left_rect.width > 1 {
-            panel::render_panel(f, layout.left_rect, &state.left_panel, left_active, context);
-        }
+                    // Left panel
+                    if state.left_panel_visible && layout.left_rect.width > 1 {
+                        panel::render_panel(f, layout.left_rect, &state.left_panel, left_active, context);
+                    }
 
-        // Right panel — replaced by quick view if active and the right panel is passive
-        if state.right_panel_visible && layout.right_rect.width > 1 {
-            if state.quick_view_active {
-                // Quick view shows the content of the active panel's selected file
-                if let Some(PopupType::QuickViewPanel {
-                    ref path,
-                    ref content,
-                    scroll,
-                }) = state.active_popup
-                {
-                    quickview::draw_quick_view(
-                        f,
-                        layout.right_rect,
-                        path,
-                        content,
-                        scroll,
-                        &context.config.theme,
-                    );
-                } else {
-                    panel::render_panel(
-                        f,
-                        layout.right_rect,
-                        &state.right_panel,
-                        right_active,
-                        context,
-                    );
+                    // Right panel — replaced by quick view if active and the right panel is passive
+                    if state.right_panel_visible && layout.right_rect.width > 1 {
+                        if state.quick_view_active {
+                            if let Some(PopupType::QuickViewPanel {
+                                ref path,
+                                ref content,
+                                scroll,
+                            }) = state.active_popup
+                            {
+                                quickview::draw_quick_view(
+                                    f,
+                                    layout.right_rect,
+                                    path,
+                                    content,
+                                    scroll,
+                                    &context.config.theme,
+                                );
+                            } else {
+                                panel::render_panel(
+                                    f,
+                                    layout.right_rect,
+                                    &state.right_panel,
+                                    right_active,
+                                    context,
+                                );
+                            }
+                        } else {
+                            panel::render_panel(
+                                f,
+                                layout.right_rect,
+                                &state.right_panel,
+                                right_active,
+                                context,
+                            );
+                        }
+                    }
                 }
-            } else {
-                panel::render_panel(
+            }
+            crate::app::state::Screen::Editor(ed) => {
+                crate::ui::popup::editor::render_editor_widget(
                     f,
-                    layout.right_rect,
-                    &state.right_panel,
-                    right_active,
-                    context,
+                    layout.main_rect,
+                    &ed.path,
+                    &ed.lines,
+                    ed.cursor_x,
+                    ed.cursor_y,
+                    ed.scroll_y,
+                    ed.is_dirty,
+                    &context.config.theme,
                 );
+            }
+            crate::app::state::Screen::Viewer(vw) => {
+                crate::ui::viewer::render_viewer(f, layout.main_rect, vw, &context.config.theme);
+            }
+            crate::app::state::Screen::Terminal(ts) => {
+                let lines: Vec<ratatui::text::Line> = ts
+                    .output_lines
+                    .iter()
+                    .rev()
+                    .take((layout.main_rect.height.saturating_sub(2)) as usize)
+                    .rev()
+                    .map(|l| ratatui::text::Line::from(l.as_str()))
+                    .collect();
+                let p = ratatui::widgets::Paragraph::new(lines)
+                    .block(ratatui::widgets::Block::default().borders(ratatui::widgets::Borders::ALL).title(format!(" Terminal: {} ", ts.command)));
+                f.render_widget(p, layout.main_rect);
             }
         }
     }

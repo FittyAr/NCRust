@@ -22,12 +22,12 @@ pub mod menu;
 pub mod mkdir;
 pub mod rename_move;
 pub mod save_setup;
+pub mod screens_menu;
 pub mod search;
 pub mod select_group;
 pub mod task_list;
 pub mod tree_view;
 pub mod user_menu;
-pub mod viewer;
 
 use crate::app::context::AppContext;
 use crate::app::state::{AppState, PopupType};
@@ -55,11 +55,11 @@ pub fn handle_popup_input(
             }
             PopupType::CopyProgress { .. } => copy_progress::handle(state, key, context),
             PopupType::UserMenu => user_menu::handle(state, key, context),
-            PopupType::InternalEditor { .. } | PopupType::EditorSearchPrompt { .. } => {
+            PopupType::EditorSearchPrompt { .. } => {
                 editor::handle(state, key, context)
             }
-            PopupType::InternalViewer { .. } => viewer::handle(state, key, context),
             PopupType::Menu { .. } => menu::handle(state, key, context),
+            PopupType::ScreensMenu { .. } => screens_menu::handle(state, key, context),
             PopupType::DriveSelect { .. } => drive_select::handle(state, key, context),
             PopupType::Hotlist { .. } => hotlist::handle(state, key, context),
             PopupType::RenMovPrompt { .. } => rename_move::handle(state, key, context),

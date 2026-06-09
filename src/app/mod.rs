@@ -5,6 +5,7 @@ pub mod context;
 pub mod input;
 pub mod input_popup;
 pub mod menu_handler;
+pub mod screen_input;
 pub mod state;
 pub mod sys_helpers;
 

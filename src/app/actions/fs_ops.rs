@@ -1,5 +1,6 @@
 use crate::app::context::AppContext;
-use crate::app::state::{AppState, FileAttrsSnapshot, LinkKind, PopupType};
+use crate::app::state::{AppState, FileAttrsSnapshot, LinkKind, PopupType, Screen};
+use crate::app::state::types::EditorState;
 use crate::keybindings::Action;
 use crate::terminal::TerminalBackend;
 
@@ -57,7 +58,7 @@ pub fn handle_fs_action(
 
                 if !ran_external {
                     let viewer = crate::ui::viewer::ViewerState::load(path);
-                    state.active_popup = Some(PopupType::InternalViewer { viewer });
+                    state.push_screen(Screen::Viewer(viewer));
                 }
             }
             true
@@ -74,7 +75,7 @@ pub fn handle_fs_action(
                 match std::fs::read_to_string(&path) {
                     Ok(content) => {
                         let lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
-                        state.active_popup = Some(PopupType::InternalEditor {
+                        state.push_screen(Screen::Editor(EditorState {
                             path,
                             lines: if lines.is_empty() {
                                 vec![String::new()]
@@ -86,7 +87,7 @@ pub fn handle_fs_action(
                             scroll_y: 0,
                             is_dirty: false,
                             last_search: None,
-                        });
+                        }));
                     }
                     Err(e) => {
                         state.active_popup =

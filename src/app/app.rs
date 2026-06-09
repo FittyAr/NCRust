@@ -8,6 +8,7 @@ use std::time::Duration;
 use super::actions::handle_action;
 use super::input::handle_cli_input;
 use super::input_popup::handle_popup_input;
+use super::screen_input::handle_screen_input;
 
 /// Runs the main loop for NCRust.
 pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
@@ -71,6 +72,20 @@ pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
                 }
                 state.progress_rx = Some(rx);
             }
+
+        // 1.5 Process Terminal background updates
+        if state.term_rx.is_some() {
+            let mut rx = state.term_rx.take().unwrap();
+            while let Ok(update) = rx.try_recv() {
+                if let Some(crate::app::state::Screen::Terminal(ts)) = state.screens.get_mut(update.screen_idx) {
+                    match update.line {
+                        Some(line) => ts.output_lines.push(line),
+                        None => ts.is_running = false,
+                    }
+                }
+            }
+            state.term_rx = Some(rx);
+        }
         }
 
         // 2. Draw terminal window
@@ -115,6 +130,11 @@ pub async fn run(mut context: AppContext, mut state: AppState) -> Result<()> {
                             continue;
                         }
                         Err(()) => {}
+                    }
+
+                    // Screens consume inputs before CLI and Panels (unless it's a global shortcut)
+                    if handle_screen_input(&mut state, key, &mut context).is_ok() {
+                        continue;
                     }
 
                     // CLI input takes priority next if applicable

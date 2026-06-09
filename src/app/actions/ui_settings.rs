@@ -284,9 +284,19 @@ pub fn handle_ui_settings_action(
             true
         }
         Action::ScreensList => {
-            state.active_popup = Some(PopupType::Info(
-                "Screens list: not yet implemented.".to_string(),
-            ));
+            let suspended = state.active_popup.take();
+            state.active_popup = Some(PopupType::ScreensMenu { 
+                cursor_idx: state.active_screen_idx,
+                suspended_popup: suspended.map(Box::new)
+            });
+            true
+        }
+        Action::NextScreen => {
+            state.next_screen();
+            true
+        }
+        Action::PrevScreen => {
+            state.prev_screen();
             true
         }
         Action::VideoMode => {

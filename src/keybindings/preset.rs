@@ -106,6 +106,8 @@ fn insert_common_norton_bindings(map: &mut HashMap<String, Action>) {
     map.insert("F10".to_string(), Action::Quit);
     map.insert("F11".to_string(), Action::PluginMenu);
     map.insert("F12".to_string(), Action::ScreensList);
+    map.insert("Ctrl+Tab".to_string(), Action::NextScreen);
+    map.insert("Ctrl+Shift+Tab".to_string(), Action::PrevScreen);
 
     // ── Shift+F actions ──────────────────────────────────────────────────────
     map.insert("Shift+F1".to_string(), Action::CompressFiles);

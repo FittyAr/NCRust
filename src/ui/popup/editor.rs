@@ -10,7 +10,7 @@ use ratatui::{
 };
 use std::path::Path;
 
-fn render_editor_widget(
+pub fn render_editor_widget(
     f: &mut Frame,
     area: Rect,
     path: &Path,
@@ -83,38 +83,9 @@ pub fn render_editor_popup(
     size: Rect,
 ) -> bool {
     match popup {
-        PopupType::InternalEditor {
-            path,
-            lines,
-            cursor_x,
-            cursor_y,
-            scroll_y,
-            is_dirty,
-            last_search: _,
-        } => {
-            let area = centered_rect(95, 90, size);
-            f.render_widget(Clear, area);
-            render_editor_widget(
-                f, area, path, lines, *cursor_x, *cursor_y, *scroll_y, *is_dirty, theme,
-            );
-            true
-        }
         PopupType::EditorSearchPrompt {
-            path,
-            lines,
-            cursor_x,
-            cursor_y,
-            scroll_y,
-            is_dirty,
-            last_search: _,
             query,
         } => {
-            let area = centered_rect(95, 90, size);
-            f.render_widget(Clear, area);
-            render_editor_widget(
-                f, area, path, lines, *cursor_x, *cursor_y, *scroll_y, *is_dirty, theme,
-            );
-
             // Overlay search input popup
             let search_area = centered_rect(50, 15, size);
             f.render_widget(Clear, search_area);
@@ -131,12 +102,6 @@ pub fn render_editor_popup(
                 .style(Style::default().fg(parse_color(&theme.popup_fg)));
 
             f.render_widget(paragraph, search_area);
-            true
-        }
-        PopupType::InternalViewer { viewer } => {
-            let area = centered_rect(95, 90, size);
-            f.render_widget(Clear, area);
-            crate::ui::viewer::render_viewer(f, area, viewer, theme);
             true
         }
         _ => false,

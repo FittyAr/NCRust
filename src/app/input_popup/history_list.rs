@@ -156,7 +156,7 @@ pub fn handle(
                             let path = entries[cursor_idx].clone();
                             state.active_popup = None;
                             let viewer = crate::ui::viewer::ViewerState::load(path);
-                            state.active_popup = Some(PopupType::InternalViewer { viewer });
+                            state.push_screen(crate::app::state::Screen::Viewer(viewer));
                         } else {
                             state.active_popup = None;
                         }

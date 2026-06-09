@@ -77,6 +77,86 @@ pub fn handle_cli_input(
                         active.cursor_index = 0;
                         active.selected_paths.clear();
                     }
+                } else if cmd.ends_with("&") {
+                    let cmd_bg = cmd.strip_suffix("&").unwrap().trim().to_string();
+                    let current_dir = current_path.clone();
+                    
+                    let ts = crate::app::state::types::TerminalState {
+                        command: cmd_bg.clone(),
+                        output_lines: vec![],
+                        is_running: true,
+                        pid: None,
+                    };
+                    
+                    state.push_screen(crate::app::state::Screen::Terminal(ts));
+                    let screen_idx = state.screens.len() - 1;
+                    let tx = state.term_tx.clone();
+
+                    let shell = if cfg!(target_os = "windows") { "cmd" } else { "sh" };
+                    let arg = if cfg!(target_os = "windows") { "/c" } else { "-c" };
+
+                    tokio::spawn(async move {
+                        use tokio::io::AsyncBufReadExt;
+                        use std::process::Stdio;
+
+                        let mut child = match tokio::process::Command::new(shell)
+                            .arg(arg)
+                            .arg(&cmd_bg)
+                            .current_dir(current_dir)
+                            .stdout(Stdio::piped())
+                            .stderr(Stdio::piped())
+                            .spawn()
+                        {
+                            Ok(c) => c,
+                            Err(e) => {
+                                let _ = tx.send(crate::app::state::TerminalUpdate {
+                                    screen_idx,
+                                    line: Some(format!("Failed to spawn: {}", e)),
+                                });
+                                let _ = tx.send(crate::app::state::TerminalUpdate {
+                                    screen_idx,
+                                    line: None,
+                                });
+                                return;
+                            }
+                        };
+
+                        let stdout = child.stdout.take().unwrap();
+                        let stderr = child.stderr.take().unwrap();
+
+                        let tx_out = tx.clone();
+                        let tx_err = tx.clone();
+
+                        let mut out_reader = tokio::io::BufReader::new(stdout).lines();
+                        let mut err_reader = tokio::io::BufReader::new(stderr).lines();
+
+                        let out_task = tokio::spawn(async move {
+                            while let Ok(Some(line)) = out_reader.next_line().await {
+                                let _ = tx_out.send(crate::app::state::TerminalUpdate {
+                                    screen_idx,
+                                    line: Some(line),
+                                });
+                            }
+                        });
+
+                        let err_task = tokio::spawn(async move {
+                            while let Ok(Some(line)) = err_reader.next_line().await {
+                                let _ = tx_err.send(crate::app::state::TerminalUpdate {
+                                    screen_idx,
+                                    line: Some(line),
+                                });
+                            }
+                        });
+
+                        let _ = tokio::join!(out_task, err_task);
+                        let _ = child.wait().await;
+                        
+                        let _ = tx.send(crate::app::state::TerminalUpdate {
+                            screen_idx,
+                            line: None,
+                        });
+                    });
+
                 } else {
                     let _ = execute_shell_command(&cmd, &current_path, context, terminal_backend);
                 }

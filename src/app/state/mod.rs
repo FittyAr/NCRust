@@ -6,8 +6,8 @@ pub use crate::fs::compare::CompareStatus;
 pub use glob::glob_matches;
 pub use panel::PanelState;
 pub use types::{
-    ActivePanel, FileAttrsSnapshot, LinkKind, PanelViewMode, PopupType, ProcessEntry, SelectMode,
-    SortField, TreeNode,
+    ActivePanel, FileAttrsSnapshot, LinkKind, PanelViewMode, PopupType, ProcessEntry, Screen,
+    SelectMode, SortField, TerminalUpdate, TreeNode,
 };
 
 use crate::fs::{self, ProgressUpdate};
@@ -23,6 +23,14 @@ pub struct AppState {
     pub should_quit: bool,
     /// Channel receiver for running copy/move/extract/wipe operations
     pub progress_rx: Option<tokio::sync::mpsc::Receiver<ProgressUpdate>>,
+    /// Channel for communicating with the background terminal
+    pub term_tx: tokio::sync::mpsc::UnboundedSender<TerminalUpdate>,
+    pub term_rx: Option<tokio::sync::mpsc::UnboundedReceiver<TerminalUpdate>>,
+
+    // ── Screens Management ────────────────────────────────────────────────────
+    pub screens: Vec<Screen>,
+    pub screen_popups: Vec<Option<PopupType>>,
+    pub active_screen_idx: usize,
 
     // ── Panel visibility ──────────────────────────────────────────────────────
     pub left_panel_visible: bool,
@@ -63,6 +71,7 @@ pub struct AppState {
 
 impl AppState {
     pub fn new(left_path: PathBuf, right_path: PathBuf) -> Self {
+        let (term_tx, term_rx) = tokio::sync::mpsc::unbounded_channel();
         Self {
             left_panel: PanelState::new(left_path),
             right_panel: PanelState::new(right_path),
@@ -71,6 +80,11 @@ impl AppState {
             active_popup: None,
             should_quit: false,
             progress_rx: None,
+            term_tx,
+            term_rx: Some(term_rx),
+            screens: vec![Screen::Panels],
+            screen_popups: vec![None],
+            active_screen_idx: 0,
             left_panel_visible: true,
             right_panel_visible: true,
             both_panels_hidden: false,
@@ -232,6 +246,49 @@ impl AppState {
                 }
             }
             self.free_space_right = crate::app::sys_helpers::get_free_space(&right_path);
+        }
+    }
+
+    /// Adds a new screen to the stack and makes it active.
+    pub fn push_screen(&mut self, screen: Screen) {
+        if self.active_screen_idx < self.screen_popups.len() {
+            self.screen_popups[self.active_screen_idx] = self.active_popup.take();
+        }
+        self.screens.push(screen);
+        self.screen_popups.push(None);
+        self.active_screen_idx = self.screens.len() - 1;
+        self.active_popup = None;
+    }
+
+    /// Switches to the next screen (Ctrl-Tab).
+    pub fn next_screen(&mut self) {
+        if self.screens.len() > 1 {
+            self.screen_popups[self.active_screen_idx] = self.active_popup.take();
+            self.active_screen_idx = (self.active_screen_idx + 1) % self.screens.len();
+            self.active_popup = self.screen_popups[self.active_screen_idx].take();
+        }
+    }
+
+    /// Switches to the previous screen (Ctrl-Shift-Tab).
+    pub fn prev_screen(&mut self) {
+        if self.screens.len() > 1 {
+            self.screen_popups[self.active_screen_idx] = self.active_popup.take();
+            self.active_screen_idx = if self.active_screen_idx == 0 {
+                self.screens.len() - 1
+            } else {
+                self.active_screen_idx - 1
+            };
+            self.active_popup = self.screen_popups[self.active_screen_idx].take();
+        }
+    }
+
+    /// Closes the currently active screen, reverting to the previous one.
+    pub fn close_current_screen(&mut self) {
+        if self.active_screen_idx > 0 && self.active_screen_idx < self.screens.len() {
+            self.screens.remove(self.active_screen_idx);
+            self.screen_popups.remove(self.active_screen_idx);
+            self.active_screen_idx -= 1;
+            self.active_popup = self.screen_popups[self.active_screen_idx].take();
         }
     }
 }
