@@ -15,8 +15,18 @@ pub fn handle(
     }) = state.active_popup.clone()
     {
         match key.code {
-            KeyCode::Esc => {
-                state.active_popup = None;
+            KeyCode::Esc | KeyCode::F(10) => {
+                match caller {
+                    crate::app::state::types::TreeViewCaller::Panel(_) => {
+                        state.active_popup = None;
+                    }
+                    crate::app::state::types::TreeViewCaller::CopyPrompt { previous } => {
+                        state.active_popup = Some(*previous);
+                    }
+                    crate::app::state::types::TreeViewCaller::RenMovPrompt { previous } => {
+                        state.active_popup = Some(*previous);
+                    }
+                }
                 return Ok(None);
             }
             KeyCode::Up => {
@@ -77,14 +87,14 @@ pub fn handle(
                             state.refresh_both_panels(context.config.settings.show_hidden);
                         }
                         crate::app::state::types::TreeViewCaller::CopyPrompt { mut previous } => {
-                            if let PopupType::CopyPrompt { ref mut dest_dir, .. } = *previous {
-                                *dest_dir = target;
+                            if let PopupType::CopyPrompt { ref mut input, .. } = *previous {
+                                *input = target.to_string_lossy().to_string();
                             }
                             state.active_popup = Some(*previous);
                         }
                         crate::app::state::types::TreeViewCaller::RenMovPrompt { mut previous } => {
-                            if let PopupType::RenMovPrompt { ref mut dest_dir, .. } = *previous {
-                                *dest_dir = target;
+                            if let PopupType::RenMovPrompt { ref mut input, .. } = *previous {
+                                *input = target.to_string_lossy().to_string();
                             }
                             state.active_popup = Some(*previous);
                         }

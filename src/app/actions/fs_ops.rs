@@ -101,11 +101,14 @@ pub fn handle_fs_action(
             if !targets.is_empty() {
                 let dest_dir = state.get_passive_panel().current_path.clone();
                 if context.config.settings.confirmations.confirm_copy {
-                    let default_input = targets
-                        .first()
-                        .and_then(|p| p.file_name())
-                        .map(|n| n.to_string_lossy().to_string())
-                        .unwrap_or_default();
+                    let default_input = if targets.len() == 1 {
+                        targets.first()
+                            .and_then(|p| p.file_name())
+                            .map(|n| dest_dir.join(n).to_string_lossy().to_string())
+                            .unwrap_or_else(|| dest_dir.to_string_lossy().to_string())
+                    } else {
+                        dest_dir.to_string_lossy().to_string()
+                    };
                     state.active_popup = Some(PopupType::CopyPrompt {
                         input: default_input,
                         src_paths: targets,
@@ -168,11 +171,14 @@ pub fn handle_fs_action(
             if !targets.is_empty() {
                 let dest_dir = state.get_passive_panel().current_path.clone();
                 if context.config.settings.confirmations.confirm_move {
-                    let default_input = targets
-                        .first()
-                        .and_then(|p| p.file_name())
-                        .map(|n| n.to_string_lossy().to_string())
-                        .unwrap_or_default();
+                    let default_input = if targets.len() == 1 {
+                        targets.first()
+                            .and_then(|p| p.file_name())
+                            .map(|n| dest_dir.join(n).to_string_lossy().to_string())
+                            .unwrap_or_else(|| dest_dir.to_string_lossy().to_string())
+                    } else {
+                        dest_dir.to_string_lossy().to_string()
+                    };
                     state.active_popup = Some(PopupType::RenMovPrompt {
                         input: default_input,
                         src_paths: targets,

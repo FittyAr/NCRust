@@ -84,6 +84,20 @@ pub fn handle(
                 update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
                 return Ok(None);
             }
+            KeyCode::Left => {
+                if new_idx >= 10 && new_idx <= 13 {
+                    new_idx = if new_idx > 10 { new_idx - 1 } else { 13 };
+                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                }
+                return Ok(None);
+            }
+            KeyCode::Right => {
+                if new_idx >= 10 && new_idx <= 13 {
+                    new_idx = if new_idx < 13 { new_idx + 1 } else { 10 };
+                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                }
+                return Ok(None);
+            }
             KeyCode::Char(c) => {
                 if new_idx == 0 {
                     new_input.push(c);
@@ -173,11 +187,7 @@ pub fn handle(
                 // Start copy
                 state.active_popup = None;
                 let targets = src_paths;
-                let dest = if targets.len() == 1 {
-                    dest_dir.join(&new_input)
-                } else {
-                    dest_dir
-                };
+                let dest = dest_dir.join(&new_input);
 
                 let rx = crate::fs::spawn_copy_task(targets, dest, context.config.settings.clone());
                 state.progress_rx = Some(rx);
