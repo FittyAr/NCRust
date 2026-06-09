@@ -110,6 +110,16 @@ pub fn handle_fs_action(
                         input: default_input,
                         src_paths: targets,
                         dest_dir,
+                        cursor_idx: 0,
+                        already_existing: 0, // Ask
+                        process_multiple: false,
+                        copy_access_mode: true, // Default as in screenshot
+                        copy_extended_attributes: false,
+                        disable_write_cache: false,
+                        produce_sparse_files: false,
+                        use_copy_on_write: false,
+                        symlink_mode: 0, // Smartly copy
+                        use_filter: false,
                     });
                 } else {
                     // Check overwrite if enabled
@@ -166,6 +176,16 @@ pub fn handle_fs_action(
                         input: default_input,
                         src_paths: targets,
                         dest_dir,
+                        cursor_idx: 0,
+                        already_existing: 0,
+                        process_multiple: false,
+                        copy_access_mode: true,
+                        copy_extended_attributes: false,
+                        disable_write_cache: false,
+                        produce_sparse_files: false,
+                        use_copy_on_write: false,
+                        symlink_mode: 0,
+                        use_filter: false,
                     });
                 } else {
                     // Check overwrite if enabled
@@ -252,6 +272,8 @@ pub fn handle_fs_action(
         Action::MkDir => {
             state.active_popup = Some(PopupType::MkDirPrompt {
                 input: String::new(),
+                cursor_idx: 0,
+                process_multiple: false,
             });
             true
         }
@@ -267,7 +289,10 @@ pub fn handle_fs_action(
                         && targets.iter().any(|p| is_non_empty_dir(p)));
 
                 if show_prompt {
-                    state.active_popup = Some(PopupType::ConfirmDelete { paths: targets });
+                    state.active_popup = Some(PopupType::ConfirmDelete { 
+                        paths: targets,
+                        cursor_idx: 0,
+                    });
                 } else {
                     for path in &targets {
                         if let Err(e) = crate::fs::delete_sync(

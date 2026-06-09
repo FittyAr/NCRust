@@ -3,6 +3,8 @@ use crate::app::state::{AppState, PopupType};
 use crate::keybindings::Action;
 use crossterm::event::{KeyCode, KeyEvent};
 
+const MAX_CURSOR_IDX: usize = 13;
+
 pub fn handle(
     state: &mut AppState,
     key: KeyEvent,
@@ -12,35 +14,119 @@ pub fn handle(
         input,
         src_paths,
         dest_dir,
+        cursor_idx,
+        already_existing,
+        process_multiple,
+        copy_access_mode,
+        copy_extended_attributes,
+        disable_write_cache,
+        produce_sparse_files,
+        use_copy_on_write,
+        symlink_mode,
+        use_filter,
     }) = state.active_popup.clone()
     {
+        let mut new_input = input.clone();
+        let mut new_idx = cursor_idx;
+        let mut new_already = already_existing;
+        let mut new_multi = process_multiple;
+        let mut new_access = copy_access_mode;
+        let mut new_ext = copy_extended_attributes;
+        let mut new_cache = disable_write_cache;
+        let mut new_sparse = produce_sparse_files;
+        let mut new_cow = use_copy_on_write;
+        let mut new_sym = symlink_mode;
+        let mut new_filter = use_filter;
+
+        let update_popup = |
+            s: &mut AppState,
+            i: String,
+            idx: usize,
+            a: usize,
+            m: bool,
+            ac: bool,
+            ex: bool,
+            ca: bool,
+            sp: bool,
+            cw: bool,
+            sy: usize,
+            f: bool
+        | {
+            s.active_popup = Some(PopupType::CopyPrompt {
+                input: i,
+                src_paths: src_paths.clone(),
+                dest_dir: dest_dir.clone(),
+                cursor_idx: idx,
+                already_existing: a,
+                process_multiple: m,
+                copy_access_mode: ac,
+                copy_extended_attributes: ex,
+                disable_write_cache: ca,
+                produce_sparse_files: sp,
+                use_copy_on_write: cw,
+                symlink_mode: sy,
+                use_filter: f,
+            });
+        };
+
         match key.code {
+            KeyCode::Up | KeyCode::BackTab => {
+                new_idx = if new_idx > 0 { new_idx - 1 } else { MAX_CURSOR_IDX };
+                update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter);
+                return Ok(None);
+            }
+            KeyCode::Down | KeyCode::Tab => {
+                new_idx = if new_idx < MAX_CURSOR_IDX { new_idx + 1 } else { 0 };
+                update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter);
+                return Ok(None);
+            }
             KeyCode::Char(c) => {
-                let mut new_input = input;
-                new_input.push(c);
-                state.active_popup = Some(PopupType::CopyPrompt {
-                    input: new_input,
-                    src_paths,
-                    dest_dir,
-                });
+                if new_idx == 0 {
+                    new_input.push(c);
+                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter);
+                } else if c == ' ' {
+                    // Toggle depending on idx
+                    match new_idx {
+                        1 => new_already = (new_already + 1) % 4, // Cycle Ask, Overwrite, Skip, Append
+                        2 => new_multi = !new_multi,
+                        3 => new_access = !new_access,
+                        4 => new_ext = !new_ext,
+                        5 => new_cache = !new_cache,
+                        6 => new_sparse = !new_sparse,
+                        7 => new_cow = !new_cow,
+                        8 => new_sym = (new_sym + 1) % 3, // Cycle Smart, Link, Target
+                        9 => new_filter = !new_filter,
+                        _ => {}
+                    }
+                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter);
+                }
                 return Ok(None);
             }
             KeyCode::Backspace => {
-                let mut new_input = input;
-                new_input.pop();
-                state.active_popup = Some(PopupType::CopyPrompt {
-                    input: new_input,
-                    src_paths,
-                    dest_dir,
-                });
+                if new_idx == 0 {
+                    new_input.pop();
+                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter);
+                }
                 return Ok(None);
             }
             KeyCode::Enter => {
-                // Check for overwrite confirmation if enabled
+                if new_idx == 13 {
+                    // Cancel
+                    state.active_popup = None;
+                    return Ok(None);
+                }
+
+                // Any other Enter acts as Copy
+                // (except F10-Tree and Filter buttons which are not implemented yet)
+                if new_idx == 11 || new_idx == 12 {
+                    return Ok(None);
+                }
+
+                // Copy logic
                 if context.config.settings.confirmations.confirm_overwrite {
                     let mut any_exists = false;
                     if src_paths.len() == 1 {
-                        let dst = dest_dir.join(&input);
+                        let dst = dest_dir.join(&new_input);
                         if dst.exists() {
                             any_exists = true;
                         }
@@ -56,23 +142,22 @@ pub fn handle(
                         }
                     }
 
-                    if any_exists {
+                    if any_exists && new_already == 0 /* Ask */ {
                         state.active_popup = Some(PopupType::ConfirmOverwrite {
                             src_paths,
                             dest_dir,
                             is_move: false,
-                            input: Some(input),
+                            input: Some(new_input),
                         });
                         return Ok(None);
                     }
                 }
 
-                // If no overwrite check needed or no files exist, copy directly
+                // Start copy
                 state.active_popup = None;
-
                 let targets = src_paths;
                 let dest = if targets.len() == 1 {
-                    dest_dir.join(&input)
+                    dest_dir.join(&new_input)
                 } else {
                     dest_dir
                 };
@@ -80,7 +165,7 @@ pub fn handle(
                 let rx = crate::fs::spawn_copy_task(targets, dest, context.config.settings.clone());
                 state.progress_rx = Some(rx);
                 state.active_popup = Some(PopupType::CopyProgress {
-                    current_file: "Initializing...".to_string(),
+                    current_file: crate::config::localization::t("progress_initializing"),
                     files_copied: 0,
                     total_files: 0,
                     bytes_copied: 0,
@@ -91,6 +176,10 @@ pub fn handle(
             }
             KeyCode::Esc => {
                 state.active_popup = None;
+                return Ok(None);
+            }
+            KeyCode::F(10) => {
+                // Not implemented yet, just ignore so it doesn't quit
                 return Ok(None);
             }
             _ => {}

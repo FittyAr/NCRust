@@ -11,7 +11,7 @@ pub fn handle(
     let popup = state.active_popup.clone();
     if let Some(p) = popup {
         match p {
-            PopupType::ConfirmDelete { paths } => {
+            PopupType::ConfirmDelete { paths, cursor_idx: _ } => {
                 match key.code {
                     KeyCode::Enter => {
                         for path in &paths {
@@ -21,7 +21,7 @@ pub fn handle(
                                 context.config.settings.req_admin_modification,
                             ) {
                                 state.active_popup =
-                                    Some(PopupType::Error(format!("Delete failed: {}", e)));
+                                    Some(PopupType::Error(format!("{} {}", crate::config::localization::t("error_delete_failed"), e)));
                                 return Ok(None);
                             }
                         }
@@ -45,7 +45,7 @@ pub fn handle(
                         let rx = crate::fs::spawn_wipe_task(paths);
                         state.progress_rx = Some(rx);
                         state.active_popup = Some(PopupType::CopyProgress {
-                            current_file: "Wiping...".to_string(),
+                            current_file: crate::config::localization::t("progress_wiping"),
                             files_copied: 0,
                             total_files: 0,
                             bytes_copied: 0,

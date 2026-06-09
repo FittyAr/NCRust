@@ -246,7 +246,7 @@ impl Default for Settings {
 
             // Tab 1
             highlight_files: true,
-            select_folders: false,
+            select_folders: true,
             right_click_selects_files: false,
             sort_folder_names_by_extension: false,
             disable_panel_update_object_count: 0,

@@ -103,17 +103,39 @@ pub enum PopupType {
     // ── Prompts ──────────────────────────────────────────────────────────────
     MkDirPrompt {
         input: String,
+        cursor_idx: usize,
+        process_multiple: bool,
     },
     CopyPrompt {
         input: String,
         src_paths: Vec<PathBuf>,
         dest_dir: PathBuf,
+        cursor_idx: usize,
+        already_existing: usize,
+        process_multiple: bool,
+        copy_access_mode: bool,
+        copy_extended_attributes: bool,
+        disable_write_cache: bool,
+        produce_sparse_files: bool,
+        use_copy_on_write: bool,
+        symlink_mode: usize,
+        use_filter: bool,
     },
     /// Rename/Move prompt — user edits the destination path before committing.
     RenMovPrompt {
         input: String,
         src_paths: Vec<PathBuf>,
         dest_dir: PathBuf,
+        cursor_idx: usize,
+        already_existing: usize,
+        process_multiple: bool,
+        copy_access_mode: bool,
+        copy_extended_attributes: bool,
+        disable_write_cache: bool,
+        produce_sparse_files: bool,
+        use_copy_on_write: bool,
+        symlink_mode: usize,
+        use_filter: bool,
     },
     ConfirmQuit,
     ConfirmInterrupt,
@@ -171,6 +193,7 @@ pub enum PopupType {
     // ── Confirmations ─────────────────────────────────────────────────────────
     ConfirmDelete {
         paths: Vec<PathBuf>,
+        cursor_idx: usize,
     },
     WipeConfirm {
         paths: Vec<PathBuf>,
