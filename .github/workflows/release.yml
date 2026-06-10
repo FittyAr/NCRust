@@ -63,10 +63,6 @@ jobs:
           fi
         shell: bash
 
-      - name: Install Inno Setup
-        if: matrix.os == 'windows-latest'
-        uses: AmrDeveloper/setup-inno-setup@v1
-
       - name: Package release assets
         shell: bash
         run: |
@@ -86,10 +82,10 @@ jobs:
             
             # Compile Inno Setup installer
             if [ "${{ matrix.target }}" = "aarch64-pc-windows-msvc" ]; then
-              iscc /DAppVersion="$VERSION_NUM" /DSourceDir="target\\aarch64-pc-windows-msvc\\release" /O"target\\release" /F"pairee-setup-${VERSION_NUM}-arm64" installer.iss
+              "C:\\Program Files (x86)\\Inno Setup 6\\iscc.exe" /DAppVersion="$VERSION_NUM" /DSourceDir="target\\aarch64-pc-windows-msvc\\release" /O"target\\release" /F"pairee-setup-${VERSION_NUM}-arm64" installer.iss
               mv "target/release/pairee-setup-${VERSION_NUM}-arm64.exe" dist/
             else
-              iscc /DAppVersion="$VERSION_NUM" /DSourceDir="target\\x86_64-pc-windows-msvc\\release" /O"target\\release" /F"pairee-setup-${VERSION_NUM}-x64" installer.iss
+              "C:\\Program Files (x86)\\Inno Setup 6\\iscc.exe" /DAppVersion="$VERSION_NUM" /DSourceDir="target\\x86_64-pc-windows-msvc\\release" /O"target\\release" /F"pairee-setup-${VERSION_NUM}-x64" installer.iss
               mv "target/release/pairee-setup-${VERSION_NUM}-x64.exe" dist/
             fi
           else
