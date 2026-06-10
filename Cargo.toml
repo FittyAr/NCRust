@@ -41,7 +41,7 @@ depends = "$default"
 section = "utils"
 priority = "optional"
 assets = [
-    ["target/x86_64-unknown-linux-musl/release/pairee", "usr/bin/pairee", "755"],
+    ["target/release/pairee", "usr/bin/pairee", "755"],
     ["lang/*", "usr/share/pairee/lang/", "644"],
     ["help/*", "usr/share/pairee/help/", "644"],
 ]

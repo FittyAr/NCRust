@@ -57,7 +57,8 @@ jobs:
       - name: Build release binary
         run: |
           if [ "${{ matrix.target }}" = "aarch64-unknown-linux-musl" ]; then
-            CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=rust-lld cargo build --release --target ${{ matrix.target }}
+            curl -LSfs https://github.com/cross-rs/cross/releases/download/v0.2.5/cross-x86_64-unknown-linux-musl.tar.gz | tar -xz -C /usr/local/bin
+            cross build --release --target ${{ matrix.target }}
           else
             cargo build --release --target ${{ matrix.target }}
           fi
@@ -82,10 +83,10 @@ jobs:
             
             # Compile Inno Setup installer
             if [ "${{ matrix.target }}" = "aarch64-pc-windows-msvc" ]; then
-              "C:\\Program Files (x86)\\Inno Setup 6\\iscc.exe" /DAppVersion="$VERSION_NUM" /DSourceDir="target\\aarch64-pc-windows-msvc\\release" /O"target\\release" /F"pairee-setup-${VERSION_NUM}-arm64" installer.iss
+              MSYS_NO_PATHCONV=1 "C:\\Program Files (x86)\\Inno Setup 6\\iscc.exe" /DAppVersion="$VERSION_NUM" /DSourceDir="target\\aarch64-pc-windows-msvc\\release" /O"target\\release" /F"pairee-setup-${VERSION_NUM}-arm64" installer.iss
               mv "target/release/pairee-setup-${VERSION_NUM}-arm64.exe" dist/
             else
-              "C:\\Program Files (x86)\\Inno Setup 6\\iscc.exe" /DAppVersion="$VERSION_NUM" /DSourceDir="target\\x86_64-pc-windows-msvc\\release" /O"target\\release" /F"pairee-setup-${VERSION_NUM}-x64" installer.iss
+              MSYS_NO_PATHCONV=1 "C:\\Program Files (x86)\\Inno Setup 6\\iscc.exe" /DAppVersion="$VERSION_NUM" /DSourceDir="target\\x86_64-pc-windows-msvc\\release" /O"target\\release" /F"pairee-setup-${VERSION_NUM}-x64" installer.iss
               mv "target/release/pairee-setup-${VERSION_NUM}-x64.exe" dist/
             fi
           else
