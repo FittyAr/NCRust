@@ -1,7 +1,7 @@
 use crate::app::context::AppContext;
-use crate::app::state::{AppState, PopupType, PanelViewMode};
-use crate::ui::theme_apply::parse_color;
+use crate::app::state::{AppState, PanelViewMode, PopupType};
 use crate::config::localization::t;
+use crate::ui::theme_apply::parse_color;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
@@ -45,21 +45,65 @@ impl MenuItemData {
 pub fn get_menu_items(menu_idx: usize, state: &AppState) -> Vec<MenuItemData> {
     match menu_idx {
         0 => vec![
-            MenuItemData::new(t("menu_brief"), "Ctrl+1", state.left_panel.view_mode == PanelViewMode::Brief),
-            MenuItemData::new(t("menu_medium"), "Ctrl+2", state.left_panel.view_mode == PanelViewMode::Medium),
-            MenuItemData::new(t("menu_full"), "Ctrl+3", state.left_panel.view_mode == PanelViewMode::Full),
-            MenuItemData::new(t("menu_wide"), "Ctrl+4", state.left_panel.view_mode == PanelViewMode::Wide),
-            MenuItemData::new(t("menu_detailed"), "Ctrl+5", state.left_panel.view_mode == PanelViewMode::Detailed),
-            MenuItemData::new(t("menu_descriptions"), "Ctrl+6", state.left_panel.view_mode == PanelViewMode::Descriptions),
-            MenuItemData::new(t("menu_file_owners"), "Ctrl+7", state.left_panel.view_mode == PanelViewMode::FileOwners),
-            MenuItemData::new(t("menu_file_links"), "Ctrl+8", state.left_panel.view_mode == PanelViewMode::FileLinks),
-            MenuItemData::new(t("menu_alt_full"), "Ctrl+9", state.left_panel.view_mode == PanelViewMode::AltFull),
+            MenuItemData::new(
+                t("menu_brief"),
+                "Ctrl+1",
+                state.left_panel.view_mode == PanelViewMode::Brief,
+            ),
+            MenuItemData::new(
+                t("menu_medium"),
+                "Ctrl+2",
+                state.left_panel.view_mode == PanelViewMode::Medium,
+            ),
+            MenuItemData::new(
+                t("menu_full"),
+                "Ctrl+3",
+                state.left_panel.view_mode == PanelViewMode::Full,
+            ),
+            MenuItemData::new(
+                t("menu_wide"),
+                "Ctrl+4",
+                state.left_panel.view_mode == PanelViewMode::Wide,
+            ),
+            MenuItemData::new(
+                t("menu_detailed"),
+                "Ctrl+5",
+                state.left_panel.view_mode == PanelViewMode::Detailed,
+            ),
+            MenuItemData::new(
+                t("menu_descriptions"),
+                "Ctrl+6",
+                state.left_panel.view_mode == PanelViewMode::Descriptions,
+            ),
+            MenuItemData::new(
+                t("menu_file_owners"),
+                "Ctrl+7",
+                state.left_panel.view_mode == PanelViewMode::FileOwners,
+            ),
+            MenuItemData::new(
+                t("menu_file_links"),
+                "Ctrl+8",
+                state.left_panel.view_mode == PanelViewMode::FileLinks,
+            ),
+            MenuItemData::new(
+                t("menu_alt_full"),
+                "Ctrl+9",
+                state.left_panel.view_mode == PanelViewMode::AltFull,
+            ),
             MenuItemData::separator(),
-            MenuItemData::new(t("menu_info_panel"), "Ctrl+L", matches!(state.active_popup, Some(PopupType::InfoPanel { .. }))),
+            MenuItemData::new(
+                t("menu_info_panel"),
+                "Ctrl+L",
+                matches!(state.active_popup, Some(PopupType::InfoPanel { .. })),
+            ),
             MenuItemData::new(t("menu_quick_view"), "Ctrl+Q", state.quick_view_active),
             MenuItemData::separator(),
             MenuItemData::new(t("menu_sort_modes"), "Ctrl+F12", false),
-            MenuItemData::new(t("menu_show_long_names"), "Ctrl+N", state.left_panel.show_long_names),
+            MenuItemData::new(
+                t("menu_show_long_names"),
+                "Ctrl+N",
+                state.left_panel.show_long_names,
+            ),
             MenuItemData::new(t("menu_panel_on_off"), "Ctrl+F1", state.left_panel_visible),
             MenuItemData::new(t("menu_re_read"), "Ctrl+R", false),
             MenuItemData::new(t("menu_change_drive"), "Alt+F1", false),
@@ -113,21 +157,65 @@ pub fn get_menu_items(menu_idx: usize, state: &AppState) -> Vec<MenuItemData> {
             MenuItemData::new(t("menu_save_setup"), "Shf+F9", false),
         ],
         4 => vec![
-            MenuItemData::new(t("menu_brief"), "Ctrl+1", state.right_panel.view_mode == PanelViewMode::Brief),
-            MenuItemData::new(t("menu_medium"), "Ctrl+2", state.right_panel.view_mode == PanelViewMode::Medium),
-            MenuItemData::new(t("menu_full"), "Ctrl+3", state.right_panel.view_mode == PanelViewMode::Full),
-            MenuItemData::new(t("menu_wide"), "Ctrl+4", state.right_panel.view_mode == PanelViewMode::Wide),
-            MenuItemData::new(t("menu_detailed"), "Ctrl+5", state.right_panel.view_mode == PanelViewMode::Detailed),
-            MenuItemData::new(t("menu_descriptions"), "Ctrl+6", state.right_panel.view_mode == PanelViewMode::Descriptions),
-            MenuItemData::new(t("menu_file_owners"), "Ctrl+7", state.right_panel.view_mode == PanelViewMode::FileOwners),
-            MenuItemData::new(t("menu_file_links"), "Ctrl+8", state.right_panel.view_mode == PanelViewMode::FileLinks),
-            MenuItemData::new(t("menu_alt_full"), "Ctrl+9", state.right_panel.view_mode == PanelViewMode::AltFull),
+            MenuItemData::new(
+                t("menu_brief"),
+                "Ctrl+1",
+                state.right_panel.view_mode == PanelViewMode::Brief,
+            ),
+            MenuItemData::new(
+                t("menu_medium"),
+                "Ctrl+2",
+                state.right_panel.view_mode == PanelViewMode::Medium,
+            ),
+            MenuItemData::new(
+                t("menu_full"),
+                "Ctrl+3",
+                state.right_panel.view_mode == PanelViewMode::Full,
+            ),
+            MenuItemData::new(
+                t("menu_wide"),
+                "Ctrl+4",
+                state.right_panel.view_mode == PanelViewMode::Wide,
+            ),
+            MenuItemData::new(
+                t("menu_detailed"),
+                "Ctrl+5",
+                state.right_panel.view_mode == PanelViewMode::Detailed,
+            ),
+            MenuItemData::new(
+                t("menu_descriptions"),
+                "Ctrl+6",
+                state.right_panel.view_mode == PanelViewMode::Descriptions,
+            ),
+            MenuItemData::new(
+                t("menu_file_owners"),
+                "Ctrl+7",
+                state.right_panel.view_mode == PanelViewMode::FileOwners,
+            ),
+            MenuItemData::new(
+                t("menu_file_links"),
+                "Ctrl+8",
+                state.right_panel.view_mode == PanelViewMode::FileLinks,
+            ),
+            MenuItemData::new(
+                t("menu_alt_full"),
+                "Ctrl+9",
+                state.right_panel.view_mode == PanelViewMode::AltFull,
+            ),
             MenuItemData::separator(),
-            MenuItemData::new(t("menu_info_panel"), "Ctrl+L", matches!(state.active_popup, Some(PopupType::InfoPanel { .. }))),
+            MenuItemData::new(
+                t("menu_info_panel"),
+                "Ctrl+L",
+                matches!(state.active_popup, Some(PopupType::InfoPanel { .. })),
+            ),
             MenuItemData::new(t("menu_quick_view"), "Ctrl+Q", state.quick_view_active),
             MenuItemData::separator(),
             MenuItemData::new(t("menu_sort_modes"), "Ctrl+F12", false),
-            MenuItemData::new(t("menu_show_long_names"), "Ctrl+N", state.right_panel.show_long_names),
+            MenuItemData::new(
+                t("menu_show_long_names"),
+                "Ctrl+N",
+                state.right_panel.show_long_names,
+            ),
             MenuItemData::new(t("menu_panel_on_off"), "Ctrl+F2", state.right_panel_visible),
             MenuItemData::new(t("menu_re_read"), "Ctrl+R", false),
             MenuItemData::new(t("menu_change_drive"), "Alt+F2", false),
@@ -177,7 +265,7 @@ pub fn render_menu(f: &mut Frame, area: Rect, context: &AppContext, state: &AppS
                 .fg(parse_color(&theme.panel_fg))
                 .add_modifier(Modifier::BOLD)
         };
-        
+
         let hotkey_style = style.fg(ratatui::style::Color::Yellow);
         let hotkey_spans = crate::ui::hotkey::render_hotkey_spans(title, style, hotkey_style);
         spans.extend(hotkey_spans);

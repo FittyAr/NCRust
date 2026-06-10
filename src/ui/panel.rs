@@ -1,6 +1,6 @@
-use crate::config::localization::t;
 use crate::app::context::AppContext;
 use crate::app::state::{PanelState, PanelViewMode, SortField};
+use crate::config::localization::t;
 use crate::fs::attrs::format_unix_mode;
 use crate::fs::descriptions::read_description;
 use crate::ui::theme_apply::parse_color;
@@ -237,8 +237,16 @@ pub fn render_panel(
         }
 
         if show_total {
-            let files_label = if total_files == 1 { t("label_file") } else { t("label_files") };
-            let dirs_label = if total_dirs == 1 { t("label_dir") } else { t("label_dirs") };
+            let files_label = if total_files == 1 {
+                t("label_file")
+            } else {
+                t("label_files")
+            };
+            let dirs_label = if total_dirs == 1 {
+                t("label_dir")
+            } else {
+                t("label_dirs")
+            };
             let info_text = format!(
                 " {} {}  {} {}  {}",
                 total_files,
@@ -604,7 +612,13 @@ fn render_detailed(
         })
         .collect();
 
-    let header = Row::new(vec![t("col_name"), t("col_perms"), t("col_owner"), t("col_size")]).style(
+    let header = Row::new(vec![
+        t("col_name"),
+        t("col_perms"),
+        t("col_owner"),
+        t("col_size"),
+    ])
+    .style(
         Style::default()
             .fg(parse_color(&theme.header_fg))
             .add_modifier(Modifier::BOLD),

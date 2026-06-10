@@ -58,7 +58,7 @@ impl AssociationsConfig {
         toml::from_str(&content).context("Deserializing associations.toml")
     }
 
-    /// Persists the configuration to `<config_dir>/ncrust/associations.toml`.
+    /// Persists the configuration to `<config_dir>/pairee/associations.toml`.
     pub fn save(&self) -> Result<()> {
         let path = associations_path();
         if let Some(parent) = path.parent() {

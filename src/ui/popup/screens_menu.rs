@@ -1,4 +1,3 @@
-
 use crate::app::state::{AppState, PopupType, Screen};
 use crate::ui::theme_apply::parse_color;
 use ratatui::{
@@ -41,8 +40,11 @@ pub fn render_screens_menu(
         }
 
         let menu_width = (max_width as u16 + 4).min(size.width.saturating_sub(4));
-        let menu_height = (items.len() as u16 + 2).max(5).min(20).min(size.height.saturating_sub(4));
-        
+        let menu_height = (items.len() as u16 + 2)
+            .max(5)
+            .min(20)
+            .min(size.height.saturating_sub(4));
+
         let area = Rect {
             x: size.width.saturating_sub(menu_width) / 2,
             y: size.height.saturating_sub(menu_height) / 2,

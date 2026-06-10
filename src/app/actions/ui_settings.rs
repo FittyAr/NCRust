@@ -33,8 +33,18 @@ pub fn handle_ui_settings_action(
                 docs.push((title.to_string(), path));
             };
 
-            let is_spanish = context.config.settings.language.to_lowercase().contains("es")
-                || context.config.settings.language.to_lowercase().contains("spanish");
+            let is_spanish = context
+                .config
+                .settings
+                .language
+                .to_lowercase()
+                .contains("es")
+                || context
+                    .config
+                    .settings
+                    .language
+                    .to_lowercase()
+                    .contains("spanish");
 
             if is_spanish {
                 add_doc("Manual de Funciones", "help/features_es.md");
@@ -43,7 +53,10 @@ pub fn handle_ui_settings_action(
             } else {
                 add_doc("Features Reference", "help/features_en.md");
                 add_doc("User Guide", "help/user_guide_en.md");
-                add_doc("Technical Architecture", "docs/technical/architecture_en.md");
+                add_doc(
+                    "Technical Architecture",
+                    "docs/technical/architecture_en.md",
+                );
             }
 
             state.active_popup = Some(PopupType::Help {
@@ -326,9 +339,9 @@ pub fn handle_ui_settings_action(
         }
         Action::ScreensList => {
             let suspended = state.active_popup.take();
-            state.active_popup = Some(PopupType::ScreensMenu { 
+            state.active_popup = Some(PopupType::ScreensMenu {
                 cursor_idx: state.active_screen_idx,
-                suspended_popup: suspended.map(Box::new)
+                suspended_popup: suspended.map(Box::new),
             });
             true
         }

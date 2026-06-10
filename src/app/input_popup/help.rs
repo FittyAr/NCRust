@@ -57,8 +57,9 @@ pub fn handle(
                 KeyCode::Enter => {
                     if cursor_idx < docs.len() {
                         let path = &docs[cursor_idx].1;
-                        let content = std::fs::read_to_string(path)
-                            .unwrap_or_else(|e| format!("Failed to read file: {}\nError: {}", path.display(), e));
+                        let content = std::fs::read_to_string(path).unwrap_or_else(|e| {
+                            format!("Failed to read file: {}\nError: {}", path.display(), e)
+                        });
                         state.active_popup = Some(PopupType::Help {
                             mode: 1,
                             docs,

@@ -1,6 +1,6 @@
 # Developer Guidelines for AI Agents (`agents.md`)
 
-This document establishes the architecture, design principles, and guidelines for any AI agent or developer modifying or extending the **NCRust** codebase. All changes must adhere strictly to these rules to maintain high modularity, testability, and cross-platform compatibility.
+This document establishes the architecture, design principles, and guidelines for any AI agent or developer modifying or extending the **Pairee** codebase. All changes must adhere strictly to these rules to maintain high modularity, testability, and cross-platform compatibility.
 
 ---
 
@@ -33,7 +33,7 @@ This document establishes the architecture, design principles, and guidelines fo
 The project follows a strict modular structure. Ensure that new files are placed in their respective modules:
 
 ```text
-NCRust/
+Pairee/
 ├── Cargo.toml
 ├── agents.md                      # This file
 ├── norton_commander_features.md   # Reference for features
@@ -132,7 +132,7 @@ For long-running file system operations (like Copy or Move):
   * Do not automatically write or generate translation JSON files inside the application's configuration directory at runtime. They must be supplied from the installer or project directory (`lang/` folder).
 
 ### Windows Configuration Directories
-* **Rule:** On Windows systems, the application must use `%APPDATA%` directly (typically `Roaming/ncrust/config` and `Roaming/ncrust/cache`) for storing system-wide config and logs, ensuring a shared folder structure. Do not use local AppData or add extra levels of nested project directories.
+* **Rule:** On Windows systems, the application must use `%APPDATA%` directly (typically `Roaming/pairee/config` and `Roaming/pairee/cache`) for storing system-wide config and logs, ensuring a shared folder structure. Do not use local AppData or add extra levels of nested project directories.
 
 ---
 

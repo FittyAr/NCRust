@@ -1,7 +1,10 @@
 use anyhow::Result;
 use crossterm::{
     cursor::{Hide, Show},
-    event::{KeyboardEnhancementFlags, PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags, EnableFocusChange, DisableFocusChange},
+    event::{
+        DisableFocusChange, EnableFocusChange, KeyboardEnhancementFlags,
+        PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
+    },
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
@@ -20,11 +23,7 @@ impl TerminalBackend {
     pub fn init() -> Result<Self> {
         enable_raw_mode()?;
         let mut stdout = io::stdout();
-        execute!(
-            stdout,
-            EnterAlternateScreen,
-            Hide
-        )?;
+        execute!(stdout, EnterAlternateScreen, Hide)?;
 
         // This feature is not supported in all terminal emulators (e.g. legacy Windows conhost).
         // If it fails, we simply ignore the error and proceed.
@@ -41,13 +40,13 @@ impl TerminalBackend {
     /// Restores the original terminal state by disabling raw mode and leaving alternate screen.
     pub fn restore(&mut self) -> Result<()> {
         disable_raw_mode()?;
-        let _ = execute!(io::stdout(), PopKeyboardEnhancementFlags, DisableFocusChange);
-        
-        execute!(
+        let _ = execute!(
             io::stdout(),
-            LeaveAlternateScreen,
-            Show
-        )?;
+            PopKeyboardEnhancementFlags,
+            DisableFocusChange
+        );
+
+        execute!(io::stdout(), LeaveAlternateScreen, Show)?;
         Ok(())
     }
 }

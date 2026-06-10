@@ -25,9 +25,27 @@ pub fn handle(
                                 vw.last_search = Some(query.clone());
                                 if vw.mode == crate::ui::viewer::ViewerMode::Text {
                                     // simple downward search from current line
-                                    if let Some(found_idx) = vw.lines.iter().enumerate().skip(vw.scroll).find(|(_, l)| l.to_lowercase().contains(&query.to_lowercase())).map(|(i, _)| i) {
+                                    if let Some(found_idx) = vw
+                                        .lines
+                                        .iter()
+                                        .enumerate()
+                                        .skip(vw.scroll)
+                                        .find(|(_, l)| {
+                                            l.to_lowercase().contains(&query.to_lowercase())
+                                        })
+                                        .map(|(i, _)| i)
+                                    {
                                         vw.scroll = found_idx;
-                                    } else if let Some(found_idx) = vw.lines.iter().enumerate().take(vw.scroll).find(|(_, l)| l.to_lowercase().contains(&query.to_lowercase())).map(|(i, _)| i) {
+                                    } else if let Some(found_idx) = vw
+                                        .lines
+                                        .iter()
+                                        .enumerate()
+                                        .take(vw.scroll)
+                                        .find(|(_, l)| {
+                                            l.to_lowercase().contains(&query.to_lowercase())
+                                        })
+                                        .map(|(i, _)| i)
+                                    {
                                         vw.scroll = found_idx;
                                     }
                                 }

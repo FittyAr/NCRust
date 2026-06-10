@@ -1,5 +1,5 @@
-pub mod config_dialog;
 pub mod color_groups;
+pub mod config_dialog;
 pub mod editor;
 pub mod files_highlighting;
 pub mod history_lists;
@@ -32,8 +32,14 @@ pub fn render_popup(
     let size = f.size();
 
     // If the active popup is a ScreensMenu that suspended another popup, render the suspended one first!
-    if let PopupType::ScreensMenu { suspended_popup: Some(suspended), .. } = popup {
-        render_specific_popup(f, suspended, state, context, left_rect, right_rect, theme, size);
+    if let PopupType::ScreensMenu {
+        suspended_popup: Some(suspended),
+        ..
+    } = popup
+    {
+        render_specific_popup(
+            f, suspended, state, context, left_rect, right_rect, theme, size,
+        );
     }
 
     render_specific_popup(f, popup, state, context, left_rect, right_rect, theme, size);
@@ -52,24 +58,10 @@ fn render_specific_popup(
     if prompts::render_prompt_popup(f, popup, theme, size) {
         return;
     }
-    if menus::render_menu_popup(
-        f,
-        popup,
-        theme,
-        size,
-        left_rect,
-        right_rect,
-        state,
-    ) {
+    if menus::render_menu_popup(f, popup, theme, size, left_rect, right_rect, state) {
         return;
     }
-    if screens_menu::render_screens_menu(
-        f,
-        popup,
-        state,
-        theme,
-        size,
-    ) {
+    if screens_menu::render_screens_menu(f, popup, state, theme, size) {
         return;
     }
     if editor::render_editor_popup(f, popup, theme, size) {

@@ -29,7 +29,7 @@ pub fn parse_hotkey(text: &str) -> HotkeyString {
     HotkeyString { clean_text, hotkey }
 }
 
-/// Renders a string with an '&' prefix into a vector of Spans, 
+/// Renders a string with an '&' prefix into a vector of Spans,
 /// applying `hotkey_style` to the character immediately following the '&'.
 pub fn render_hotkey_spans(
     text: &str,

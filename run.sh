@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  NCRust — Development & Test Shell  (Linux / Fedora)
+#  Pairee — Development & Test Shell  (Linux / Fedora)
 #  Equivalent of run.bat adapted for bash on Fedora 44+
 # =============================================================================
 
@@ -45,10 +45,10 @@ fi
 show_menu() {
     clear
     echo -e "${CYAN}${BOLD}==========================================${RESET}"
-    echo -e "${CYAN}${BOLD}      NCRust TUI Manager Helper Shell     ${RESET}"
+    echo -e "${CYAN}${BOLD}      Pairee TUI Manager Helper Shell     ${RESET}"
     echo -e "${CYAN}${BOLD}==========================================${RESET}"
-    echo -e "  ${BOLD}1.${RESET} Run NCRust TUI             ${YELLOW}(cargo run)${RESET}"
-    echo -e "  ${BOLD}2.${RESET} Run NCRust TUI Standalone  ${YELLOW}(cargo run -- --standalone)${RESET}"
+    echo -e "  ${BOLD}1.${RESET} Run Pairee TUI             ${YELLOW}(cargo run)${RESET}"
+    echo -e "  ${BOLD}2.${RESET} Run Pairee TUI Standalone  ${YELLOW}(cargo run -- --standalone)${RESET}"
     echo -e "  ${BOLD}3.${RESET} Run unit tests             ${YELLOW}(cargo test)${RESET}"
     echo -e "  ${BOLD}4.${RESET} Compiler validation        ${YELLOW}(cargo check)${RESET}"
     echo -e "  ${BOLD}5.${RESET} Static analysis            ${YELLOW}(cargo clippy -- -D warnings)${RESET}"
@@ -74,11 +74,11 @@ while true; do
 
     case "$opt" in
         1)
-            echo -e "\n${GREEN}[INFO]${RESET} Launching NCRust...\n"
+            echo -e "\n${GREEN}[INFO]${RESET} Launching Pairee...\n"
             run_and_pause cargo run
             ;;
         2)
-            echo -e "\n${GREEN}[INFO]${RESET} Launching NCRust (Standalone)...\n"
+            echo -e "\n${GREEN}[INFO]${RESET} Launching Pairee (Standalone)...\n"
             run_and_pause cargo run -- --standalone
             ;;
         3)

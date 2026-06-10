@@ -1,12 +1,12 @@
-# NCRust Features Reference Manual
+# Pairee Features Reference Manual
 
-This manual provides an exhaustive description of every interactive feature, utility, and console integration available in **NCRust**.
+This manual provides an exhaustive description of every interactive feature, utility, and console integration available in **Pairee**.
 
 ---
 
 ## 🖥️ 1. Panel Views & Custom Layouts
 
-NCRust utilizes a dual-panel architecture for folder navigation and file management.
+Pairee utilizes a dual-panel architecture for folder navigation and file management.
 
 ### 1.1 Panel Display Modes
 You can configure each panel independently to display files using different columns and detail levels:
@@ -47,7 +47,7 @@ File operations are fully asynchronous and process on a background worker queue 
 
 ### 2.2 Copy & Move/Rename (`F5` & `F6`)
 * **Background Processing:** Both copy and move tasks run asynchronously, showing real-time progress bars, byte transfer counts, file names, and percentages.
-* **Overwrite Resolution:** If a file exists at the target path, NCRust prompts with:
+* **Overwrite Resolution:** If a file exists at the target path, Pairee prompts with:
   * *Ask:* Prompts the user with an overwrite warning dialog.
   * *Overwrite:* Overwrites the existing destination file.
   * *Skip:* Skips copying/moving that specific file and continues with the rest.
@@ -90,7 +90,7 @@ File operations are fully asynchronous and process on a background worker queue 
 
 ## 🛠️ 4. In-App Screen Management (Multitasking)
 
-NCRust features a robust multitasking screens architecture. You can spawn several work environments concurrently (e.g., editing one file, viewing another, running a terminal execution, and browsing file panels).
+Pairee features a robust multitasking screens architecture. You can spawn several work environments concurrently (e.g., editing one file, viewing another, running a terminal execution, and browsing file panels).
 
 ### 4.1 Screens List Overlay (`F2 -> Commands -> Screens list`)
 * View a list of all active open screens. The active screen is marked with an asterisk (`*`).
@@ -122,8 +122,8 @@ NCRust features a robust multitasking screens architecture. You can spawn severa
 * Navigate the tree structure and press `Enter` to jump the active panel directly to the selected directory. Also accessible within Copy and Move dialogs to graphically choose destination paths.
 
 ### 5.5 File Descriptions (`Ctrl+D`)
-* NCRust supports `Descript.ion` and `Files.bbs` files to store descriptions for files.
-* View and edit descriptions using `Ctrl+D` on a file. NCRust automatically saves changes to hidden description files in the directory.
+* Pairee supports `Descript.ion` and `Files.bbs` files to store descriptions for files.
+* View and edit descriptions using `Ctrl+D` on a file. Pairee automatically saves changes to hidden description files in the directory.
 
 ### 5.6 File Associations
 * Map file extensions (e.g., `*.py`, `*.rs`) to custom launch commands.

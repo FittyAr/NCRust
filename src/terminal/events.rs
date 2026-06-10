@@ -1,4 +1,5 @@
-  use crossterm::event::{self, Event as CrossEvent, KeyEvent, MouseEvent};
+
+use crossterm::event::{self, Event as CrossEvent, KeyEvent, MouseEvent};
 use std::time::Duration;
 use tokio::sync::mpsc;
 
@@ -40,7 +41,9 @@ impl EventHandler {
                         match event::read() {
                             Ok(CrossEvent::FocusGained) => {
                                 #[cfg(windows)]
-                                { has_focus = true; }
+                                {
+                                    has_focus = true;
+                                }
                             }
                             Ok(CrossEvent::FocusLost) => {
                                 #[cfg(windows)]
@@ -48,7 +51,8 @@ impl EventHandler {
                                     has_focus = false;
                                     if !last_modifiers.is_empty() {
                                         last_modifiers = crossterm::event::KeyModifiers::empty();
-                                        let _ = sender.blocking_send(Event::ModifiersChanged(last_modifiers));
+                                        let _ = sender
+                                            .blocking_send(Event::ModifiersChanged(last_modifiers));
                                     }
                                 }
                             }
@@ -75,10 +79,10 @@ impl EventHandler {
                         #[cfg(windows)]
                         {
                             if has_focus {
+                                use crossterm::event::KeyModifiers;
                                 use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
                                     GetAsyncKeyState, VK_CONTROL, VK_MENU, VK_SHIFT,
                                 };
-                                use crossterm::event::KeyModifiers;
 
                                 unsafe {
                                     let mut current_modifiers = KeyModifiers::empty();
@@ -95,7 +99,9 @@ impl EventHandler {
 
                                     if current_modifiers != last_modifiers {
                                         last_modifiers = current_modifiers;
-                                        let _ = sender.blocking_send(Event::ModifiersChanged(current_modifiers));
+                                        let _ = sender.blocking_send(Event::ModifiersChanged(
+                                            current_modifiers,
+                                        ));
                                     }
                                 }
                             }

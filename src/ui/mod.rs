@@ -38,7 +38,13 @@ pub fn draw_ui(f: &mut Frame, context: &AppContext, state: &AppState) {
 
                     // Left panel
                     if state.left_panel_visible && layout.left_rect.width > 1 {
-                        panel::render_panel(f, layout.left_rect, &state.left_panel, left_active, context);
+                        panel::render_panel(
+                            f,
+                            layout.left_rect,
+                            &state.left_panel,
+                            left_active,
+                            context,
+                        );
                     }
 
                     // Right panel — replaced by quick view if active and the right panel is passive
@@ -104,8 +110,11 @@ pub fn draw_ui(f: &mut Frame, context: &AppContext, state: &AppState) {
                     .rev()
                     .map(|l| ratatui::text::Line::from(l.as_str()))
                     .collect();
-                let p = ratatui::widgets::Paragraph::new(lines)
-                    .block(ratatui::widgets::Block::default().borders(ratatui::widgets::Borders::ALL).title(format!(" Terminal: {} ", ts.command)));
+                let p = ratatui::widgets::Paragraph::new(lines).block(
+                    ratatui::widgets::Block::default()
+                        .borders(ratatui::widgets::Borders::ALL)
+                        .title(format!(" Terminal: {} ", ts.command)),
+                );
                 f.render_widget(p, layout.main_rect);
             }
         }

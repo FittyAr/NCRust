@@ -11,7 +11,10 @@ pub fn handle(
     let popup = state.active_popup.clone();
     if let Some(p) = popup {
         match p {
-            PopupType::ConfirmDelete { paths, cursor_idx: _ } => {
+            PopupType::ConfirmDelete {
+                paths,
+                cursor_idx: _,
+            } => {
                 match key.code {
                     KeyCode::Enter => {
                         for path in &paths {
@@ -20,8 +23,11 @@ pub fn handle(
                                 context.config.settings.delete_to_recycle_bin,
                                 context.config.settings.req_admin_modification,
                             ) {
-                                state.active_popup =
-                                    Some(PopupType::Error(format!("{} {}", crate::config::localization::t("error_delete_failed"), e)));
+                                state.active_popup = Some(PopupType::Error(format!(
+                                    "{} {}",
+                                    crate::config::localization::t("error_delete_failed"),
+                                    e
+                                )));
                                 return Ok(None);
                             }
                         }

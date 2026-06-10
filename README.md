@@ -1,4 +1,6 @@
-# NCRust
+# Pairee
+
+> Tu mundo, en dos paneles. (Your world, in two panels.)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
@@ -22,7 +24,7 @@ A modern, highly modular, cross-platform terminal file manager inspired by the c
 ## 📂 Project Structure
 
 ```text
-NCRust/
+Pairee/
 ├── Cargo.toml                     # Cargo configuration
 ├── agents.md                      # AI Developer Guidelines
 ├── install.sh                     # Linux installer script (curl-compatible)
@@ -59,12 +61,12 @@ NCRust provides precompiled binaries built automatically via GitHub Actions (sup
 
 * **Linux (statically linked, standalone binary):**
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/FittyAr/NCRust/main/install.sh | sh
+  curl -fsSL https://github.com/FittyAr/Pairee/blob/master/install.sh | sh
   ```
 * **Windows (PowerShell):**
   Run the following command inside PowerShell:
   ```powershell
-  irm https://raw.githubusercontent.com/FittyAr/NCRust/main/install.ps1 | iex
+  irm https://github.com/FittyAr/Pairee/blob/master/install.ps1 | iex
   ```
 
 ### Build from Source
@@ -75,10 +77,10 @@ Make sure you have [Rust](https://www.rust-lang.org/tools/install) installed.
 #### Build and Run
 ```bash
 # Clone the repository
-git clone https://github.com/FittyAr/NCRust.git
-cd NCRust
+git clone https://github.com/FittyAr/Pairee.git
+cd Pairee
 
-# Run NCRust in development mode
+# Run Pairee in development mode
 cargo run
 
 # Build the release binary
@@ -92,10 +94,10 @@ You can check launcher script wrappers `run.bat` (Windows) or `run.sh` (Linux/ma
 
 ## ⚙️ Configuration & Data Paths
 
-NCRust stores configurations, custom themes, and debug logs in the system's standard directories:
+Pairee stores configurations, custom themes, and debug logs in the system's standard directories:
 
-* **Windows:** `%APPDATA%/ncrust/config` and `%APPDATA%/ncrust/cache`
-* **Linux/macOS:** `~/.config/ncrust` and `~/.cache/ncrust`
+* **Windows:** `%APPDATA%/pairee/config` and `%APPDATA%/pairee/cache`
+* **Linux/macOS:** `~/.config/pairee` and `~/.cache/pairee`
 
 Debug logs are saved to `app.log` in the cache directory, allowing you to troubleshoot without cluttering the TUI.
 

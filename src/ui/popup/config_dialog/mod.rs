@@ -102,11 +102,14 @@ pub fn render_config_dialog_popup(
                 let hotkey_style = if is_active {
                     base_style.fg(ratatui::style::Color::Yellow)
                 } else {
-                    base_style.fg(ratatui::style::Color::Yellow).add_modifier(Modifier::BOLD)
+                    base_style
+                        .fg(ratatui::style::Color::Yellow)
+                        .add_modifier(Modifier::BOLD)
                 };
 
                 tab_spans.push(Span::styled("  [ ", base_style));
-                let text_spans = crate::ui::hotkey::render_hotkey_spans(title, base_style, hotkey_style);
+                let text_spans =
+                    crate::ui::hotkey::render_hotkey_spans(title, base_style, hotkey_style);
                 tab_spans.extend(text_spans);
                 tab_spans.push(Span::styled(" ]", base_style));
             }
@@ -137,8 +140,14 @@ pub fn render_config_dialog_popup(
                 _ => {}
             }
 
-            rows.push((crate::config::localization::t("btn_ok"), RowType::Setting(9998)));
-            rows.push((crate::config::localization::t("btn_cancel"), RowType::Setting(9999)));
+            rows.push((
+                crate::config::localization::t("btn_ok"),
+                RowType::Setting(9998),
+            ));
+            rows.push((
+                crate::config::localization::t("btn_cancel"),
+                RowType::Setting(9999),
+            ));
 
             let list_height = content_area.height as usize;
             let scroll_start = cursor_idx.saturating_sub(list_height / 2);
@@ -150,7 +159,9 @@ pub fn render_config_dialog_popup(
                 let is_cursor = i == *cursor_idx;
 
                 let style = match row_type {
-                    RowType::Title => Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+                    RowType::Title => Style::default()
+                        .fg(Color::Cyan)
+                        .add_modifier(Modifier::BOLD),
                     RowType::Subtitle => Style::default().fg(Color::Yellow),
                     RowType::Hint => Style::default().fg(Color::DarkGray),
                     RowType::Setting(_) => {

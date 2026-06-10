@@ -7,7 +7,7 @@ use std::path::Path;
 fn read_directory_as_admin(path: &Path) -> Result<Vec<FileEntry>> {
     use std::process::Command;
     let temp_dir = std::env::temp_dir();
-    let temp_file = temp_dir.join(format!("ncrust_dir_{}.txt", std::process::id()));
+    let temp_file = temp_dir.join(format!("pairee_dir_{}.txt", std::process::id()));
     let temp_file_str = temp_file.to_string_lossy().replace('"', "\\\"");
     let path_str = path.to_string_lossy().replace('"', "\\\"");
 

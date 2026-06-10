@@ -1,12 +1,12 @@
-# Manual de Referencia de Funciones de NCRust
+# Manual de Referencia de Funciones de Pairee
 
-Este manual proporciona una descripción exhaustiva de cada función interactiva, utilidad y consola de integración disponible en **NCRust**.
+Este manual proporciona una descripción exhaustiva de cada función interactiva, utilidad y consola de integración disponible en **Pairee**.
 
 ---
 
 ## 🖥️ 1. Vistas de Paneles y Diseños Personalizados
 
-NCRust utiliza una arquitectura de doble panel para la navegación de carpetas y administración de archivos.
+Pairee utiliza una arquitectura de doble panel para la navegación de carpetas y administración de archivos.
 
 ### 1.1 Modos de Visualización del Panel
 Puedes configurar cada panel de forma independiente para mostrar archivos usando diferentes columnas y niveles de detalle:
@@ -47,7 +47,7 @@ Las operaciones de disco son asíncronas y se ejecutan en segundo plano sobre un
 
 ### 2.2 Copiar y Mover/Renombrar (`F5` y `F6`)
 * **Procesamiento en Segundo Plano:** Las tareas de copia y movimiento se ejecutan de forma asíncrona, mostrando barras de progreso en tiempo real, bytes transferidos, nombres de archivos y porcentajes.
-* **Resolución de Duplicados:** Si un archivo ya existe en el destino, NCRust te ofrece las opciones:
+* **Resolución de Duplicados:** Si un archivo ya existe en el destino, Pairee te ofrece las opciones:
   * *Ask (Preguntar):* Muestra un cuadro de confirmación antes de sobrescribir.
   * *Overwrite (Sobrescribir):* Reemplaza el archivo del panel destino silenciosamente.
   * *Skip (Omitir):* Omite la copia de ese archivo y continúa con el resto de la lista.
@@ -90,7 +90,7 @@ Las operaciones de disco son asíncronas y se ejecutan en segundo plano sobre un
 
 ## 🛠️ 4. Multitarea y Gestión de Pantallas (Screens)
 
-NCRust cuenta con una arquitectura robusta de entornos de trabajo concurrentes (por ejemplo, puedes editar un archivo, ver otro, ejecutar comandos en terminal y explorar los paneles de archivos simultáneamente).
+Pairee cuenta con una arquitectura robusta de entornos de trabajo concurrentes (por ejemplo, puedes editar un archivo, ver otro, ejecutar comandos en terminal y explorar los paneles de archivos simultáneamente).
 
 ### 4.1 Menú de Pantallas (`F2 -> Comandos -> Lista de pantallas`)
 * Muestra la lista de todas las pantallas activas. El entorno actual se marca con un asterisco (`*`).
@@ -122,8 +122,8 @@ NCRust cuenta con una arquitectura robusta de entornos de trabajo concurrentes (
 * Navega por el árbol y presiona `Enter` para cambiar la ruta del panel activo al directorio seleccionado. También se puede activar dentro de los prompts de Copiar y Mover para seleccionar gráficamente la ruta destino.
 
 ### 5.5 Descripciones de Archivos (`Ctrl+D`)
-* NCRust soporta descripciones de archivos a través de ficheros ocultos `Descript.ion` y `Files.bbs`.
-* Visualiza y edita descripciones presionando `Ctrl+D` sobre cualquier archivo.
+* Pairee soporta descripciones de archivos a través de ficheros ocultos `Descript.ion` y `Files.bbs`.
+* Visualiza y edita descripciones presionando `Ctrl+D` sobre cualquier archivo. Pairee guarda automáticamente los cambios en archivos de descripción ocultos del directorio.
 
 ### 5.6 Asociaciones de Archivos
 * Mapea extensiones de archivos (ej. `*.py`, `*.rs`) a comandos de ejecución personalizados.

@@ -8,10 +8,10 @@ use std::process::Command;
 /// If the flag is not present, returns `false`.
 pub fn check_and_launch_standalone() -> Result<bool> {
     let args: Vec<String> = env::args().collect();
-    
+
     if let Some(pos) = args.iter().position(|x| x == "--standalone") {
         let current_exe = env::current_exe()?;
-        
+
         let mut new_args = args.clone();
         new_args.remove(pos);
         if !new_args.is_empty() {
@@ -21,7 +21,7 @@ pub fn check_and_launch_standalone() -> Result<bool> {
         #[cfg(target_os = "windows")]
         {
             let mut cmd = Command::new("cmd.exe");
-            cmd.arg("/c").arg("start").arg("NCRust").arg(&current_exe);
+            cmd.arg("/c").arg("start").arg("Pairee").arg(&current_exe);
             for arg in new_args {
                 cmd.arg(arg);
             }
@@ -39,7 +39,7 @@ pub fn check_and_launch_standalone() -> Result<bool> {
                 "kitty",
                 "xterm",
             ];
-            
+
             let mut spawned = false;
             for term in terminals {
                 let mut cmd = Command::new(term);
@@ -47,13 +47,13 @@ pub fn check_and_launch_standalone() -> Result<bool> {
                 for arg in &new_args {
                     cmd.arg(arg);
                 }
-                
+
                 if cmd.spawn().is_ok() {
                     spawned = true;
                     break;
                 }
             }
-            
+
             if !spawned {
                 return Ok(false); // Fallback to running in current terminal
             }
@@ -71,6 +71,6 @@ pub fn check_and_launch_standalone() -> Result<bool> {
 
         return Ok(true);
     }
-    
+
     Ok(false)
 }

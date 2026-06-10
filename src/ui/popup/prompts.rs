@@ -1,12 +1,12 @@
 use super::centered_rect;
 use crate::app::state::{LinkKind, PopupType, SelectMode};
-use crate::ui::theme_apply::parse_color;
 use crate::config::localization::t;
+use crate::ui::theme_apply::parse_color;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    widgets::{Block, Borders, Clear, Gauge, Paragraph, List, ListItem},
+    widgets::{Block, Borders, Clear, Gauge, List, ListItem, Paragraph},
 };
 
 pub fn render_prompt_popup(
@@ -43,13 +43,15 @@ pub fn render_prompt_popup(
                     } else {
                         Style::default().fg(parse_color(&theme.popup_fg))
                     };
-                    list_items.push(ListItem::new(ratatui::text::Line::from(vec![Span::styled(format!("  {}  ", doc_title), style)])));
+                    list_items.push(ListItem::new(ratatui::text::Line::from(vec![
+                        Span::styled(format!("  {}  ", doc_title), style),
+                    ])));
                 }
 
                 let list = List::new(list_items)
                     .block(block)
                     .style(Style::default().bg(parse_color(&theme.popup_bg)));
-                
+
                 f.render_widget(list, area);
 
                 let hint_area = Rect {
@@ -59,9 +61,17 @@ pub fn render_prompt_popup(
                     height: 1,
                 };
                 let hint_text = " [Up/Down] Navigate  [Enter] Open Document  [Esc] Close ";
-                f.render_widget(Paragraph::new(hint_text).alignment(ratatui::layout::Alignment::Center).style(Style::default().fg(Color::DarkGray)), hint_area);
+                f.render_widget(
+                    Paragraph::new(hint_text)
+                        .alignment(ratatui::layout::Alignment::Center)
+                        .style(Style::default().fg(Color::DarkGray)),
+                    hint_area,
+                );
             } else if let Some(content) = active_content {
-                let doc_title = docs.get(*cursor_idx).map(|(t, _)| t.as_str()).unwrap_or(" Documentation ");
+                let doc_title = docs
+                    .get(*cursor_idx)
+                    .map(|(t, _)| t.as_str())
+                    .unwrap_or(" Documentation ");
                 let block = Block::default()
                     .borders(Borders::ALL)
                     .border_style(Style::default().fg(parse_color(&theme.popup_border)))
@@ -85,11 +95,20 @@ pub fn render_prompt_popup(
                     height: 1,
                 };
                 let hint_text = " [Up/Down/PgUp/PgDn] Scroll  [Esc/Backspace] Back to Menu ";
-                f.render_widget(Paragraph::new(hint_text).alignment(ratatui::layout::Alignment::Center).style(Style::default().fg(Color::DarkGray)), hint_area);
+                f.render_widget(
+                    Paragraph::new(hint_text)
+                        .alignment(ratatui::layout::Alignment::Center)
+                        .style(Style::default().fg(Color::DarkGray)),
+                    hint_area,
+                );
             }
             true
         }
-        PopupType::MkDirPrompt { input, cursor_idx, process_multiple } => {
+        PopupType::MkDirPrompt {
+            input,
+            cursor_idx,
+            process_multiple,
+        } => {
             let area = centered_rect(50, 20, size);
             f.render_widget(Clear, area);
 
@@ -104,28 +123,63 @@ pub fn render_prompt_popup(
 
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
-                .constraints([Constraint::Length(3), Constraint::Length(2), Constraint::Length(2)])
+                .constraints([
+                    Constraint::Length(3),
+                    Constraint::Length(2),
+                    Constraint::Length(2),
+                ])
                 .split(inner);
 
             let active_style = Style::default().bg(Color::Cyan).fg(Color::Black);
             let normal_style = Style::default().fg(parse_color(&theme.popup_fg));
 
-            let input_style = if *cursor_idx == 0 { active_style } else { normal_style };
-            let display_input = if *cursor_idx == 0 { format!("{}_", input) } else { input.clone() };
-            f.render_widget(Paragraph::new(format!("{}\n > {}", t("prompt_mkdir_to"), display_input)).style(input_style), chunks[0]);
+            let input_style = if *cursor_idx == 0 {
+                active_style
+            } else {
+                normal_style
+            };
+            let display_input = if *cursor_idx == 0 {
+                format!("{}_", input)
+            } else {
+                input.clone()
+            };
+            f.render_widget(
+                Paragraph::new(format!("{}\n > {}", t("prompt_mkdir_to"), display_input))
+                    .style(input_style),
+                chunks[0],
+            );
 
             let chk = if *process_multiple { "[x]" } else { "[ ]" };
-            let multi_style = if *cursor_idx == 1 { active_style } else { normal_style };
-            f.render_widget(Paragraph::new(format!("{} {}", chk, t("prompt_process_multiple_names"))).style(multi_style), chunks[1]);
+            let multi_style = if *cursor_idx == 1 {
+                active_style
+            } else {
+                normal_style
+            };
+            f.render_widget(
+                Paragraph::new(format!("{} {}", chk, t("prompt_process_multiple_names")))
+                    .style(multi_style),
+                chunks[1],
+            );
 
-            let btn1 = if *cursor_idx == 2 { active_style } else { normal_style };
-            let btn2 = if *cursor_idx == 3 { active_style } else { normal_style };
+            let btn1 = if *cursor_idx == 2 {
+                active_style
+            } else {
+                normal_style
+            };
+            let btn2 = if *cursor_idx == 3 {
+                active_style
+            } else {
+                normal_style
+            };
             let btns = ratatui::text::Line::from(vec![
                 ratatui::text::Span::styled(t("btn_ok_bracket"), btn1),
                 ratatui::text::Span::raw("  "),
                 ratatui::text::Span::styled(t("btn_cancel_bracket"), btn2),
             ]);
-            f.render_widget(Paragraph::new(btns).alignment(ratatui::layout::Alignment::Center), chunks[2]);
+            f.render_widget(
+                Paragraph::new(btns).alignment(ratatui::layout::Alignment::Center),
+                chunks[2],
+            );
             true
         }
         PopupType::CopyPrompt {
@@ -181,44 +235,203 @@ pub fn render_prompt_popup(
             let sep_str = ratatui::symbols::line::HORIZONTAL.repeat(inner.width as usize);
 
             let count = src_paths.len();
-            let first_name = src_paths.first().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+            let first_name = src_paths
+                .first()
+                .and_then(|p| p.file_name())
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default();
             let label = if count == 1 {
                 t("prompt_copy_sing").replacen("{}", &first_name, 1)
             } else {
                 t("prompt_copy_plur").replacen("{}", &count.to_string(), 1)
             };
-            let in_style = if *cursor_idx == 0 { act_style } else { norm_style };
-            let display_input = if *cursor_idx == 0 { format!("{}_", input) } else { input.clone() };
-            f.render_widget(Paragraph::new(format!("{} {}\n{}", label, t("prompt_copy_to"), display_input)).style(in_style), chunks[0]);
+            let in_style = if *cursor_idx == 0 {
+                act_style
+            } else {
+                norm_style
+            };
+            let display_input = if *cursor_idx == 0 {
+                format!("{}_", input)
+            } else {
+                input.clone()
+            };
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}\n{}",
+                    label,
+                    t("prompt_copy_to"),
+                    display_input
+                ))
+                .style(in_style),
+                chunks[0],
+            );
 
             f.render_widget(Paragraph::new(sep_str.clone()).style(sep_style), chunks[1]);
 
-            let exist_opts = [t("opt_ask"), t("opt_overwrite"), t("opt_skip"), t("opt_append")];
-            let exist_style = if *cursor_idx == 1 { act_style } else { norm_style };
-            f.render_widget(Paragraph::new(format!("{} {}", t("prompt_already_existing"), exist_opts[*already_existing])).style(exist_style), chunks[2]);
+            let exist_opts = [
+                t("opt_ask"),
+                t("opt_overwrite"),
+                t("opt_skip"),
+                t("opt_append"),
+            ];
+            let exist_style = if *cursor_idx == 1 {
+                act_style
+            } else {
+                norm_style
+            };
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    t("prompt_already_existing"),
+                    exist_opts[*already_existing]
+                ))
+                .style(exist_style),
+                chunks[2],
+            );
 
             let check = |b: &bool| if *b { "[x]" } else { "[ ]" };
-            f.render_widget(Paragraph::new(format!("{} {}", check(process_multiple), t("prompt_process_multiple"))).style(if *cursor_idx == 2 { act_style } else { norm_style }), chunks[3]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(copy_access_mode), t("prompt_copy_files_access"))).style(if *cursor_idx == 3 { act_style } else { norm_style }), chunks[4]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(copy_extended_attributes), t("prompt_copy_ext_attr"))).style(if *cursor_idx == 4 { act_style } else { norm_style }), chunks[5]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(disable_write_cache), t("prompt_disable_write_cache"))).style(if *cursor_idx == 5 { act_style } else { norm_style }), chunks[6]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(produce_sparse_files), t("prompt_produce_sparse_files"))).style(if *cursor_idx == 6 { act_style } else { norm_style }), chunks[7]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(use_copy_on_write), t("prompt_use_cow"))).style(if *cursor_idx == 7 { act_style } else { norm_style }), chunks[8]);
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(process_multiple),
+                    t("prompt_process_multiple")
+                ))
+                .style(if *cursor_idx == 2 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[3],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(copy_access_mode),
+                    t("prompt_copy_files_access")
+                ))
+                .style(if *cursor_idx == 3 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[4],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(copy_extended_attributes),
+                    t("prompt_copy_ext_attr")
+                ))
+                .style(if *cursor_idx == 4 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[5],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(disable_write_cache),
+                    t("prompt_disable_write_cache")
+                ))
+                .style(if *cursor_idx == 5 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[6],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(produce_sparse_files),
+                    t("prompt_produce_sparse_files")
+                ))
+                .style(if *cursor_idx == 6 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[7],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(use_copy_on_write),
+                    t("prompt_use_cow")
+                ))
+                .style(if *cursor_idx == 7 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[8],
+            );
 
-            let sym_opts = [t("opt_smartly_copy"), t("opt_copy_link"), t("opt_copy_target")];
-            f.render_widget(Paragraph::new(format!("{} {}", t("prompt_symlinks"), sym_opts[*symlink_mode])).style(if *cursor_idx == 8 { act_style } else { norm_style }), chunks[9]);
-            
+            let sym_opts = [
+                t("opt_smartly_copy"),
+                t("opt_copy_link"),
+                t("opt_copy_target"),
+            ];
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    t("prompt_symlinks"),
+                    sym_opts[*symlink_mode]
+                ))
+                .style(if *cursor_idx == 8 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[9],
+            );
+
             f.render_widget(Paragraph::new(sep_str.clone()).style(sep_style), chunks[10]);
 
-            let filter_display = if filter_mask.is_empty() { String::new() } else { format!(" [{}]", filter_mask) };
-            f.render_widget(Paragraph::new(format!("{} {}{}", check(use_filter), t("prompt_use_filter"), filter_display)).style(if *cursor_idx == 9 { act_style } else { norm_style }), chunks[11]);
+            let filter_display = if filter_mask.is_empty() {
+                String::new()
+            } else {
+                format!(" [{}]", filter_mask)
+            };
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}{}",
+                    check(use_filter),
+                    t("prompt_use_filter"),
+                    filter_display
+                ))
+                .style(if *cursor_idx == 9 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[11],
+            );
 
             f.render_widget(Paragraph::new(sep_str.clone()).style(sep_style), chunks[12]);
 
-            let b1 = if *cursor_idx == 10 { act_style } else { norm_style };
-            let b2 = if *cursor_idx == 11 { act_style } else { norm_style };
-            let b3 = if *cursor_idx == 12 { act_style } else { norm_style };
-            let b4 = if *cursor_idx == 13 { act_style } else { norm_style };
+            let b1 = if *cursor_idx == 10 {
+                act_style
+            } else {
+                norm_style
+            };
+            let b2 = if *cursor_idx == 11 {
+                act_style
+            } else {
+                norm_style
+            };
+            let b3 = if *cursor_idx == 12 {
+                act_style
+            } else {
+                norm_style
+            };
+            let b4 = if *cursor_idx == 13 {
+                act_style
+            } else {
+                norm_style
+            };
 
             let btns = ratatui::text::Line::from(vec![
                 ratatui::text::Span::styled(t("btn_copy_bracket"), b1),
@@ -229,7 +442,10 @@ pub fn render_prompt_popup(
                 ratatui::text::Span::raw("  "),
                 ratatui::text::Span::styled(t("btn_cancel_bracket"), b4),
             ]);
-            f.render_widget(Paragraph::new(btns).alignment(ratatui::layout::Alignment::Center), chunks[13]);
+            f.render_widget(
+                Paragraph::new(btns).alignment(ratatui::layout::Alignment::Center),
+                chunks[13],
+            );
 
             true
         }
@@ -374,19 +590,40 @@ pub fn render_prompt_popup(
                 .constraints([Constraint::Length(3), Constraint::Length(2)])
                 .split(inner);
 
-            let text = format!("{}\n{} {}", t("prompt_delete_confirm"), paths.len(), t("label_files"));
-            f.render_widget(Paragraph::new(text).alignment(ratatui::layout::Alignment::Center).style(Style::default().fg(parse_color(&theme.popup_fg))), chunks[0]);
+            let text = format!(
+                "{}\n{} {}",
+                t("prompt_delete_confirm"),
+                paths.len(),
+                t("label_files")
+            );
+            f.render_widget(
+                Paragraph::new(text)
+                    .alignment(ratatui::layout::Alignment::Center)
+                    .style(Style::default().fg(parse_color(&theme.popup_fg))),
+                chunks[0],
+            );
 
             let active_style = Style::default().bg(Color::Cyan).fg(Color::Black);
             let normal_style = Style::default().fg(parse_color(&theme.popup_fg));
-            let btn1 = if *cursor_idx == 0 { active_style } else { normal_style };
-            let btn2 = if *cursor_idx == 1 { active_style } else { normal_style };
+            let btn1 = if *cursor_idx == 0 {
+                active_style
+            } else {
+                normal_style
+            };
+            let btn2 = if *cursor_idx == 1 {
+                active_style
+            } else {
+                normal_style
+            };
             let btns = ratatui::text::Line::from(vec![
                 ratatui::text::Span::styled(t("btn_delete_bracket"), btn1),
                 ratatui::text::Span::raw("  "),
                 ratatui::text::Span::styled(t("btn_cancel_bracket"), btn2),
             ]);
-            f.render_widget(Paragraph::new(btns).alignment(ratatui::layout::Alignment::Center), chunks[1]);
+            f.render_widget(
+                Paragraph::new(btns).alignment(ratatui::layout::Alignment::Center),
+                chunks[1],
+            );
             true
         }
         PopupType::CopyProgress {
@@ -532,44 +769,203 @@ pub fn render_prompt_popup(
             let sep_str = ratatui::symbols::line::HORIZONTAL.repeat(inner.width as usize);
 
             let count = src_paths.len();
-            let first_name = src_paths.first().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+            let first_name = src_paths
+                .first()
+                .and_then(|p| p.file_name())
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default();
             let label = if count == 1 {
                 t("prompt_move_sing").replacen("{}", &first_name, 1)
             } else {
                 t("prompt_move_plur").replacen("{}", &count.to_string(), 1)
             };
-            let in_style = if *cursor_idx == 0 { act_style } else { norm_style };
-            let display_input = if *cursor_idx == 0 { format!("{}_", input) } else { input.clone() };
-            f.render_widget(Paragraph::new(format!("{} {}\n{}", label, t("prompt_renmov_to"), display_input)).style(in_style), chunks[0]);
+            let in_style = if *cursor_idx == 0 {
+                act_style
+            } else {
+                norm_style
+            };
+            let display_input = if *cursor_idx == 0 {
+                format!("{}_", input)
+            } else {
+                input.clone()
+            };
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}\n{}",
+                    label,
+                    t("prompt_renmov_to"),
+                    display_input
+                ))
+                .style(in_style),
+                chunks[0],
+            );
 
             f.render_widget(Paragraph::new(sep_str.clone()).style(sep_style), chunks[1]);
 
-            let exist_opts = [t("opt_ask"), t("opt_overwrite"), t("opt_skip"), t("opt_append")];
-            let exist_style = if *cursor_idx == 1 { act_style } else { norm_style };
-            f.render_widget(Paragraph::new(format!("{} {}", t("prompt_already_existing"), exist_opts[*already_existing])).style(exist_style), chunks[2]);
+            let exist_opts = [
+                t("opt_ask"),
+                t("opt_overwrite"),
+                t("opt_skip"),
+                t("opt_append"),
+            ];
+            let exist_style = if *cursor_idx == 1 {
+                act_style
+            } else {
+                norm_style
+            };
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    t("prompt_already_existing"),
+                    exist_opts[*already_existing]
+                ))
+                .style(exist_style),
+                chunks[2],
+            );
 
             let check = |b: &bool| if *b { "[x]" } else { "[ ]" };
-            f.render_widget(Paragraph::new(format!("{} {}", check(process_multiple), t("prompt_process_multiple"))).style(if *cursor_idx == 2 { act_style } else { norm_style }), chunks[3]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(copy_access_mode), t("prompt_copy_files_access"))).style(if *cursor_idx == 3 { act_style } else { norm_style }), chunks[4]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(copy_extended_attributes), t("prompt_copy_ext_attr"))).style(if *cursor_idx == 4 { act_style } else { norm_style }), chunks[5]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(disable_write_cache), t("prompt_disable_write_cache"))).style(if *cursor_idx == 5 { act_style } else { norm_style }), chunks[6]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(produce_sparse_files), t("prompt_produce_sparse_files"))).style(if *cursor_idx == 6 { act_style } else { norm_style }), chunks[7]);
-            f.render_widget(Paragraph::new(format!("{} {}", check(use_copy_on_write), t("prompt_use_cow"))).style(if *cursor_idx == 7 { act_style } else { norm_style }), chunks[8]);
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(process_multiple),
+                    t("prompt_process_multiple")
+                ))
+                .style(if *cursor_idx == 2 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[3],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(copy_access_mode),
+                    t("prompt_copy_files_access")
+                ))
+                .style(if *cursor_idx == 3 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[4],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(copy_extended_attributes),
+                    t("prompt_copy_ext_attr")
+                ))
+                .style(if *cursor_idx == 4 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[5],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(disable_write_cache),
+                    t("prompt_disable_write_cache")
+                ))
+                .style(if *cursor_idx == 5 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[6],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(produce_sparse_files),
+                    t("prompt_produce_sparse_files")
+                ))
+                .style(if *cursor_idx == 6 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[7],
+            );
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    check(use_copy_on_write),
+                    t("prompt_use_cow")
+                ))
+                .style(if *cursor_idx == 7 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[8],
+            );
 
-            let sym_opts = [t("opt_smartly_copy"), t("opt_copy_link"), t("opt_copy_target")];
-            f.render_widget(Paragraph::new(format!("{} {}", t("prompt_symlinks"), sym_opts[*symlink_mode])).style(if *cursor_idx == 8 { act_style } else { norm_style }), chunks[9]);
-            
+            let sym_opts = [
+                t("opt_smartly_copy"),
+                t("opt_copy_link"),
+                t("opt_copy_target"),
+            ];
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}",
+                    t("prompt_symlinks"),
+                    sym_opts[*symlink_mode]
+                ))
+                .style(if *cursor_idx == 8 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[9],
+            );
+
             f.render_widget(Paragraph::new(sep_str.clone()).style(sep_style), chunks[10]);
 
-            let filter_display = if filter_mask.is_empty() { String::new() } else { format!(" [{}]", filter_mask) };
-            f.render_widget(Paragraph::new(format!("{} {}{}", check(use_filter), t("prompt_use_filter"), filter_display)).style(if *cursor_idx == 9 { act_style } else { norm_style }), chunks[11]);
+            let filter_display = if filter_mask.is_empty() {
+                String::new()
+            } else {
+                format!(" [{}]", filter_mask)
+            };
+            f.render_widget(
+                Paragraph::new(format!(
+                    "{} {}{}",
+                    check(use_filter),
+                    t("prompt_use_filter"),
+                    filter_display
+                ))
+                .style(if *cursor_idx == 9 {
+                    act_style
+                } else {
+                    norm_style
+                }),
+                chunks[11],
+            );
 
             f.render_widget(Paragraph::new(sep_str.clone()).style(sep_style), chunks[12]);
 
-            let b1 = if *cursor_idx == 10 { act_style } else { norm_style };
-            let b2 = if *cursor_idx == 11 { act_style } else { norm_style };
-            let b3 = if *cursor_idx == 12 { act_style } else { norm_style };
-            let b4 = if *cursor_idx == 13 { act_style } else { norm_style };
+            let b1 = if *cursor_idx == 10 {
+                act_style
+            } else {
+                norm_style
+            };
+            let b2 = if *cursor_idx == 11 {
+                act_style
+            } else {
+                norm_style
+            };
+            let b3 = if *cursor_idx == 12 {
+                act_style
+            } else {
+                norm_style
+            };
+            let b4 = if *cursor_idx == 13 {
+                act_style
+            } else {
+                norm_style
+            };
 
             let btns = ratatui::text::Line::from(vec![
                 ratatui::text::Span::styled(format!(" {{ {} }} ", t("btn_rename")), b1),
@@ -580,7 +976,10 @@ pub fn render_prompt_popup(
                 ratatui::text::Span::raw("  "),
                 ratatui::text::Span::styled(format!(" [ {} ] ", t("btn_cancel")), b4),
             ]);
-            f.render_widget(Paragraph::new(btns).alignment(ratatui::layout::Alignment::Center), chunks[13]);
+            f.render_widget(
+                Paragraph::new(btns).alignment(ratatui::layout::Alignment::Center),
+                chunks[13],
+            );
 
             true
         }
@@ -717,7 +1116,9 @@ pub fn render_prompt_popup(
 
             let text = format!(
                 "\n {}\n\n > {}\n\n {}",
-                prompt_label, query, t("prompt_confirm_cancel_hint")
+                prompt_label,
+                query,
+                t("prompt_confirm_cancel_hint")
             );
 
             let paragraph = Paragraph::new(text)
@@ -841,9 +1242,9 @@ pub fn render_prompt_popup(
 }
 
 fn parse_markdown_to_lines(text: &str) -> Vec<ratatui::text::Line<'static>> {
-    use pulldown_cmark::{Parser, Event, Tag, HeadingLevel, TagEnd};
-    use ratatui::style::{Style, Color, Modifier};
-    use ratatui::text::{Span, Line};
+    use pulldown_cmark::{Event, HeadingLevel, Parser, Tag, TagEnd};
+    use ratatui::style::{Color, Modifier, Style};
+    use ratatui::text::{Line, Span};
 
     let parser = Parser::new(text);
     let mut lines = Vec::new();
@@ -864,14 +1265,19 @@ fn parse_markdown_to_lines(text: &str) -> Vec<ratatui::text::Line<'static>> {
                     if !lines.is_empty() {
                         lines.push(Line::from(""));
                     }
-                    
+
                     let prefix = match level {
                         HeadingLevel::H1 => "# ",
                         HeadingLevel::H2 => "## ",
                         HeadingLevel::H3 => "### ",
                         _ => "#### ",
                     };
-                    current_spans.push(Span::styled(prefix, Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)));
+                    current_spans.push(Span::styled(
+                        prefix,
+                        Style::default()
+                            .fg(Color::Yellow)
+                            .add_modifier(Modifier::BOLD),
+                    ));
                 }
                 Tag::Paragraph => {
                     if !current_spans.is_empty() {
@@ -888,7 +1294,7 @@ fn parse_markdown_to_lines(text: &str) -> Vec<ratatui::text::Line<'static>> {
                     current_spans.push(Span::styled("• ", Style::default().fg(Color::Cyan)));
                 }
                 _ => {}
-            }
+            },
             Event::End(tag) => match tag {
                 TagEnd::Heading(_) => {
                     if !current_spans.is_empty() {
@@ -914,7 +1320,7 @@ fn parse_markdown_to_lines(text: &str) -> Vec<ratatui::text::Line<'static>> {
                     }
                 }
                 _ => {}
-            }
+            },
             Event::Text(t) => {
                 let mut style = Style::default();
                 if bold {
@@ -933,7 +1339,10 @@ fn parse_markdown_to_lines(text: &str) -> Vec<ratatui::text::Line<'static>> {
                 current_spans.push(Span::styled(t.into_string(), style));
             }
             Event::Code(c) => {
-                current_spans.push(Span::styled(format!(" `{}` ", c), Style::default().fg(Color::Magenta)));
+                current_spans.push(Span::styled(
+                    format!(" `{}` ", c),
+                    Style::default().fg(Color::Magenta),
+                ));
             }
             Event::SoftBreak | Event::HardBreak => {
                 if !current_spans.is_empty() {
@@ -950,4 +1359,3 @@ fn parse_markdown_to_lines(text: &str) -> Vec<ratatui::text::Line<'static>> {
 
     lines
 }
-

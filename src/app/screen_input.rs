@@ -1,5 +1,5 @@
 use crate::app::context::AppContext;
-use crate::app::state::{AppState, Screen, PopupType};
+use crate::app::state::{AppState, PopupType, Screen};
 use crate::app::sys_helpers::find_next_in_editor;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
@@ -9,8 +9,14 @@ pub fn handle_screen_input(
     context: &mut AppContext,
 ) -> Result<(), ()> {
     // Determine the type of the active screen
-    let is_editor = matches!(state.screens.get(state.active_screen_idx), Some(Screen::Editor(_)));
-    let is_viewer = matches!(state.screens.get(state.active_screen_idx), Some(Screen::Viewer(_)));
+    let is_editor = matches!(
+        state.screens.get(state.active_screen_idx),
+        Some(Screen::Editor(_))
+    );
+    let is_viewer = matches!(
+        state.screens.get(state.active_screen_idx),
+        Some(Screen::Viewer(_))
+    );
 
     if is_editor {
         return handle_editor_screen(state, key, context);
@@ -144,8 +150,7 @@ fn handle_editor_screen(
             KeyCode::F(2) => {
                 let content = ed.lines.join("\n");
                 if let Err(e) = std::fs::write(&ed.path, content) {
-                    state.active_popup =
-                        Some(PopupType::Error(format!("Failed to save: {}", e)));
+                    state.active_popup = Some(PopupType::Error(format!("Failed to save: {}", e)));
                     return Ok(());
                 }
                 ed.is_dirty = false;
@@ -153,8 +158,7 @@ fn handle_editor_screen(
             KeyCode::Char('s') if is_ctrl => {
                 let content = ed.lines.join("\n");
                 if let Err(e) = std::fs::write(&ed.path, content) {
-                    state.active_popup =
-                        Some(PopupType::Error(format!("Failed to save: {}", e)));
+                    state.active_popup = Some(PopupType::Error(format!("Failed to save: {}", e)));
                     return Ok(());
                 }
                 ed.is_dirty = false;
@@ -178,7 +182,8 @@ fn handle_editor_screen(
                             } else {
                                 reloaded_lines
                             };
-                            ed.cursor_x = ed.cursor_x
+                            ed.cursor_x = ed
+                                .cursor_x
                                 .min(ed.lines.get(ed.cursor_y).map(|l| l.len()).unwrap_or(0));
                             ed.is_dirty = false;
                         }
@@ -285,9 +290,23 @@ fn handle_viewer_screen(
                 if let Some(ref q) = vw.last_search {
                     if vw.mode == crate::ui::viewer::ViewerMode::Text {
                         // basic search downward from current scroll
-                        if let Some(found_idx) = vw.lines.iter().enumerate().skip(vw.scroll + 1).find(|(_, l)| l.to_lowercase().contains(&q.to_lowercase())).map(|(i, _)| i) {
+                        if let Some(found_idx) = vw
+                            .lines
+                            .iter()
+                            .enumerate()
+                            .skip(vw.scroll + 1)
+                            .find(|(_, l)| l.to_lowercase().contains(&q.to_lowercase()))
+                            .map(|(i, _)| i)
+                        {
                             vw.scroll = found_idx;
-                        } else if let Some(found_idx) = vw.lines.iter().enumerate().take(vw.scroll + 1).find(|(_, l)| l.to_lowercase().contains(&q.to_lowercase())).map(|(i, _)| i) {
+                        } else if let Some(found_idx) = vw
+                            .lines
+                            .iter()
+                            .enumerate()
+                            .take(vw.scroll + 1)
+                            .find(|(_, l)| l.to_lowercase().contains(&q.to_lowercase()))
+                            .map(|(i, _)| i)
+                        {
                             vw.scroll = found_idx;
                         }
                     }

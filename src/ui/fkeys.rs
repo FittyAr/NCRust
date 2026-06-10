@@ -13,8 +13,14 @@ use ratatui::{
 pub fn render_fkeys(f: &mut Frame, area: Rect, context: &AppContext, state: &AppState) {
     let theme = &context.config.theme;
 
-    let is_editor = matches!(state.screens.get(state.active_screen_idx), Some(crate::app::state::Screen::Editor(_)));
-    let is_viewer = matches!(state.screens.get(state.active_screen_idx), Some(crate::app::state::Screen::Viewer(_)));
+    let is_editor = matches!(
+        state.screens.get(state.active_screen_idx),
+        Some(crate::app::state::Screen::Editor(_))
+    );
+    let is_viewer = matches!(
+        state.screens.get(state.active_screen_idx),
+        Some(crate::app::state::Screen::Viewer(_))
+    );
 
     let fkeys = if is_editor {
         vec![
@@ -46,7 +52,10 @@ pub fn render_fkeys(f: &mut Frame, area: Rect, context: &AppContext, state: &App
             ("11", String::new()),
             ("12", String::new()),
         ]
-    } else if state.current_modifiers.contains(crossterm::event::KeyModifiers::CONTROL) {
+    } else if state
+        .current_modifiers
+        .contains(crossterm::event::KeyModifiers::CONTROL)
+    {
         vec![
             ("1", t("fkey_ctrl_left")),
             ("2", t("fkey_ctrl_right")),
@@ -61,7 +70,10 @@ pub fn render_fkeys(f: &mut Frame, area: Rect, context: &AppContext, state: &App
             ("11", t("fkey_ctrl_owner")),
             ("12", t("fkey_ctrl_sort")),
         ]
-    } else if state.current_modifiers.contains(crossterm::event::KeyModifiers::ALT) {
+    } else if state
+        .current_modifiers
+        .contains(crossterm::event::KeyModifiers::ALT)
+    {
         vec![
             ("1", t("fkey_alt_left")),
             ("2", t("fkey_alt_right")),

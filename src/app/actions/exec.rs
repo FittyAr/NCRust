@@ -25,14 +25,18 @@ pub fn execute_shell_command(
     disable_raw_mode()?;
     execute!(std::io::stdout(), LeaveAlternateScreen, Show)?;
 
-    println!("\nNCRust shell execution: {}\n", command_str);
+    println!("\nPairee shell execution: {}\n", command_str);
 
     let interactive = [
-        "vi", "vim", "nvim", "nano", "pico", "emacs", "htop", "top", "mc", "less", "more", "ssh", "gdb",
-        "python", "node", "mysql", "psql", "sqlite3", "bash", "sh", "zsh", "fish", "tmux", "screen",
-        "ftp", "sftp", "telnet", "w3m", "lynx", "su", "sudo", "login",
+        "vi", "vim", "nvim", "nano", "pico", "emacs", "htop", "top", "mc", "less", "more", "ssh",
+        "gdb", "python", "node", "mysql", "psql", "sqlite3", "bash", "sh", "zsh", "fish", "tmux",
+        "screen", "ftp", "sftp", "telnet", "w3m", "lynx", "su", "sudo", "login",
     ];
-    let cmd_name = command_str.split_whitespace().next().unwrap_or("").to_lowercase();
+    let cmd_name = command_str
+        .split_whitespace()
+        .next()
+        .unwrap_or("")
+        .to_lowercase();
     let is_interactive = interactive.contains(&cmd_name.as_str());
 
     let final_command = if !is_interactive && !cfg!(target_os = "windows") {
@@ -67,7 +71,7 @@ pub fn execute_shell_command(
 
     let _ = shell.wait();
 
-    println!("\n[Press Enter to return to NCRust]");
+    println!("\n[Press Enter to return to Pairee]");
     let mut buffer = String::new();
     let _ = std::io::stdin().read_line(&mut buffer);
 
@@ -114,7 +118,7 @@ pub fn execute_external_command(
 
     let _ = child.wait();
 
-    println!("\n[Press Enter to return to NCRust]");
+    println!("\n[Press Enter to return to Pairee]");
     let mut buffer = String::new();
     let _ = std::io::stdin().read_line(&mut buffer);
 

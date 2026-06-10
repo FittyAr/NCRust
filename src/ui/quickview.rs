@@ -21,12 +21,12 @@ pub fn draw_quick_view(
     scroll: usize,
     theme: &crate::config::theme::Theme,
 ) {
-    let file_name = path.file_name()
+    let file_name = path
+        .file_name()
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_else(|| "?".to_string());
-    
-    let title = t("quickview_title")
-        .replacen("{}", &file_name, 1);
+
+    let title = t("quickview_title").replacen("{}", &file_name, 1);
 
     let block = Block::default()
         .borders(Borders::ALL)

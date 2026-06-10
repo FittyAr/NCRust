@@ -10,7 +10,7 @@ const SEVENZIP_WIN_URL: &str =
 /// Gets the local path where `7za.exe` (or `7z`) should reside.
 pub fn get_external_7z_path() -> Option<PathBuf> {
     if cfg!(target_os = "windows") {
-        let proj_dirs = ProjectDirs::from("com", "FittyAr", "NCRust")?;
+        let proj_dirs = ProjectDirs::from("com", "FittyAr", "Pairee")?;
         Some(proj_dirs.data_dir().join("bin").join("7za.exe"))
     } else {
         // On Linux/macOS, we rely on the system's `7z` or `7za` command
@@ -47,7 +47,7 @@ pub async fn ensure_external_tools() -> Result<()> {
     let response = reqwest::get(SEVENZIP_WIN_URL).await?.bytes().await?;
 
     // 2. Save it to a temporary file
-    let temp_archive = std::env::temp_dir().join("ncrust_7z_extra.7z");
+    let temp_archive = std::env::temp_dir().join("pairee_7z_extra.7z");
     fs::write(&temp_archive, &response)?;
 
     // 3. Extract 7za.exe using our internal sevenz-rust crate

@@ -121,14 +121,16 @@ pub fn handle(
                 KeyCode::Char('s') | KeyCode::Char('S') => {
                     // Quick save shortcut if needed, or wait, Enter is used to edit!
                     // Let's make "S" save and return.
-                    if context.config.settings.theme == "slate" || context.config.settings.theme == "classic_blue" {
+                    if context.config.settings.theme == "slate"
+                        || context.config.settings.theme == "classic_blue"
+                    {
                         context.config.settings.theme = "custom".to_string();
                     }
                     context.config.theme = theme.clone();
                     let _ = context.config.save(); // Save configuration
                     state.refresh_both_panels(context.config.settings.show_hidden);
-                    
-                // Return to Configuration Dialog
+
+                    // Return to Configuration Dialog
                     state.active_popup = Some(PopupType::ConfigurationDialog {
                         active_tab: 6,
                         cursor_idx: 1,
@@ -199,7 +201,12 @@ pub fn handle(
                 _ => {}
             }
         }
-        state.active_popup = Some(PopupType::ColorGroupsDialog { cursor_idx, editing, edit_buffer, theme });
+        state.active_popup = Some(PopupType::ColorGroupsDialog {
+            cursor_idx,
+            editing,
+            edit_buffer,
+            theme,
+        });
         return Ok(None);
     }
     Err(())

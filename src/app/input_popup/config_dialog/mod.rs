@@ -77,11 +77,18 @@ pub fn handle(
                     editing_value = false;
                 }
                 KeyCode::Enter => {
-                    let current_rows =
-                        get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+                    let current_rows = get_rows_for_tab(
+                        active_tab,
+                        &settings,
+                        editing_value,
+                        cursor_idx,
+                        &edit_buffer,
+                    );
                     // Extract setting ID
                     if cursor_idx < current_rows.len() {
-                        if let crate::ui::popup::config_dialog::RowType::Setting(setting_id) = current_rows[cursor_idx].1 {
+                        if let crate::ui::popup::config_dialog::RowType::Setting(setting_id) =
+                            current_rows[cursor_idx].1
+                        {
                             if active_tab == 5 && setting_id == 1 {
                                 settings.default_editor = edit_buffer.clone();
                             } else if active_tab == 5 && setting_id == 22 {
@@ -105,10 +112,15 @@ pub fn handle(
             return Ok(None);
         }
 
-        let mut current_rows =
-            get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+        let mut current_rows = get_rows_for_tab(
+            active_tab,
+            &settings,
+            editing_value,
+            cursor_idx,
+            &edit_buffer,
+        );
         let max_rows = current_rows.len() + 2;
-        
+
         // Ensure initial cursor_idx is selectable
         if !is_selectable(cursor_idx, &current_rows) {
             while cursor_idx < max_rows && !is_selectable(cursor_idx, &current_rows) {
@@ -131,7 +143,13 @@ pub fn handle(
                     active_tab = 6;
                 }
                 cursor_idx = 0;
-                current_rows = get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+                current_rows = get_rows_for_tab(
+                    active_tab,
+                    &settings,
+                    editing_value,
+                    cursor_idx,
+                    &edit_buffer,
+                );
                 while cursor_idx < current_rows.len() && !is_selectable(cursor_idx, &current_rows) {
                     cursor_idx += 1;
                 }
@@ -143,35 +161,37 @@ pub fn handle(
                     active_tab = 0;
                 }
                 cursor_idx = 0;
-                current_rows = get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
+                current_rows = get_rows_for_tab(
+                    active_tab,
+                    &settings,
+                    editing_value,
+                    cursor_idx,
+                    &edit_buffer,
+                );
                 while cursor_idx < current_rows.len() && !is_selectable(cursor_idx, &current_rows) {
                     cursor_idx += 1;
                 }
             }
-            KeyCode::Up => {
-                loop {
-                    if cursor_idx > 0 {
-                        cursor_idx -= 1;
-                    } else {
-                        cursor_idx = max_rows - 1;
-                    }
-                    if is_selectable(cursor_idx, &current_rows) {
-                        break;
-                    }
+            KeyCode::Up => loop {
+                if cursor_idx > 0 {
+                    cursor_idx -= 1;
+                } else {
+                    cursor_idx = max_rows - 1;
                 }
-            }
-            KeyCode::Down => {
-                loop {
-                    if cursor_idx < max_rows - 1 {
-                        cursor_idx += 1;
-                    } else {
-                        cursor_idx = 0;
-                    }
-                    if is_selectable(cursor_idx, &current_rows) {
-                        break;
-                    }
+                if is_selectable(cursor_idx, &current_rows) {
+                    break;
                 }
-            }
+            },
+            KeyCode::Down => loop {
+                if cursor_idx < max_rows - 1 {
+                    cursor_idx += 1;
+                } else {
+                    cursor_idx = 0;
+                }
+                if is_selectable(cursor_idx, &current_rows) {
+                    break;
+                }
+            },
             KeyCode::Char(' ') | KeyCode::Enter => {
                 let ok_idx = max_rows - 2;
                 let cancel_idx = max_rows - 1;
@@ -309,8 +329,16 @@ pub fn handle(
                         if hotkey == lower_c {
                             active_tab = i;
                             cursor_idx = 0;
-                            current_rows = get_rows_for_tab(active_tab, &settings, editing_value, cursor_idx, &edit_buffer);
-                            while cursor_idx < current_rows.len() && !is_selectable(cursor_idx, &current_rows) {
+                            current_rows = get_rows_for_tab(
+                                active_tab,
+                                &settings,
+                                editing_value,
+                                cursor_idx,
+                                &edit_buffer,
+                            );
+                            while cursor_idx < current_rows.len()
+                                && !is_selectable(cursor_idx, &current_rows)
+                            {
                                 cursor_idx += 1;
                             }
                             break;

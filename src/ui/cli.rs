@@ -20,12 +20,21 @@ pub fn render_cli(f: &mut Frame, area: Rect, state: &AppState, context: &AppCont
         "$ "
     };
     let screen_indicator = if state.screens.len() > 1 {
-        format!(" [Screens: {}/{}] ", state.active_screen_idx + 1, state.screens.len())
+        format!(
+            " [Screens: {}/{}] ",
+            state.active_screen_idx + 1,
+            state.screens.len()
+        )
     } else {
         String::new()
     };
 
-    let prompt = format!("{}{}{}", screen_indicator, active_path.to_string_lossy(), prompt_symbol);
+    let prompt = format!(
+        "{}{}{}",
+        screen_indicator,
+        active_path.to_string_lossy(),
+        prompt_symbol
+    );
 
     let cli_text = &state.cli_input;
 

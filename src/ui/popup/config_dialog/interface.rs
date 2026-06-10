@@ -1,6 +1,6 @@
-use crate::config::settings::Settings;
-use crate::config::localization::t;
 use super::RowType;
+use crate::config::localization::t;
+use crate::config::settings::Settings;
 
 pub fn populate_rows(
     settings: &Settings,
@@ -19,7 +19,11 @@ pub fn populate_rows(
         RowType::Setting(0),
     ));
     rows.push((
-        format!("[{}] {}", if settings.mouse_support { "x" } else { " " }, t("int_mouse")),
+        format!(
+            "[{}] {}",
+            if settings.mouse_support { "x" } else { " " },
+            t("int_mouse")
+        ),
         RowType::Setting(1),
     ));
     rows.push((
@@ -54,7 +58,7 @@ pub fn populate_rows(
         ),
         RowType::Setting(4),
     ));
-    
+
     rows.push(("Progress Indicators".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -92,7 +96,7 @@ pub fn populate_rows(
         ),
         RowType::Setting(7),
     ));
-    
+
     rows.push(("Terminal & Rendering".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -142,7 +146,7 @@ pub fn populate_rows(
         ),
         RowType::Setting(11),
     ));
-    
+
     rows.push(("Window".to_string(), RowType::Title));
     rows.push((
         format!("{} [ {} ]", t("int_icon"), settings.interface_console_icon),
@@ -160,7 +164,7 @@ pub fn populate_rows(
         ),
         RowType::Setting(13),
     ));
-    
+
     let is_editing_title = editing_value && cursor_idx == rows.len();
     if is_editing_title {
         rows.push((
@@ -177,7 +181,7 @@ pub fn populate_rows(
             RowType::Setting(14),
         ));
     }
-    
+
     // t("int_diag_title") was index 15
     rows.push((t("int_diag_title"), RowType::Title));
     rows.push((
@@ -252,7 +256,7 @@ pub fn populate_rows(
         ),
         RowType::Setting(21),
     ));
-    
+
     // t("int_menu_title") was index 22
     rows.push((t("int_menu_title"), RowType::Title));
     rows.push((
@@ -279,7 +283,7 @@ pub fn populate_rows(
         ),
         RowType::Setting(25),
     ));
-    
+
     // t("int_cmd_title") was index 26
     rows.push((t("int_cmd_title"), RowType::Title));
     rows.push((
@@ -327,10 +331,14 @@ pub fn populate_rows(
         RowType::Setting(30),
     ));
     rows.push((
-        format!("  {} [ {} ]", t("int_cmd_home"), settings.cmdline_use_home_dir),
+        format!(
+            "  {} [ {} ]",
+            t("int_cmd_home"),
+            settings.cmdline_use_home_dir
+        ),
         RowType::Setting(31),
     ));
-    
+
     // t("int_auto_title") was index 32
     rows.push((t("int_auto_title"), RowType::Title));
     rows.push((
@@ -369,11 +377,14 @@ pub fn populate_rows(
         ),
         RowType::Setting(35),
     ));
-    
+
     rows.push(("Keybindings".to_string(), RowType::Title));
     rows.push((
-        format!("{} < {} >", t("int_keybindings"), settings.keybinding_preset),
+        format!(
+            "{} < {} >",
+            t("int_keybindings"),
+            settings.keybinding_preset
+        ),
         RowType::Setting(36),
     ));
 }
-

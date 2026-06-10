@@ -55,18 +55,18 @@ jobs:
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME:-latest}"
-          PKG_NAME="ncrust-${VERSION}-${{ matrix.target }}"
+          PKG_NAME="pairee-${VERSION}-${{ matrix.target }}"
           mkdir -p "$PKG_NAME"
           
           # Copy resources
           cp -r lang help README.md LICENSE "$PKG_NAME/"
 
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            cp "target/${{ matrix.target }}/release/ncrust.exe" "$PKG_NAME/"
+            cp "target/${{ matrix.target }}/release/pairee.exe" "$PKG_NAME/"
             zip -r "${PKG_NAME}.zip" "$PKG_NAME"
             echo "ASSET_PATH=${PKG_NAME}.zip" >> $GITHUB_ENV
           else
-            cp "target/${{ matrix.target }}/release/ncrust" "$PKG_NAME/"
+            cp "target/${{ matrix.target }}/release/pairee" "$PKG_NAME/"
             tar -czf "${PKG_NAME}.tar.gz" "$PKG_NAME"
             echo "ASSET_PATH=${PKG_NAME}.tar.gz" >> $GITHUB_ENV
           fi

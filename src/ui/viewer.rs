@@ -92,7 +92,7 @@ pub fn render_viewer(
         .file_name()
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_default();
-    
+
     let title = t("viewer_title_bar")
         .replacen("{}", &mode_label, 1)
         .replacen("{}", &file_name, 1);

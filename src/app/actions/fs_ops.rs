@@ -1,6 +1,6 @@
 use crate::app::context::AppContext;
-use crate::app::state::{AppState, FileAttrsSnapshot, LinkKind, PopupType, Screen};
 use crate::app::state::types::EditorState;
+use crate::app::state::{AppState, FileAttrsSnapshot, LinkKind, PopupType, Screen};
 use crate::keybindings::Action;
 use crate::terminal::TerminalBackend;
 
@@ -103,7 +103,8 @@ pub fn handle_fs_action(
                 let dest_dir = state.get_passive_panel().current_path.clone();
                 if context.config.settings.confirmations.confirm_copy {
                     let default_input = if targets.len() == 1 {
-                        targets.first()
+                        targets
+                            .first()
                             .and_then(|p| p.file_name())
                             .map(|n| dest_dir.join(n).to_string_lossy().to_string())
                             .unwrap_or_else(|| dest_dir.to_string_lossy().to_string())
@@ -173,7 +174,8 @@ pub fn handle_fs_action(
                 let dest_dir = state.get_passive_panel().current_path.clone();
                 if context.config.settings.confirmations.confirm_move {
                     let default_input = if targets.len() == 1 {
-                        targets.first()
+                        targets
+                            .first()
                             .and_then(|p| p.file_name())
                             .map(|n| dest_dir.join(n).to_string_lossy().to_string())
                             .unwrap_or_else(|| dest_dir.to_string_lossy().to_string())
@@ -298,7 +300,7 @@ pub fn handle_fs_action(
                         && targets.iter().any(|p| is_non_empty_dir(p)));
 
                 if show_prompt {
-                    state.active_popup = Some(PopupType::ConfirmDelete { 
+                    state.active_popup = Some(PopupType::ConfirmDelete {
                         paths: targets,
                         cursor_idx: 0,
                     });

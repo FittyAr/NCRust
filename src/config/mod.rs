@@ -69,7 +69,7 @@ impl AppConfig {
         let theme_name = &settings.theme;
         let themes_dir = paths::get_themes_dir();
         let theme_path = themes_dir.join(format!("{}.toml", theme_name));
-        
+
         let theme: Theme = if theme_path.exists() {
             let content = fs::read_to_string(&theme_path).context("Failed to read theme file")?;
             toml::from_str(&content).unwrap_or_else(|_| {

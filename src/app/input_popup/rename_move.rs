@@ -40,21 +40,19 @@ pub fn handle(
         let mut new_filter = use_filter;
         let new_filter_mask = filter_mask.clone();
 
-        let update_popup = |
-            s: &mut AppState,
-            i: String,
-            idx: usize,
-            a: usize,
-            m: bool,
-            ac: bool,
-            ex: bool,
-            ca: bool,
-            sp: bool,
-            cw: bool,
-            sy: usize,
-            f: bool,
-            fm: String
-        | {
+        let update_popup = |s: &mut AppState,
+                            i: String,
+                            idx: usize,
+                            a: usize,
+                            m: bool,
+                            ac: bool,
+                            ex: bool,
+                            ca: bool,
+                            sp: bool,
+                            cw: bool,
+                            sy: usize,
+                            f: bool,
+                            fm: String| {
             s.active_popup = Some(PopupType::RenMovPrompt {
                 input: i,
                 src_paths: src_paths.clone(),
@@ -75,33 +73,111 @@ pub fn handle(
 
         match key.code {
             KeyCode::Up | KeyCode::BackTab => {
-                new_idx = if new_idx > 0 { new_idx - 1 } else { MAX_CURSOR_IDX };
-                update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                new_idx = if new_idx > 0 {
+                    new_idx - 1
+                } else {
+                    MAX_CURSOR_IDX
+                };
+                update_popup(
+                    state,
+                    new_input,
+                    new_idx,
+                    new_already,
+                    new_multi,
+                    new_access,
+                    new_ext,
+                    new_cache,
+                    new_sparse,
+                    new_cow,
+                    new_sym,
+                    new_filter,
+                    new_filter_mask,
+                );
                 return Ok(None);
             }
             KeyCode::Down | KeyCode::Tab => {
-                new_idx = if new_idx < MAX_CURSOR_IDX { new_idx + 1 } else { 0 };
-                update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                new_idx = if new_idx < MAX_CURSOR_IDX {
+                    new_idx + 1
+                } else {
+                    0
+                };
+                update_popup(
+                    state,
+                    new_input,
+                    new_idx,
+                    new_already,
+                    new_multi,
+                    new_access,
+                    new_ext,
+                    new_cache,
+                    new_sparse,
+                    new_cow,
+                    new_sym,
+                    new_filter,
+                    new_filter_mask,
+                );
                 return Ok(None);
             }
             KeyCode::Left => {
                 if new_idx >= 10 && new_idx <= 13 {
                     new_idx = if new_idx > 10 { new_idx - 1 } else { 13 };
-                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                    update_popup(
+                        state,
+                        new_input,
+                        new_idx,
+                        new_already,
+                        new_multi,
+                        new_access,
+                        new_ext,
+                        new_cache,
+                        new_sparse,
+                        new_cow,
+                        new_sym,
+                        new_filter,
+                        new_filter_mask,
+                    );
                 }
                 return Ok(None);
             }
             KeyCode::Right => {
                 if new_idx >= 10 && new_idx <= 13 {
                     new_idx = if new_idx < 13 { new_idx + 1 } else { 10 };
-                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                    update_popup(
+                        state,
+                        new_input,
+                        new_idx,
+                        new_already,
+                        new_multi,
+                        new_access,
+                        new_ext,
+                        new_cache,
+                        new_sparse,
+                        new_cow,
+                        new_sym,
+                        new_filter,
+                        new_filter_mask,
+                    );
                 }
                 return Ok(None);
             }
             KeyCode::Char(c) => {
                 if new_idx == 0 {
                     new_input.push(c);
-                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                    update_popup(
+                        state,
+                        new_input,
+                        new_idx,
+                        new_already,
+                        new_multi,
+                        new_access,
+                        new_ext,
+                        new_cache,
+                        new_sparse,
+                        new_cow,
+                        new_sym,
+                        new_filter,
+                        new_filter_mask,
+                    );
                 } else if c == ' ' {
                     // Toggle depending on idx
                     match new_idx {
@@ -116,14 +192,42 @@ pub fn handle(
                         9 => new_filter = !new_filter,
                         _ => {}
                     }
-                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                    update_popup(
+                        state,
+                        new_input,
+                        new_idx,
+                        new_already,
+                        new_multi,
+                        new_access,
+                        new_ext,
+                        new_cache,
+                        new_sparse,
+                        new_cow,
+                        new_sym,
+                        new_filter,
+                        new_filter_mask,
+                    );
                 }
                 return Ok(None);
             }
             KeyCode::Backspace => {
                 if new_idx == 0 {
                     new_input.pop();
-                    update_popup(state, new_input, new_idx, new_already, new_multi, new_access, new_ext, new_cache, new_sparse, new_cow, new_sym, new_filter, new_filter_mask);
+                    update_popup(
+                        state,
+                        new_input,
+                        new_idx,
+                        new_already,
+                        new_multi,
+                        new_access,
+                        new_ext,
+                        new_cache,
+                        new_sparse,
+                        new_cow,
+                        new_sym,
+                        new_filter,
+                        new_filter_mask,
+                    );
                 }
                 return Ok(None);
             }
@@ -161,7 +265,11 @@ pub fn handle(
                     let mut any_exists = false;
                     for src in &targets {
                         if let Some(fname) = src.file_name() {
-                            let dst = if targets.len() == 1 { dest.clone() } else { dest.join(fname) };
+                            let dst = if targets.len() == 1 {
+                                dest.clone()
+                            } else {
+                                dest.join(fname)
+                            };
                             if dst.exists() {
                                 any_exists = true;
                                 break;
@@ -169,7 +277,9 @@ pub fn handle(
                         }
                     }
 
-                    if any_exists && new_already == 0 /* Ask */ {
+                    if any_exists && new_already == 0
+                    /* Ask */
+                    {
                         state.active_popup = Some(PopupType::ConfirmOverwrite {
                             src_paths,
                             dest_dir,
@@ -183,14 +293,21 @@ pub fn handle(
                 state.active_popup = None;
                 for src in &targets {
                     if let Some(fname) = src.file_name() {
-                        let dst = if targets.len() == 1 { dest.clone() } else { dest.join(fname) };
+                        let dst = if targets.len() == 1 {
+                            dest.clone()
+                        } else {
+                            dest.join(fname)
+                        };
                         if let Err(e) = crate::fs::rename_or_move_sync(
                             src,
                             &dst,
                             context.config.settings.req_admin_modification,
                         ) {
-                            state.active_popup =
-                                Some(PopupType::Error(format!("{} {}", crate::config::localization::t("error_move_failed"), e)));
+                            state.active_popup = Some(PopupType::Error(format!(
+                                "{} {}",
+                                crate::config::localization::t("error_move_failed"),
+                                e
+                            )));
                             break;
                         }
                     }

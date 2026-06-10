@@ -16,7 +16,13 @@ pub fn render_files_highlighting_popup(
     theme: &Theme,
     size: Rect,
 ) -> bool {
-    if let PopupType::FilesHighlightingDialog { cursor_idx, editing, edit_buffer, rules } = popup {
+    if let PopupType::FilesHighlightingDialog {
+        cursor_idx,
+        editing,
+        edit_buffer,
+        rules,
+    } = popup
+    {
         let area = centered_rect(60, 60, size);
         f.render_widget(Clear, area);
 
@@ -32,7 +38,7 @@ pub fn render_files_highlighting_popup(
         let mut lines = Vec::new();
         let list_height = inner.height as usize;
         let scroll_start = cursor_idx.saturating_sub(list_height / 2);
-        
+
         for i in scroll_start..scroll_start + list_height {
             if i >= rules.len() {
                 break;
@@ -40,7 +46,7 @@ pub fn render_files_highlighting_popup(
 
             let rule = &rules[i];
             let is_cursor = i == *cursor_idx;
-            
+
             let color_str = if is_cursor && *editing {
                 format!("{}_", edit_buffer)
             } else {
@@ -56,7 +62,7 @@ pub fn render_files_highlighting_popup(
             // When editing, still try to parse the actual rule color so the item text doesn't disappear
             // or just use White. Let's use the parsed current color or white.
             let fg_color = parse_color(&rule.color);
-            
+
             let mut style = Style::default().bg(bg_color).fg(fg_color);
             if is_cursor {
                 style = style.add_modifier(Modifier::BOLD);

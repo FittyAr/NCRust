@@ -1,12 +1,12 @@
-# NCRust Developer & Architecture Manual
+# Pairee Developer & Architecture Manual
 
-This document details the software design, structure, runtime workflows, and code patterns utilized within the **NCRust** terminal file manager.
+This document details the software design, structure, runtime workflows, and code patterns utilized within the **Pairee** terminal file manager.
 
 ---
 
 ## 🏛️ 1. Core Architecture & Decoupled State
 
-NCRust is built on the core principle of **separating core application logic from the presentation (UI) layer**. 
+Pairee is built on the core principle of **separating core application logic from the presentation (UI) layer**. 
 
 ```mermaid
 graph TD
@@ -45,7 +45,7 @@ The main execution sequence:
 
 ## ⌨️ 2. Keybinding Resolution Engine
 
-NCRust supports custom presets (`norton`, `vim`, `modern`) without bloating UI components with key listener logic.
+Pairee supports custom presets (`norton`, `vim`, `modern`) without bloating UI components with key listener logic.
 
 ### 2.1 Event Flow
 Keyboard event processing follows a strict unidirectional flow:
@@ -69,7 +69,7 @@ pub fn resolve(key: KeyEvent, preset: &str) -> Option<Action> {
 
 ## 🔄 3. Asynchronous Operations & Worker Pattern
 
-For long-running disk operations (Copy, Move, Wipe, Delete), blocking the main rendering loop causes the UI to freeze. NCRust solves this by delegating heavy disk tasks to a background thread pool managed by `tokio`.
+For long-running disk operations (Copy, Move, Wipe, Delete), blocking the main rendering loop causes the UI to freeze. Pairee solves this by delegating heavy disk tasks to a background thread pool managed by `tokio`.
 
 ```mermaid
 sequenceDiagram
@@ -117,9 +117,9 @@ Translations are handled systematically to prevent code redundancy and hardcoded
 
 ## 🖥️ 5. Standalone Terminal Launcher
 
-To support launching NCRust as a desktop app without an open parent terminal session:
+To support launching Pairee as a desktop app without an open parent terminal session:
 * On startup, `main.rs` invokes `terminal::standalone::check_and_launch_standalone()`.
-* **Windows Behavior:** The program detects if it was launched from explorer (no parent console attached). If so, it invokes a new shell wrapper (e.g., `cmd.exe` or `powershell.exe`) with the necessary window parameters, hosting the NCRust executable.
+* **Windows Behavior:** The program detects if it was launched from explorer (no parent console attached). If so, it invokes a new shell wrapper (e.g., `cmd.exe` or `powershell.exe`) with the necessary window parameters, hosting the Pairee executable.
 * **Linux/macOS Behavior:** Spins up a default system terminal emulator (e.g., `xterm`, `gnome-terminal`, `kitty`) to launch the application.
 
 ---

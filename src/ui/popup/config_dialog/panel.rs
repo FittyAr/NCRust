@@ -1,6 +1,6 @@
-use crate::config::settings::Settings;
-use crate::config::localization::t;
 use super::RowType;
+use crate::config::localization::t;
+use crate::config::settings::Settings;
 
 pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
     rows.push(("Panel Display & Selection".to_string(), RowType::Title));
@@ -40,7 +40,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(3),
     ));
-    
+
     rows.push(("Sorting".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -74,7 +74,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(15),
     ));
-    
+
     rows.push(("Updates & Information".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -128,7 +128,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(12),
     ));
-    
+
     rows.push(("Appearance".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -182,7 +182,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(16),
     ));
-    
+
     rows.push(("Info Panel Settings".to_string(), RowType::Title));
     // t("pan_info_settings") was index 17
     rows.push((
@@ -225,13 +225,17 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(21),
     ));
-    
+
     rows.push(("File Descriptions".to_string(), RowType::Title));
     rows.push((t("pan_masks_hint"), RowType::Hint)); // 22
     rows.push((t("pan_modes_hint"), RowType::Hint)); // 23
     // t("pan_desc_title") was index 24
     rows.push((
-        format!("  {} [ {} ]", t("pan_desc_names"), settings.file_descriptions_list_names),
+        format!(
+            "  {} [ {} ]",
+            t("pan_desc_names"),
+            settings.file_descriptions_list_names
+        ),
         RowType::Setting(25),
     ));
     rows.push((

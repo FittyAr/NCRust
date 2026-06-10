@@ -1,6 +1,7 @@
- use crate::config::settings::Settings;
-use crate::config::localization::t;
+
 use super::RowType;
+use crate::config::localization::t;
+use crate::config::settings::Settings;
 
 pub fn populate_rows(
     settings: &Settings,
@@ -22,21 +23,28 @@ pub fn populate_rows(
         ),
         RowType::Setting(0),
     ));
-    
+
     let is_editing_editor = editing_value && cursor_idx == rows.len();
     if is_editing_editor {
-        rows.push((format!("{} [ {}◄ ]", t("ed_command"), edit_buffer), RowType::Setting(1)));
+        rows.push((
+            format!("{} [ {}◄ ]", t("ed_command"), edit_buffer),
+            RowType::Setting(1),
+        ));
     } else {
         rows.push((
             format!("{} [ {} ]", t("ed_command"), settings.default_editor),
             RowType::Setting(1),
         ));
     }
-    
+
     // t("ed_internal_title") was index 2
     rows.push((t("ed_internal_title"), RowType::Subtitle));
     rows.push((
-        format!("{} < {} >", t("ed_expand_tabs"), settings.editor_expand_tabs),
+        format!(
+            "{} < {} >",
+            t("ed_expand_tabs"),
+            settings.editor_expand_tabs
+        ),
         RowType::Setting(3),
     ));
     rows.push((
@@ -115,7 +123,7 @@ pub fn populate_rows(
         format!("  {} [ {} ]", t("ed_tab_size"), settings.editor_tab_size),
         RowType::Setting(10),
     ));
-    
+
     rows.push(("Editor Appearance & Saving".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -233,7 +241,7 @@ pub fn populate_rows(
         ),
         RowType::Setting(20),
     ));
-    
+
     rows.push(("Viewer Settings".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -247,17 +255,20 @@ pub fn populate_rows(
         ),
         RowType::Setting(21),
     ));
-    
+
     let is_editing_viewer = editing_value && cursor_idx == rows.len();
     if is_editing_viewer {
-        rows.push((format!("{} [ {}◄ ]", t("vi_command"), edit_buffer), RowType::Setting(22)));
+        rows.push((
+            format!("{} [ {}◄ ]", t("vi_command"), edit_buffer),
+            RowType::Setting(22),
+        ));
     } else {
         rows.push((
             format!("{} [ {} ]", t("vi_command"), settings.viewer_command),
             RowType::Setting(22),
         ));
     }
-    
+
     // t("vi_internal_title") was index 23
     rows.push((t("vi_internal_title"), RowType::Subtitle));
     rows.push((
@@ -300,7 +311,7 @@ pub fn populate_rows(
         ),
         RowType::Setting(27),
     ));
-    
+
     rows.push(("Viewer Appearance & Saving".to_string(), RowType::Title));
     rows.push((
         format!(

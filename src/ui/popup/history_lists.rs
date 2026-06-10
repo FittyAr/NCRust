@@ -1,7 +1,7 @@
 use super::centered_rect;
 use crate::app::state::{CompareStatus, PopupType};
-use crate::ui::theme_apply::parse_color;
 use crate::config::localization::t;
+use crate::ui::theme_apply::parse_color;
 use ratatui::{
     Frame,
     layout::Rect,
@@ -227,9 +227,11 @@ pub fn render_history_lists_popup(
             let area = centered_rect(70, 60, size);
             f.render_widget(Clear, area);
 
-            let title = t("search_results_title")
-                .replacen("{}", query, 1)
-                .replacen("{}", &results.len().to_string(), 1);
+            let title = t("search_results_title").replacen("{}", query, 1).replacen(
+                "{}",
+                &results.len().to_string(),
+                1,
+            );
             let block = Block::default()
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(Color::Cyan))
@@ -361,9 +363,15 @@ pub fn render_history_lists_popup(
                 for (i, entry) in diff.iter().enumerate().skip(scroll_start).take(list_height) {
                     let is_cursor = i == *cursor_idx;
                     let (status_text, color) = match entry.status {
-                        CompareStatus::OnlyLeft => (t("compare_status_only_left"), Color::LightGreen),
-                        CompareStatus::OnlyRight => (t("compare_status_only_right"), Color::LightYellow),
-                        CompareStatus::Different => (t("compare_status_different"), Color::LightRed),
+                        CompareStatus::OnlyLeft => {
+                            (t("compare_status_only_left"), Color::LightGreen)
+                        }
+                        CompareStatus::OnlyRight => {
+                            (t("compare_status_only_right"), Color::LightYellow)
+                        }
+                        CompareStatus::Different => {
+                            (t("compare_status_different"), Color::LightRed)
+                        }
                         CompareStatus::Equal => (t("compare_status_equal"), Color::DarkGray),
                     };
 
@@ -418,7 +426,9 @@ pub fn render_history_lists_popup(
                 lines.push(Line::from(vec![Span::styled(
                     format!(
                         " {:<8} | {:<35} | {:<12} ",
-                        t("col_pid"), t("col_process_name"), t("col_memory")
+                        t("col_pid"),
+                        t("col_process_name"),
+                        t("col_memory")
                     ),
                     Style::default().add_modifier(Modifier::UNDERLINED),
                 )]));
@@ -482,7 +492,9 @@ pub fn render_history_lists_popup(
                 lines.push(Line::from(vec![Span::styled(
                     format!(
                         " {:<15} | {:<30} | {:<30} ",
-                        t("col_mask"), t("col_open_command"), t("col_view_command")
+                        t("col_mask"),
+                        t("col_open_command"),
+                        t("col_view_command")
                     ),
                     Style::default().add_modifier(Modifier::UNDERLINED),
                 )]));

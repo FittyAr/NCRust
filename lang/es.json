@@ -343,7 +343,7 @@
     "prompt_copy_dest": "Destino: {}",
     "prompt_confirm_cancel_hint": "[Enter] Confirmar   [Esc] Cancelar",
     "prompt_exit_title": " Confirmar Salida ",
-    "prompt_exit_text": "\n ¿Realmente desea salir de NCRust?\n\n [Enter] Salir   [Esc] Cancelar",
+    "prompt_exit_text": "\n ¿Realmente desea salir de Pairee?\n\n [Enter] Salir   [Esc] Cancelar",
     "prompt_abort_title": " Confirmar Cancelación ",
     "prompt_abort_text": "\n ¿Desea abortar la operación en segundo plano actual?\n\n [Enter] Abortar   [Esc] Reanudar",
     "prompt_overwrite_title": " Confirmar Sobrescritura ",

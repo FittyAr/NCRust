@@ -1,7 +1,7 @@
 use super::centered_rect;
 use crate::app::state::PopupType;
-use crate::ui::theme_apply::parse_color;
 use crate::config::localization::t;
+use crate::ui::theme_apply::parse_color;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
@@ -65,8 +65,11 @@ pub fn render_editor_widget(
         .replacen("{}", &lines.len().to_string(), 1)
         .replacen("{}", &(cursor_y + 1).to_string(), 1)
         .replacen("{}", &(cursor_x + 1).to_string(), 1);
-    let status_para = Paragraph::new(status_text)
-        .style(Style::default().bg(parse_color(&theme.header_fg)).fg(parse_color(&theme.header_bg)));
+    let status_para = Paragraph::new(status_text).style(
+        Style::default()
+            .bg(parse_color(&theme.header_fg))
+            .fg(parse_color(&theme.header_bg)),
+    );
     f.render_widget(status_para, status_area);
 
     // Draw the terminal blinking cursor at the editing position
@@ -88,9 +91,7 @@ pub fn render_editor_popup(
     size: Rect,
 ) -> bool {
     match popup {
-        PopupType::EditorSearchPrompt {
-            query,
-        } => {
+        PopupType::EditorSearchPrompt { query } => {
             // Overlay search input popup
             let search_area = centered_rect(50, 15, size);
             f.render_widget(Clear, search_area);
@@ -117,10 +118,13 @@ pub fn render_editor_popup(
                 .border_style(Style::default().fg(parse_color(&theme.popup_border)))
                 .title(t("editor_discard_title"))
                 .style(Style::default().bg(parse_color(&theme.popup_bg)));
-            let text = ratatui::text::Line::from(vec![
-                ratatui::text::Span::styled(t("editor_discard_prompt"), Style::default().fg(parse_color(&theme.popup_fg)))
-            ]);
-            let para = Paragraph::new(text).block(block).alignment(ratatui::layout::Alignment::Center);
+            let text = ratatui::text::Line::from(vec![ratatui::text::Span::styled(
+                t("editor_discard_prompt"),
+                Style::default().fg(parse_color(&theme.popup_fg)),
+            )]);
+            let para = Paragraph::new(text)
+                .block(block)
+                .alignment(ratatui::layout::Alignment::Center);
             f.render_widget(para, area);
             true
         }

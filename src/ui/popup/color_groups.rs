@@ -57,7 +57,13 @@ pub fn render_color_groups_popup(
     theme: &Theme,
     size: Rect,
 ) -> bool {
-    if let PopupType::ColorGroupsDialog { cursor_idx, editing, edit_buffer, theme: edit_theme } = popup {
+    if let PopupType::ColorGroupsDialog {
+        cursor_idx,
+        editing,
+        edit_buffer,
+        theme: edit_theme,
+    } = popup
+    {
         let area = centered_rect(60, 60, size);
         f.render_widget(Clear, area);
 
@@ -72,7 +78,7 @@ pub fn render_color_groups_popup(
 
         let mut lines = Vec::new();
         let scroll_start = cursor_idx.saturating_sub(inner.height as usize / 2);
-        
+
         for i in scroll_start..scroll_start + inner.height as usize {
             if i >= THEME_PROPS.len() {
                 break;
@@ -80,7 +86,7 @@ pub fn render_color_groups_popup(
 
             let prop_name = THEME_PROPS[i];
             let is_cursor = i == *cursor_idx;
-            
+
             let prop_value = if is_cursor && *editing {
                 format!("{}_", edit_buffer)
             } else {

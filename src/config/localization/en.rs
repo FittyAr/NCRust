@@ -154,7 +154,9 @@ pub fn get_default_english_translation(key: &str) -> String {
         "btn_ok" => " OK ",
         "btn_cancel" => " Cancel ",
         "config_dialog_title" => " Configuration Settings ",
-        "config_dialog_hint" => " * Unimplemented/Future feature  |  [Tab/Arrows] Navigate  [Space/Enter] Edit/Toggle  [F9] Save  [Esc] Cancel",
+        "config_dialog_hint" => {
+            " * Unimplemented/Future feature  |  [Tab/Arrows] Navigate  [Space/Enter] Edit/Toggle  [F9] Save  [Esc] Cancel"
+        }
 
         // Prompt keys & descriptions
         "prompt_help_title" => " Help - Keybindings ",
@@ -429,22 +431,34 @@ pub fn get_default_english_translation(key: &str) -> String {
         "prompt_copy_dest" => "Destination: {}",
         "prompt_confirm_cancel_hint" => "[Enter] Confirm   [Esc] Cancel",
         "prompt_exit_title" => " Confirm Exit ",
-        "prompt_exit_text" => "\n Do you really want to exit NCRust?\n\n [Enter] Exit   [Esc] Cancel",
+        "prompt_exit_text" => {
+            "\n Do you really want to exit Pairee?\n\n [Enter] Exit   [Esc] Cancel"
+        }
         "prompt_abort_title" => " Confirm Abort ",
-        "prompt_abort_text" => "\n Do you want to abort the current background operation?\n\n [Enter] Abort   [Esc] Resume",
+        "prompt_abort_text" => {
+            "\n Do you want to abort the current background operation?\n\n [Enter] Abort   [Esc] Resume"
+        }
         "prompt_overwrite_title" => " Confirm Overwrite ",
         "op_move" => "Move",
         "op_copy" => "Copy",
         "prompt_files_count" => "{} files",
-        "prompt_overwrite_text" => "\n Warning: Destination file/directory already exists!\n Destination: {}\n Target: {}\n\n Do you want to overwrite it during {}?\n\n [Enter] Overwrite   [Esc] Cancel",
+        "prompt_overwrite_text" => {
+            "\n Warning: Destination file/directory already exists!\n Destination: {}\n Target: {}\n\n Do you want to overwrite it during {}?\n\n [Enter] Overwrite   [Esc] Cancel"
+        }
         "prompt_reload_title" => " Confirm Reload ",
-        "prompt_reload_text" => "\n Unsaved changes in the editor will be lost!\n Do you want to reload the file from disk?\n\n [Enter] Reload   [Esc] Cancel",
+        "prompt_reload_text" => {
+            "\n Unsaved changes in the editor will be lost!\n Do you want to reload the file from disk?\n\n [Enter] Reload   [Esc] Cancel"
+        }
         "prompt_clear_history_title" => " Confirm Clear History ",
         "history_type_command" => "command",
         "history_type_view" => "view",
         "history_type_folder" => "folder",
-        "prompt_clear_history_text" => "\n Do you want to clear the {} history list?\n\n [Enter] Clear   [Esc] Cancel",
-        "prompt_delete_text" => "\nAre you sure you want to delete {} item(s)?\n\n[Enter] Confirm Deletion\n[Esc] Cancel",
+        "prompt_clear_history_text" => {
+            "\n Do you want to clear the {} history list?\n\n [Enter] Clear   [Esc] Cancel"
+        }
+        "prompt_delete_text" => {
+            "\nAre you sure you want to delete {} item(s)?\n\n[Enter] Confirm Deletion\n[Esc] Cancel"
+        }
         "progress_copy_title" => " Copying Files ",
         "progress_file_label" => "File: {}",
         "progress_size_label" => "Files: {} / {}  |  Bytes: {} MB / {} MB",
@@ -458,17 +472,29 @@ pub fn get_default_english_translation(key: &str) -> String {
         "prompt_apply_cmd_title" => " Apply Command to Selected Files ",
         "prompt_apply_cmd_sing" => "Files: {}",
         "prompt_apply_cmd_plur" => "Files ({} total): {}, ...",
-        "prompt_apply_cmd_text" => "\n {}\n\n Template command (use %f for file name):\n > {}\n\n [Enter] Execute   [Esc] Cancel",
-        "prompt_describe_text" => "\n File: {}\n Current Description: {}\n\n New Description:\n > {}\n\n [Enter] Save   [Esc] Cancel",
+        "prompt_apply_cmd_text" => {
+            "\n {}\n\n Template command (use %f for file name):\n > {}\n\n [Enter] Execute   [Esc] Cancel"
+        }
+        "prompt_describe_text" => {
+            "\n File: {}\n Current Description: {}\n\n New Description:\n > {}\n\n [Enter] Save   [Esc] Cancel"
+        }
         "prompt_symlink_title" => " Create Symbolic Link ",
         "prompt_hardlink_title" => " Create Hard Link ",
-        "prompt_link_text" => "\n Source: {}\n Link Path Destination:\n\n > {}\n\n [Enter] Confirm   [Esc] Cancel",
+        "prompt_link_text" => {
+            "\n Source: {}\n Link Path Destination:\n\n > {}\n\n [Enter] Confirm   [Esc] Cancel"
+        }
         "prompt_filter_title" => " File Mask Filter ",
-        "prompt_filter_text" => "\n Enter mask filter (e.g. *.rs; empty to show all):\n\n > {}\n\n [Enter] Apply   [Esc] Cancel",
+        "prompt_filter_text" => {
+            "\n Enter mask filter (e.g. *.rs; empty to show all):\n\n > {}\n\n [Enter] Apply   [Esc] Cancel"
+        }
         "prompt_wipe_warn_title" => " WARNING: Secure Wipe Confirm ",
-        "prompt_wipe_warn_text" => "\n Are you sure you want to SECURELY WIPE {} item(s)?\n This writes over files and is IRRECOVERABLE.\n\n [Enter] Wipe   [Esc] Cancel",
+        "prompt_wipe_warn_text" => {
+            "\n Are you sure you want to SECURELY WIPE {} item(s)?\n This writes over files and is IRRECOVERABLE.\n\n [Enter] Wipe   [Esc] Cancel"
+        }
         "prompt_save_setup_title" => " Save Setup ",
-        "prompt_save_setup_text" => "\n Save configuration and current layout settings?\n\n [Enter] Confirm   [Esc] Cancel",
+        "prompt_save_setup_text" => {
+            "\n Save configuration and current layout settings?\n\n [Enter] Confirm   [Esc] Cancel"
+        }
 
         // File Info (info.rs)
         "info_panel_title" => " File Information ",
@@ -476,7 +502,9 @@ pub fn get_default_english_translation(key: &str) -> String {
         "info_yes" => "Yes",
         "info_no" => "No",
         "info_na" => "N/A",
-        "info_attrs_text" => "\n Name: {}\n Path: {}\n Size: {} bytes\n Owner: {}\n Links: {}\n Readonly: {}\n Modified: {}\n Created: {}\n\n Unix Permissions (octal):\n > {}\n\n [Enter] Save   [Esc] Cancel",
+        "info_attrs_text" => {
+            "\n Name: {}\n Path: {}\n Size: {} bytes\n Owner: {}\n Links: {}\n Readonly: {}\n Modified: {}\n Created: {}\n\n Unix Permissions (octal):\n > {}\n\n [Enter] Save   [Esc] Cancel"
+        }
 
         // History Lists (history_lists.rs)
         "history_command_title" => " Command History ",
@@ -489,7 +517,9 @@ pub fn get_default_english_translation(key: &str) -> String {
         "history_folder_empty" => "\n No folder history.\n\n [Esc] Close",
         "history_folder_hint" => " [Enter] Jump to Folder  [Esc] Close ",
         "prompt_search_title" => " Search Files ",
-        "prompt_search_text" => "\n Search in: {}\n{}File name query: {}\n{}Content query: {}\n\n [Tab] Switch Field   [Enter] Search   [Esc] Cancel",
+        "prompt_search_text" => {
+            "\n Search in: {}\n{}File name query: {}\n{}Content query: {}\n\n [Tab] Switch Field   [Enter] Search   [Esc] Cancel"
+        }
         "search_results_title" => " Search Results: \"{}\" ({} found) ",
         "search_results_empty" => "\n No files found.\n\n [Esc] Close",
         "search_results_hint" => " [Enter] Navigate to  [Esc] Close ",
@@ -501,7 +531,9 @@ pub fn get_default_english_translation(key: &str) -> String {
         "compare_status_only_right" => "Only in Right",
         "compare_status_different" => "Different Size/Time",
         "compare_status_equal" => "Equal",
-        "compare_results_hint" => " [Esc] Close  (Differences are automatically tagged in active panel) ",
+        "compare_results_hint" => {
+            " [Esc] Close  (Differences are automatically tagged in active panel) "
+        }
         "task_list_title" => " Task List (OS Processes) ",
         "task_list_empty" => "\n No processes listed.\n\n [Esc] Close",
         "col_pid" => "PID",

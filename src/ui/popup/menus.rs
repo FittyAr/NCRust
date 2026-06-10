@@ -1,13 +1,13 @@
 use super::{centered_rect, centered_rect_in};
 use crate::app::state::{ActivePanel, PopupType, SortField};
-use crate::ui::theme_apply::parse_color;
 use crate::config::localization::t;
+use crate::ui::theme_apply::parse_color;
 use ratatui::{
     Frame,
     layout::{Constraint, Rect},
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Clear, Paragraph, Row, Table, Cell},
+    widgets::{Block, Borders, Cell, Clear, Paragraph, Row, Table},
 };
 
 pub fn render_menu_popup(
@@ -73,7 +73,12 @@ pub fn render_menu_popup(
             let is_reverse_cursor = *cursor_idx == fields.len();
             let reverse_marker = if *reverse { "√" } else { " " };
             let cursor_marker = if is_reverse_cursor { ">" } else { " " };
-            let line_str = format!(" {} [{}] {} ", cursor_marker, reverse_marker, t("popup_reverse_order"));
+            let line_str = format!(
+                " {} [{}] {} ",
+                cursor_marker,
+                reverse_marker,
+                t("popup_reverse_order")
+            );
             let style = if is_reverse_cursor {
                 Style::default()
                     .bg(parse_color(&theme.selection_bg))
@@ -101,7 +106,10 @@ pub fn render_menu_popup(
 
             let menu_rows = vec![
                 Row::new(vec![Cell::from("1"), Cell::from(t("user_cmd_refresh"))]),
-                Row::new(vec![Cell::from("2"), Cell::from(t("user_cmd_toggle_hidden"))]),
+                Row::new(vec![
+                    Cell::from("2"),
+                    Cell::from(t("user_cmd_toggle_hidden")),
+                ]),
                 Row::new(vec![Cell::from("3"), Cell::from(t("user_cmd_swap"))]),
                 Row::new(vec![Cell::from("4"), Cell::from(t("user_cmd_help"))]),
                 Row::new(vec![Cell::from("5"), Cell::from(t("user_cmd_close"))]),
@@ -158,14 +166,19 @@ pub fn render_menu_popup(
                 };
 
                 if item.is_separator {
-                    lines.push(Line::from(Span::styled(" ───────────────────────────────── ", base_style)));
+                    lines.push(Line::from(Span::styled(
+                        " ───────────────────────────────── ",
+                        base_style,
+                    )));
                     continue;
                 }
 
                 let hotkey_style = if is_cursor {
                     base_style.fg(ratatui::style::Color::Yellow)
                 } else {
-                    base_style.fg(ratatui::style::Color::Yellow).add_modifier(Modifier::BOLD)
+                    base_style
+                        .fg(ratatui::style::Color::Yellow)
+                        .add_modifier(Modifier::BOLD)
                 };
 
                 let mut line_spans = Vec::new();
@@ -173,7 +186,8 @@ pub fn render_menu_popup(
                 line_spans.push(Span::styled(format!(" {} ", active_char), base_style));
 
                 let parsed = crate::ui::hotkey::parse_hotkey(&item.label);
-                let label_spans = crate::ui::hotkey::render_hotkey_spans(&item.label, base_style, hotkey_style);
+                let label_spans =
+                    crate::ui::hotkey::render_hotkey_spans(&item.label, base_style, hotkey_style);
                 line_spans.extend(label_spans);
 
                 let label_len = parsed.clean_text.chars().count();

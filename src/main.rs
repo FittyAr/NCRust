@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
         let _ = WriteLogger::init(LevelFilter::Debug, Config::default(), file);
     }
 
-    log::info!("Starting NCRust application...");
+    log::info!("Starting Pairee application...");
 
     // 3. Resolve starting folders for panels
     let current_dir = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
@@ -62,6 +62,6 @@ async fn main() -> Result<()> {
     // 5. Hand execution over to main loop
     app::run(context, state).await?;
 
-    log::info!("NCRust exited cleanly.");
+    log::info!("Pairee exited cleanly.");
     Ok(())
 }

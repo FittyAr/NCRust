@@ -1,6 +1,6 @@
-# NCRust User Guide & Configuration Manual
+# Pairee User Guide & Configuration Manual
 
-This guide covers installation, customization settings, themes formatting, keyboard shortcuts, and file associations for **NCRust**.
+This guide covers installation, customization settings, themes formatting, keyboard shortcuts, and file associations for **Pairee**.
 
 ---
 
@@ -16,8 +16,8 @@ cargo build
 cargo build --release
 ```
 The compiled output is located at:
-* **Windows:** `target/release/ncrust.exe`
-* **Linux/macOS:** `target/release/ncrust`
+* **Windows:** `target/release/pairee.exe`
+* **Linux/macOS:** `target/release/pairee`
 
 ---
 
@@ -65,7 +65,7 @@ The compiled output is located at:
 | `F7` | Create a new directory (MkDir). |
 | `F8` | Delete highlighted/selected files. |
 | `F9` | Activate Top Menu bar options. |
-| `F10` | Quit NCRust. |
+| `F10` | Quit Pairee. |
 | `Esc` | Close popups/dropdowns or clear Command Line buffers. |
 | `Shift+F10` | Open the Context actions menu. |
 | `Ctrl+L` / `Alt+F6` | Open create Hardlink / Symlink prompt dialog. |
@@ -87,7 +87,7 @@ The Setup dialog is divided into tabbed categories:
 
 ### Tab 0: System Settings
 * **Delete to Recycle Bin:** Toggle sending deleted files to system trash bin.
-* **Use system copy routine:** Delegates file copy operations to the native OS routines instead of using NCRust's internal worker streams.
+* **Use system copy routine:** Delegates file copy operations to the native OS routines instead of using Pairee's internal worker streams.
 * **Copy files opened for writing:** Toggles ability to copy files currently locked by other applications.
 * **Sorting collation:** Sets collation mode to `linguistic` (natural sort order) or `binary` (direct byte comparisons).
 * **Treat digits as numbers:** If active, `file2` is sorted before `file10`.
@@ -136,7 +136,7 @@ The Setup dialog is divided into tabbed categories:
 
 ## 🎨 4. Custom TOML Themes
 
-Themes are loaded from `%APPDATA%/ncrust/config/themes/` (Windows) or `~/.config/ncrust/themes/` (Linux/macOS) in TOML formats.
+Themes are loaded from `%APPDATA%/pairee/config/themes/` (Windows) or `~/.config/pairee/themes/` (Linux/macOS) in TOML formats.
 
 ### Theme Properties Map
 ```toml

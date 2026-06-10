@@ -1,12 +1,12 @@
 #!/bin/sh
 set -e
 
-# NCRust Linux Installer
-# Installs NCRust statically built binary and copies assets to the user's config directories.
+# Pairee Linux Installer
+# Installs Pairee statically built binary and copies assets to the user's config directories.
 
-REPO="FittyAr/NCRust"
+REPO="FittyAr/Pairee"
 INSTALL_DIR="$HOME/.local/bin"
-CONFIG_DIR="$HOME/.config/NCRust"
+CONFIG_DIR="$HOME/.config/pairee"
 
 # Colors
 RED='\033[0;31m'
@@ -14,7 +14,7 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo "${BLUE}NCRust Installer for Linux${NC}"
+echo "${BLUE}Pairee Installer for Linux${NC}"
 echo "=============================="
 
 # 1. Architecture Check
@@ -56,7 +56,7 @@ mkdir -p "$CONFIG_DIR/help"
 
 # 5. Download and Extract
 TEMP_DIR=$(mktemp -d)
-TARBALL="ncrust-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
+TARBALL="pairee-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
 DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${VERSION}/${TARBALL}"
 
 echo "Downloading ${TARBALL}..."
@@ -67,11 +67,11 @@ tar -xzf "${TEMP_DIR}/${TARBALL}" -C "$TEMP_DIR"
 
 # 6. Install assets and binary
 echo "Installing files..."
-PKG_FOLDER="${TEMP_DIR}/ncrust-${VERSION}-x86_64-unknown-linux-musl"
+PKG_FOLDER="${TEMP_DIR}/pairee-${VERSION}-x86_64-unknown-linux-musl"
 
 # Copy binary
-cp "${PKG_FOLDER}/ncrust" "$INSTALL_DIR/ncrust"
-chmod +x "$INSTALL_DIR/ncrust"
+cp "${PKG_FOLDER}/pairee" "$INSTALL_DIR/pairee"
+chmod +x "$INSTALL_DIR/pairee"
 
 # Copy translations and help markdown
 cp -r "${PKG_FOLDER}/lang/"* "$CONFIG_DIR/lang/"
@@ -81,8 +81,8 @@ cp -r "${PKG_FOLDER}/help/"* "$CONFIG_DIR/help/"
 rm -rf "$TEMP_DIR"
 
 echo "=============================="
-echo "${GREEN}NCRust version ${VERSION} installed successfully!${NC}"
-echo "Binary location: ${BLUE}${INSTALL_DIR}/ncrust${NC}"
+echo "${GREEN}Pairee version ${VERSION} installed successfully!${NC}"
+echo "Binary location: ${BLUE}${INSTALL_DIR}/pairee${NC}"
 echo "Config location: ${BLUE}${CONFIG_DIR}/${NC}"
 echo ""
 
@@ -97,4 +97,4 @@ case :$PATH: in
         ;;
 esac
 
-echo "Run NCRust by typing: ${GREEN}ncrust${NC}"
+echo "Run Pairee by typing: ${GREEN}pairee${NC}"

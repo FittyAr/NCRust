@@ -1,4 +1,6 @@
-# NCRust
+# Pairee
+
+> Tu mundo, en dos paneles.
 
 [![Licencia: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
@@ -22,7 +24,7 @@ Un gestor de archivos para terminal moderno, multiplataforma y altamente modular
 ## 📂 Estructura del Proyecto
 
 ```text
-NCRust/
+Pairee/
 ├── Cargo.toml                     # Configuración de Cargo
 ├── agents.md                      # Directrices para desarrolladores de IA
 ├── install.sh                     # Script de instalación para Linux (compatible con curl)
@@ -59,12 +61,12 @@ NCRust ofrece binarios precompilados de forma automática mediante GitHub Action
 
 * **Linux (enlace estático, ejecutable independiente):**
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/FittyAr/NCRust/main/install.sh | sh
+  curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/main/install.sh | sh
   ```
 * **Windows (PowerShell):**
   Ejecuta el siguiente comando dentro de PowerShell:
   ```powershell
-  irm https://raw.githubusercontent.com/FittyAr/NCRust/main/install.ps1 | iex
+  irm https://raw.githubusercontent.com/FittyAr/Pairee/main/install.ps1 | iex
   ```
 
 ### Compilar desde el Código Fuente
@@ -75,10 +77,10 @@ Asegúrate de tener instalado [Rust](https://www.rust-lang.org/tools/install).
 #### Compilar y Ejecutar
 ```bash
 # Clonar el repositorio
-git clone https://github.com/FittyAr/NCRust.git
-cd NCRust
+git clone https://github.com/FittyAr/Pairee.git
+cd Pairee
 
-# Ejecutar NCRust en modo de desarrollo
+# Ejecutar Pairee en modo de desarrollo
 cargo run
 
 # Compilar el binario optimizado para producción
@@ -92,10 +94,10 @@ Puedes revisar los scripts de lanzamiento `run.bat` (Windows) o `run.sh` (Linux/
 
 ## ⚙️ Rutas de Configuración y Datos
 
-NCRust almacena configuraciones, temas y registros de depuración en los directorios estándares del sistema:
+Pairee almacena configuraciones, temas y registros de depuración en los directorios estándares del sistema:
 
-* **Windows:** `%APPDATA%/ncrust/config` y `%APPDATA%/ncrust/cache`
-* **Linux/macOS:** `~/.config/ncrust` y `~/.cache/ncrust`
+* **Windows:** `%APPDATA%/pairee/config` y `%APPDATA%/pairee/cache`
+* **Linux/macOS:** `~/.config/pairee` y `~/.cache/pairee`
 
 Los registros de depuración se guardan en `app.log` dentro de la carpeta cache, permitiéndote resolver problemas sin ensuciar la interfaz TUI.
 

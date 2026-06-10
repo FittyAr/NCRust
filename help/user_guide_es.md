@@ -1,6 +1,6 @@
-# Guía de Usuario y Manual de Configuración de NCRust
+# Guía de Usuario y Manual de Configuración de Pairee
 
-Esta guía cubre la instalación, ajustes de personalización, temas visuales, atajos de teclado y configuraciones de archivos para **NCRust**.
+Esta guía cubre la instalación, ajustes de personalización, temas visuales, atajos de teclado y configuraciones de archivos para **Pairee**.
 
 ---
 
@@ -16,8 +16,8 @@ cargo build
 cargo build --release
 ```
 El archivo compilado se genera en:
-* **Windows:** `target/release/ncrust.exe`
-* **Linux/macOS:** `target/release/ncrust`
+* **Windows:** `target/release/pairee.exe`
+* **Linux/macOS:** `target/release/pairee`
 
 ---
 
@@ -87,7 +87,7 @@ Las opciones de configuración se agrupan en las siguientes pestañas:
 
 ### Pestaña 0: Ajustes del Sistema
 * **Delete to Recycle Bin:** Envía los archivos eliminados a la papelera del sistema en lugar de borrarlos permanentemente.
-* **Use system copy routine:** Delega las operaciones de copia a las rutinas del SO nativo en lugar del motor asíncrono de NCRust.
+* **Use system copy routine:** Delega las operaciones de copia a las rutinas del SO nativo en lugar del motor asíncrono de Pairee.
 * **Copy files opened for writing:** Habilita la copia de archivos abiertos por otras aplicaciones.
 * **Sorting collation:** Algoritmo de ordenación. Admite `linguistic` (orden alfabético natural) o `binary`.
 * **Treat digits as numbers:** Permite que `archivo2` aparezca ordenado antes que `archivo10`.
@@ -135,7 +135,7 @@ Las opciones de configuración se agrupan en las siguientes pestañas:
 
 ## 🎨 4. Creación de Temas TOML
 
-Los temas se cargan de `%APPDATA%/ncrust/config/themes/` (Windows) o `~/.config/ncrust/themes/` (Linux/macOS).
+Los temas se cargan de `%APPDATA%/pairee/config/themes/` (Windows) o `~/.config/pairee/themes/` (Linux/macOS).
 
 ### Mapa de Propiedades
 ```toml

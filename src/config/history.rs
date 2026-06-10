@@ -16,7 +16,7 @@ pub struct HistoryStore {
 }
 
 impl HistoryStore {
-    /// Loads history from `<cache_dir>/ncrust/history.toml`, returning a default on missing file.
+    /// Loads history from `<cache_dir>/pairee/history.toml`, returning a default on missing file.
     pub fn load() -> Self {
         match Self::try_load() {
             Ok(store) => store,
@@ -31,7 +31,7 @@ impl HistoryStore {
         toml::from_str(&content).context("Deserializing history.toml")
     }
 
-    /// Persists the history to `<cache_dir>/ncrust/history.toml`.
+    /// Persists the history to `<cache_dir>/pairee/history.toml`.
     pub fn save(&self) -> Result<()> {
         let path = history_path();
         if let Some(parent) = path.parent() {

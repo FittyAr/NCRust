@@ -10,7 +10,12 @@ pub fn handle(
     key: KeyEvent,
     context: &mut AppContext,
 ) -> Result<Option<Action>, ()> {
-    if let Some(PopupType::MkDirPrompt { input, cursor_idx, process_multiple }) = state.active_popup.clone() {
+    if let Some(PopupType::MkDirPrompt {
+        input,
+        cursor_idx,
+        process_multiple,
+    }) = state.active_popup.clone()
+    {
         let mut new_input = input.clone();
         let mut new_idx = cursor_idx;
         let mut new_multi = process_multiple;
@@ -25,12 +30,20 @@ pub fn handle(
 
         match key.code {
             KeyCode::Up | KeyCode::BackTab => {
-                new_idx = if new_idx > 0 { new_idx - 1 } else { MAX_CURSOR_IDX };
+                new_idx = if new_idx > 0 {
+                    new_idx - 1
+                } else {
+                    MAX_CURSOR_IDX
+                };
                 update_popup(state, new_input, new_idx, new_multi);
                 return Ok(None);
             }
             KeyCode::Down | KeyCode::Tab => {
-                new_idx = if new_idx < MAX_CURSOR_IDX { new_idx + 1 } else { 0 };
+                new_idx = if new_idx < MAX_CURSOR_IDX {
+                    new_idx + 1
+                } else {
+                    0
+                };
                 update_popup(state, new_input, new_idx, new_multi);
                 return Ok(None);
             }

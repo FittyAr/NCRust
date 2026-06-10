@@ -11,7 +11,10 @@ pub fn handle(
     let popup = state.active_popup.clone();
     if let Some(p) = popup {
         match p {
-            PopupType::ScreensMenu { mut cursor_idx, suspended_popup } => {
+            PopupType::ScreensMenu {
+                mut cursor_idx,
+                suspended_popup,
+            } => {
                 match key.code {
                     KeyCode::Up => {
                         if cursor_idx > 0 {
@@ -31,7 +34,8 @@ pub fn handle(
                         if cursor_idx < state.screens.len() {
                             // save current screen's popup if not staying on same screen
                             if cursor_idx != state.active_screen_idx {
-                                state.screen_popups[state.active_screen_idx] = suspended_popup.map(|b| *b);
+                                state.screen_popups[state.active_screen_idx] =
+                                    suspended_popup.map(|b| *b);
                                 state.active_screen_idx = cursor_idx;
                                 state.active_popup = state.screen_popups[cursor_idx].take();
                             } else {
@@ -48,7 +52,10 @@ pub fn handle(
                                 let lines = ts.output_lines.clone();
                                 let raw = ts.output_lines.join("\n").into_bytes();
                                 let vw = crate::ui::viewer::ViewerState {
-                                    path: std::path::PathBuf::from(format!("Terminal: {}", ts.command)),
+                                    path: std::path::PathBuf::from(format!(
+                                        "Terminal: {}",
+                                        ts.command
+                                    )),
                                     lines,
                                     raw,
                                     mode: crate::ui::viewer::ViewerMode::Text,
@@ -67,7 +74,10 @@ pub fn handle(
                     }
                     _ => {}
                 }
-                state.active_popup = Some(PopupType::ScreensMenu { cursor_idx, suspended_popup });
+                state.active_popup = Some(PopupType::ScreensMenu {
+                    cursor_idx,
+                    suspended_popup,
+                });
                 Ok(None)
             }
             _ => Err(()),

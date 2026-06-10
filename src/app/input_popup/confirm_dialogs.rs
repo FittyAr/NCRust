@@ -125,16 +125,26 @@ pub fn handle(
             PopupType::ConfirmReload => {
                 match key.code {
                     KeyCode::Enter => {
-                        if let Some(crate::app::state::Screen::Editor(ed)) = state.screens.get_mut(state.active_screen_idx) {
+                        if let Some(crate::app::state::Screen::Editor(ed)) =
+                            state.screens.get_mut(state.active_screen_idx)
+                        {
                             match std::fs::read_to_string(&ed.path) {
                                 Ok(content) => {
-                                    let reloaded_lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
-                                    ed.lines = if reloaded_lines.is_empty() { vec![String::new()] } else { reloaded_lines };
-                                    ed.cursor_x = ed.cursor_x.min(ed.lines.get(ed.cursor_y).map(|l| l.len()).unwrap_or(0));
+                                    let reloaded_lines: Vec<String> =
+                                        content.lines().map(|s| s.to_string()).collect();
+                                    ed.lines = if reloaded_lines.is_empty() {
+                                        vec![String::new()]
+                                    } else {
+                                        reloaded_lines
+                                    };
+                                    ed.cursor_x = ed.cursor_x.min(
+                                        ed.lines.get(ed.cursor_y).map(|l| l.len()).unwrap_or(0),
+                                    );
                                     ed.is_dirty = false;
                                 }
                                 Err(e) => {
-                                    state.active_popup = Some(PopupType::Error(format!("Failed to reload: {}", e)));
+                                    state.active_popup =
+                                        Some(PopupType::Error(format!("Failed to reload: {}", e)));
                                     return Ok(None);
                                 }
                             }

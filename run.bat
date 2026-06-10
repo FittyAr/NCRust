@@ -1,5 +1,5 @@
 @echo off
-title NCRust Development & Test Shell
+title Pairee Development & Test Shell
 cls
 
 :: 1. Check if Rustup/Cargo are available
@@ -41,10 +41,10 @@ echo Linking might fail if msvcrt.lib is not found.
 :menu
 cls
 echo ==========================================
-echo       NCRust TUI Manager Helper Shell
+echo       Pairee TUI Manager Helper Shell
 echo ==========================================
-echo  1. Run NCRust TUI (cargo run)
-echo  2. Run NCRust TUI Standalone (cargo run -- --standalone)
+echo  1. Run Pairee TUI (cargo run)
+echo  2. Run Pairee TUI Standalone (cargo run -- --standalone)
 echo  3. Run unit tests (cargo test)
 echo  4. Run cargo check compiler validation
 echo  5. Run clippy static checks (cargo clippy)
@@ -55,13 +55,13 @@ echo ==========================================
 set /p opt="Choose an option (1-8): "
 
 if "%opt%"=="1" (
-    echo [INFO] Launching NCRust...
+    echo [INFO] Launching Pairee...
     cargo run
     pause
     goto menu
 )
 if "%opt%"=="2" (
-    echo [INFO] Launching NCRust Standalone...
+    echo [INFO] Launching Pairee Standalone...
     cargo run -- --standalone
     pause
     goto menu

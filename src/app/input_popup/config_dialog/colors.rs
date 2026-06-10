@@ -1,6 +1,6 @@
-use crate::config::settings::Settings;
 use crate::app::context::AppContext;
 use crate::app::state::PopupType;
+use crate::config::settings::Settings;
 
 pub fn handle_row(
     cursor_idx: usize,
@@ -17,22 +17,18 @@ pub fn handle_row(
             };
             None
         }
-        1 => {
-            Some(PopupType::ColorGroupsDialog {
-                cursor_idx: 0,
-                editing: false,
-                edit_buffer: String::new(),
-                theme: context.config.theme.clone(),
-            })
-        }
-        2 => {
-            Some(PopupType::FilesHighlightingDialog {
-                cursor_idx: 0,
-                editing: false,
-                edit_buffer: String::new(),
-                rules: settings.highlight_rules.clone(),
-            })
-        }
+        1 => Some(PopupType::ColorGroupsDialog {
+            cursor_idx: 0,
+            editing: false,
+            edit_buffer: String::new(),
+            theme: context.config.theme.clone(),
+        }),
+        2 => Some(PopupType::FilesHighlightingDialog {
+            cursor_idx: 0,
+            editing: false,
+            edit_buffer: String::new(),
+            rules: settings.highlight_rules.clone(),
+        }),
         _ => None,
     }
 }

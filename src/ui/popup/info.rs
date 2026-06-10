@@ -1,7 +1,7 @@
 use super::centered_rect;
 use crate::app::state::PopupType;
-use crate::ui::theme_apply::parse_color;
 use crate::config::localization::t;
+use crate::ui::theme_apply::parse_color;
 use ratatui::{
     Frame,
     layout::Rect,
@@ -55,14 +55,19 @@ pub fn render_info_popup(
                 .file_name()
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_else(|| path_str.to_string());
-            let readonly_status = if attrs.readonly { t("info_yes") } else { t("info_no") };
+            let readonly_status = if attrs.readonly {
+                t("info_yes")
+            } else {
+                t("info_no")
+            };
 
             let format_time = |t_val: Option<std::time::SystemTime>| {
-                t_val.map(|st| {
-                    let datetime: chrono::DateTime<chrono::Local> = st.into();
-                    datetime.format("%Y-%m-%d %H:%M:%S").to_string()
-                })
-                .unwrap_or_else(|| t("info_na"))
+                t_val
+                    .map(|st| {
+                        let datetime: chrono::DateTime<chrono::Local> = st.into();
+                        datetime.format("%Y-%m-%d %H:%M:%S").to_string()
+                    })
+                    .unwrap_or_else(|| t("info_na"))
             };
 
             let modified_str = format_time(attrs.modified);

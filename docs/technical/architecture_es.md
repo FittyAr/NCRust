@@ -1,12 +1,12 @@
-# Manual Técnico y de Arquitectura de NCRust
+# Manual Técnico y de Arquitectura de Pairee
 
-Este documento detalla el diseño de software, la organización de módulos, los flujos de ejecución y los patrones de desarrollo aplicados en el gestor de archivos **NCRust**.
+Este documento detalla el diseño de software, la organización de módulos, los flujos de ejecución y los patrones de desarrollo aplicados en el gestor de archivos **Pairee**.
 
 ---
 
 ## 🏛️ 1. Arquitectura Central y Estado Desacoplado
 
-NCRust se rige bajo el principio fundamental de **separar estrictamente la lógica de negocio del motor de dibujado de la interfaz (TUI)**.
+Pairee se rige bajo el principio fundamental de **separar estrictamente la lógica de negocio del motor de dibujado de la interfaz (TUI)**.
 
 ```mermaid
 graph TD
@@ -45,7 +45,7 @@ El flujo general de ejecución se comporta de la siguiente manera:
 
 ## ⌨️ 2. Motor de Resolución de Atajos de Teclado
 
-NCRust desacopla las teclas físicas de las acciones dentro de la UI usando perfiles de teclado configurables (`norton`, `vim`, `modern`).
+Pairee desacopla las teclas físicas de las acciones dentro de la UI usando perfiles de teclado configurables (`norton`, `vim`, `modern`).
 
 ### 2.1 Flujo de Resolución
 Los eventos de teclado viajan en una única dirección:
@@ -118,10 +118,10 @@ La traducción de la interfaz de usuario se implementa de manera estructurada pa
 
 ## 🖥️ 5. Lanzador de Ventana Independiente (Standalone)
 
-NCRust puede iniciarse de manera nativa sin requerir que el usuario abra una consola previamente:
+Pairee puede iniciarse de manera nativa sin requerir que el usuario abra una consola previamente:
 * Al arrancar, `main.rs` ejecuta `terminal::standalone::check_and_launch_standalone()`.
-* **En Windows:** Comprueba si el binario fue lanzado directamente desde el Explorador de Archivos (sin consola contenedora activa). De ser así, crea un proceso nuevo llamando a una instancia del terminal del sistema (`cmd.exe` o `powershell.exe`) configurando las dimensiones apropiadas y lanzando NCRust dentro de él.
-* **En Linux/macOS:** Invoca un emulador de terminal instalado en el sistema (ej. `xterm`, `gnome-terminal`, `kitty`) pasándole como argumento el binario de NCRust.
+* **En Windows:** Comprueba si el binario fue lanzado directamente desde el Explorador de Archivos (sin consola contenedora activa). De ser así, crea un proceso nuevo llamando a una instancia del terminal del sistema (`cmd.exe` o `powershell.exe`) configurando las dimensiones apropiadas y lanzando Pairee dentro de él.
+* **En Linux/macOS:** Invoca un emulador de terminal instalado en el sistema (ej. `xterm`, `gnome-terminal`, `kitty`) pasándole como argumento el binario de Pairee.
 
 ---
 

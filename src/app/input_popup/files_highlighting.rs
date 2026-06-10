@@ -87,7 +87,7 @@ pub fn handle(
                     context.config.settings.highlight_rules = rules.clone();
                     let _ = context.config.save(); // Save configuration
                     state.refresh_both_panels(context.config.settings.show_hidden);
-                    
+
                     // Return to Configuration Dialog
                     state.active_popup = Some(PopupType::ConfigurationDialog {
                         active_tab: 6,
@@ -99,7 +99,9 @@ pub fn handle(
                     return Ok(None);
                 }
                 KeyCode::Up => {
-                    if rules.is_empty() { return Ok(None); }
+                    if rules.is_empty() {
+                        return Ok(None);
+                    }
                     if cursor_idx > 0 {
                         cursor_idx -= 1;
                     } else {
@@ -107,7 +109,9 @@ pub fn handle(
                     }
                 }
                 KeyCode::Down => {
-                    if rules.is_empty() { return Ok(None); }
+                    if rules.is_empty() {
+                        return Ok(None);
+                    }
                     if cursor_idx < rules.len() - 1 {
                         cursor_idx += 1;
                     } else {
@@ -127,7 +131,12 @@ pub fn handle(
                 _ => {}
             }
         }
-        state.active_popup = Some(PopupType::FilesHighlightingDialog { cursor_idx, editing, edit_buffer, rules });
+        state.active_popup = Some(PopupType::FilesHighlightingDialog {
+            cursor_idx,
+            editing,
+            edit_buffer,
+            rules,
+        });
         return Ok(None);
     }
     Err(())

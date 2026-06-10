@@ -8,8 +8,10 @@ pub fn handle(
     key: KeyEvent,
     _context: &mut AppContext,
 ) -> Result<Option<Action>, ()> {
-    if let Some(PopupType::CopyMoveFilterPrompt { mut input, previous }) =
-        state.active_popup.clone()
+    if let Some(PopupType::CopyMoveFilterPrompt {
+        mut input,
+        previous,
+    }) = state.active_popup.clone()
     {
         match key.code {
             KeyCode::Esc => {
@@ -19,10 +21,16 @@ pub fn handle(
             KeyCode::Enter => {
                 let mut prev = *previous;
                 match prev {
-                    PopupType::CopyPrompt { ref mut filter_mask, .. } => {
+                    PopupType::CopyPrompt {
+                        ref mut filter_mask,
+                        ..
+                    } => {
                         *filter_mask = input;
                     }
-                    PopupType::RenMovPrompt { ref mut filter_mask, .. } => {
+                    PopupType::RenMovPrompt {
+                        ref mut filter_mask,
+                        ..
+                    } => {
                         *filter_mask = input;
                     }
                     _ => {}

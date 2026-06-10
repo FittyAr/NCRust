@@ -1,6 +1,6 @@
-use crate::config::settings::Settings;
-use crate::config::localization::t;
 use super::RowType;
+use crate::config::localization::t;
+use crate::config::settings::Settings;
 
 pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
     rows.push(("File Operations".to_string(), RowType::Title));
@@ -76,7 +76,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(5),
     ));
-    
+
     rows.push(("Drives & System".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -138,7 +138,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(10),
     ));
-    
+
     rows.push(("General".to_string(), RowType::Title));
     rows.push((
         format!(

@@ -2,41 +2,41 @@
 use directories::ProjectDirs;
 use std::path::PathBuf;
 
-/// Returns the platform-specific configuration directory for NCRust.
-/// Linux: ~/.config/ncrust
-/// Windows: %APPDATA%\ncrust\config
+/// Returns the platform-specific configuration directory for Pairee.
+/// Linux: ~/.config/pairee
+/// Windows: %APPDATA%\pairee\config
 pub fn get_config_dir() -> PathBuf {
     #[cfg(target_os = "windows")]
     {
         if let Ok(appdata) = std::env::var("APPDATA") {
-            PathBuf::from(appdata).join("ncrust").join("config")
+            PathBuf::from(appdata).join("pairee").join("config")
         } else {
             PathBuf::from(".").join("config")
         }
     }
     #[cfg(not(target_os = "windows"))]
     {
-        ProjectDirs::from("com", "ncrust", "NCRust")
+        ProjectDirs::from("com", "pairee", "Pairee")
             .map(|proj_dirs| proj_dirs.config_dir().to_path_buf())
             .unwrap_or_else(|| PathBuf::from("."))
     }
 }
 
-/// Returns the platform-specific cache directory for NCRust (used for logs).
-/// Linux: ~/.cache/ncrust
-/// Windows: %APPDATA%\ncrust\cache
+/// Returns the platform-specific cache directory for Pairee (used for logs).
+/// Linux: ~/.cache/pairee
+/// Windows: %APPDATA%\pairee\cache
 pub fn get_cache_dir() -> PathBuf {
     #[cfg(target_os = "windows")]
     {
         if let Ok(appdata) = std::env::var("APPDATA") {
-            PathBuf::from(appdata).join("ncrust").join("cache")
+            PathBuf::from(appdata).join("pairee").join("cache")
         } else {
             PathBuf::from(".").join("cache")
         }
     }
     #[cfg(not(target_os = "windows"))]
     {
-        ProjectDirs::from("com", "ncrust", "NCRust")
+        ProjectDirs::from("com", "pairee", "Pairee")
             .map(|proj_dirs| proj_dirs.cache_dir().to_path_buf())
             .unwrap_or_else(|| PathBuf::from("."))
     }

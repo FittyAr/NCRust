@@ -1,6 +1,6 @@
-use crate::config::settings::Settings;
-use crate::config::localization::t;
 use super::RowType;
+use crate::config::localization::t;
+use crate::config::settings::Settings;
 
 pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
     rows.push(("File Operations".to_string(), RowType::Title));
@@ -52,7 +52,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(3),
     ));
-    
+
     rows.push(("History".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -90,7 +90,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(6),
     ));
-    
+
     rows.push(("Environment".to_string(), RowType::Title));
     rows.push((
         format!(
@@ -116,7 +116,7 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(8),
     ));
-    
+
     rows.push(("Permissions".to_string(), RowType::Title));
     rows.push((t("sys_req_admin"), RowType::Subtitle));
     rows.push((
@@ -151,10 +151,14 @@ pub fn populate_rows(settings: &Settings, rows: &mut Vec<(String, RowType)>) {
         ),
         RowType::Setting(12),
     ));
-    
+
     rows.push(("Sorting & Saving".to_string(), RowType::Title));
     rows.push((
-        format!("{} < {} >", t("sys_sort_collation"), settings.sorting_collation),
+        format!(
+            "{} < {} >",
+            t("sys_sort_collation"),
+            settings.sorting_collation
+        ),
         RowType::Setting(13),
     ));
     rows.push((

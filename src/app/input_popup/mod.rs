@@ -1,7 +1,7 @@
 pub mod apply_command;
+pub mod color_groups;
 pub mod compress;
 pub mod config_dialog;
-pub mod color_groups;
 pub mod confirm_dialogs;
 pub mod context_menu;
 pub mod copy;
@@ -11,12 +11,12 @@ pub mod create_link;
 pub mod delete;
 pub mod describe_file;
 pub mod dismiss_only;
-pub mod help;
 pub mod drive_select;
 pub mod editor;
 pub mod file_attributes;
 pub mod file_filter;
 pub mod files_highlighting;
+pub mod help;
 pub mod history_list;
 pub mod hotlist;
 pub mod menu;
@@ -59,12 +59,8 @@ pub fn handle_popup_input(
             }
             PopupType::CopyProgress { .. } => copy_progress::handle(state, key, context),
             PopupType::UserMenu => user_menu::handle(state, key, context),
-            PopupType::EditorSearchPrompt { .. } => {
-                editor::handle(state, key, context)
-            }
-            PopupType::ViewerSearchPrompt { .. } => {
-                viewer::handle(state, key, context)
-            }
+            PopupType::EditorSearchPrompt { .. } => editor::handle(state, key, context),
+            PopupType::ViewerSearchPrompt { .. } => viewer::handle(state, key, context),
             PopupType::Menu { .. } => menu::handle(state, key, context),
             PopupType::ScreensMenu { .. } => screens_menu::handle(state, key, context),
             PopupType::DriveSelect { .. } => drive_select::handle(state, key, context),
@@ -76,7 +72,7 @@ pub fn handle_popup_input(
             PopupType::TreeView { .. } => tree_view::handle(state, key, context),
             PopupType::ContextMenu { .. } => context_menu::handle(state, key, context),
             PopupType::CompressPrompt { .. } => compress::handle(state, key, context),
-        PopupType::CopyMoveFilterPrompt { .. } => copy_filter::handle(state, key, context),
+            PopupType::CopyMoveFilterPrompt { .. } => copy_filter::handle(state, key, context),
             PopupType::SelectGroupPrompt { .. } => select_group::handle(state, key, context),
             PopupType::ApplyCommandPrompt { .. } => apply_command::handle(state, key, context),
             PopupType::DescribeFilePrompt { .. } => describe_file::handle(state, key, context),
@@ -86,7 +82,9 @@ pub fn handle_popup_input(
             PopupType::SaveSetupConfirm => save_setup::handle(state, key, context),
             PopupType::ConfigurationDialog { .. } => config_dialog::handle(state, key, context),
             PopupType::ColorGroupsDialog { .. } => color_groups::handle(state, key, context),
-            PopupType::FilesHighlightingDialog { .. } => files_highlighting::handle(state, key, context),
+            PopupType::FilesHighlightingDialog { .. } => {
+                files_highlighting::handle(state, key, context)
+            }
             PopupType::FileAttributesDialog { .. } => file_attributes::handle(state, key, context),
             PopupType::CommandHistoryList { .. }
             | PopupType::FileViewHistoryList { .. }
