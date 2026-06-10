@@ -1,6 +1,6 @@
 [package]
 name = "pairee"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 
 [dependencies]
@@ -32,6 +32,7 @@ windows-sys = { version = "0.52", features = ["Win32_UI_Input_KeyboardAndMouse",
 [target.'cfg(not(target_os = "windows"))'.dependencies]
 reqwest = { version = "0.13.4", default-features = false, features = ["rustls-no-provider"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+
 
 
 
