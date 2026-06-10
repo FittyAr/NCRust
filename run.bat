@@ -17,6 +17,12 @@ set "PATH=%PATH%;%USERPROFILE%\.cargo\bin"
 
 :postcargo
 
+:: Locate git and cargo directories to preserve them in cleaned PATH
+set "GIT_DIR="
+for /f "delims=" %%i in ('where git 2^>nul') do set "GIT_DIR=%%~dpi"
+set "CARGO_DIR="
+for /f "delims=" %%i in ('where cargo 2^>nul') do set "CARGO_DIR=%%~dpi"
+
 :: 2. Locate Visual Studio 2022 / 18 Build Tools or Community variables
 set "VCVARS_PATH="
 if exist "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" set "VCVARS_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
@@ -26,8 +32,10 @@ if exist "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Bui
 
 if "%VCVARS_PATH%"=="" goto novcvars
 echo [INFO] Loading VS environment: %VCVARS_PATH%
-:: Clean up PATH temporarily to avoid "input line too long" error during VCVARS execution
-set "PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%USERPROFILE%\.cargo\bin"
+:: Clean up PATH temporarily to avoid "input line too long" error during VCVARS execution, but preserve git/cargo
+set "PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\"
+if not "%CARGO_DIR%"=="" set "PATH=%PATH%;%CARGO_DIR%"
+if not "%GIT_DIR%"=="" set "PATH=%PATH%;%GIT_DIR%"
 call "%VCVARS_PATH%" x64 >nul
 goto postvcvars
 
@@ -50,9 +58,10 @@ echo  4. Run cargo check compiler validation
 echo  5. Run clippy static checks (cargo clippy)
 echo  6. Run format check (cargo fmt)
 echo  7. Clean build directory (cargo clean)
-echo  8. Exit
+echo  8. Bump version and publish release (Git Tag & Push)
+echo  9. Exit
 echo ==========================================
-set /p opt="Choose an option (1-8): "
+set /p opt="Choose an option (1-9): "
 
 if "%opt%"=="1" (
     echo [INFO] Launching Pairee...
@@ -97,6 +106,12 @@ if "%opt%"=="7" (
     goto menu
 )
 if "%opt%"=="8" (
+    echo [INFO] Running bump version and release script...
+    powershell -ExecutionPolicy Bypass -File "%~dp0scripts\bump_version.ps1"
+    pause
+    goto menu
+)
+if "%opt%"=="9" (
     exit /b 0
 )
 

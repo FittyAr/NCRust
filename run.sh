@@ -54,7 +54,8 @@ show_menu() {
     echo -e "  ${BOLD}5.${RESET} Static analysis            ${YELLOW}(cargo clippy -- -D warnings)${RESET}"
     echo -e "  ${BOLD}6.${RESET} Format check               ${YELLOW}(cargo fmt --all -- --check)${RESET}"
     echo -e "  ${BOLD}7.${RESET} Clean build directory      ${YELLOW}(cargo clean)${RESET}"
-    echo -e "  ${BOLD}8.${RESET} Exit"
+    echo -e "  ${BOLD}8.${RESET} Bump version & release     ${YELLOW}(Git Tag & Push)${RESET}"
+    echo -e "  ${BOLD}9.${RESET} Exit"
     echo -e "${CYAN}${BOLD}==========================================${RESET}"
 }
 
@@ -70,7 +71,7 @@ run_and_pause() {
 
 while true; do
     show_menu
-    read -rp "Choose an option (1-8): " opt
+    read -rp "Choose an option (1-9): " opt
 
     case "$opt" in
         1)
@@ -102,11 +103,15 @@ while true; do
             run_and_pause cargo clean
             ;;
         8)
+            echo -e "\n${GREEN}[INFO]${RESET} Running bump version and release script...\n"
+            run_and_pause "$SCRIPT_DIR/scripts/bump_version.sh"
+            ;;
+        9)
             echo -e "${CYAN}Bye!${RESET}"
             exit 0
             ;;
         *)
-            echo -e "${YELLOW}[WARN]${RESET} Invalid option. Please choose 1-8."
+            echo -e "${YELLOW}[WARN]${RESET} Invalid option. Please choose 1-9."
             sleep 1
             ;;
     esac
