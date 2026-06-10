@@ -63,7 +63,7 @@ jobs:
 
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             cp "target/${{ matrix.target }}/release/pairee.exe" "$PKG_NAME/"
-            zip -r "${PKG_NAME}.zip" "$PKG_NAME"
+            powershell -Command "Compress-Archive -Path '$PKG_NAME' -DestinationPath '${PKG_NAME}.zip' -Force"
             echo "ASSET_PATH=${PKG_NAME}.zip" >> $GITHUB_ENV
           else
             cp "target/${{ matrix.target }}/release/pairee" "$PKG_NAME/"
