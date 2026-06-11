@@ -273,6 +273,9 @@ mod tests {
         assert_eq!(resolver.resolve(key_ctrl_w), Some(Action::TaskList));
 
         let key_ctrl_p = KeyEvent::new(KeyCode::Char('p'), KeyModifiers::CONTROL);
-        assert_eq!(resolver.resolve(key_ctrl_p), Some(Action::CycleFKeysModifiers));
+        assert_eq!(
+            resolver.resolve(key_ctrl_p),
+            Some(Action::CycleFKeysModifiers)
+        );
     }
 }

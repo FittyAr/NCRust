@@ -1,4 +1,3 @@
-
 use crossterm::event::{self, Event as CrossEvent, KeyEvent, MouseEvent};
 use std::time::Duration;
 use tokio::sync::mpsc;
@@ -102,7 +101,9 @@ impl EventHandler {
                         #[cfg(target_os = "linux")]
                         {
                             if has_focus {
-                                if let Some(current_modifiers) = super::x11_poll::get_x11_modifiers() {
+                                if let Some(current_modifiers) =
+                                    super::x11_poll::get_x11_modifiers()
+                                {
                                     if current_modifiers != last_modifiers {
                                         last_modifiers = current_modifiers;
                                         let _ = sender.blocking_send(Event::ModifiersChanged(

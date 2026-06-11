@@ -42,7 +42,10 @@ pub fn discover_languages() -> Vec<(String, PathBuf)> {
     // 3. Scan the system share directory 'lang' (Linux fallbacks)
     if let Some(share_dir) = crate::config::paths::get_system_share_dir() {
         let share_lang_dir = share_dir.join("lang");
-        if share_lang_dir.exists() && share_lang_dir != project_lang_dir && share_lang_dir != config_lang_dir {
+        if share_lang_dir.exists()
+            && share_lang_dir != project_lang_dir
+            && share_lang_dir != config_lang_dir
+        {
             for (name, path) in discover_languages_in_dir(&share_lang_dir) {
                 // Avoid duplicate entries
                 if !langs.iter().any(|(n, _)| n == &name) {

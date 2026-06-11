@@ -180,6 +180,7 @@
     "label_dirs": "carpetas",
     "view_text_mode": "Texto",
     "view_hex_mode": "Hex",
+    "view_image_mode": "Imagen",
     "viewer_title_bar": " [{}] {}  | F2=Hex/Text  Esc=Cerrar ",
     "quickview_title": " Vista Rápida: {} ",
     "quickview_archive": "Archivo: {}",

@@ -22,7 +22,9 @@ pub fn render_fkeys(f: &mut Frame, area: Rect, context: &AppContext, state: &App
         Some(crate::app::state::Screen::Viewer(_))
     );
 
-    let modifiers = state.fkeys_modifier_override.unwrap_or(state.current_modifiers);
+    let modifiers = state
+        .fkeys_modifier_override
+        .unwrap_or(state.current_modifiers);
 
     let fkeys = if is_editor {
         vec![

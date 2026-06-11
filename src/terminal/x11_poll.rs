@@ -13,15 +13,25 @@ const XK_ALT_R: std::os::raw::c_ulong = 0xFFEA;
 const RTLD_LAZY: std::os::raw::c_int = 1;
 
 unsafe extern "C" {
-    fn dlopen(filename: *const std::os::raw::c_char, flag: std::os::raw::c_int) -> *mut std::ffi::c_void;
-    fn dlsym(handle: *mut std::ffi::c_void, symbol: *const std::os::raw::c_char) -> *mut std::ffi::c_void;
+    fn dlopen(
+        filename: *const std::os::raw::c_char,
+        flag: std::os::raw::c_int,
+    ) -> *mut std::ffi::c_void;
+    fn dlsym(
+        handle: *mut std::ffi::c_void,
+        symbol: *const std::os::raw::c_char,
+    ) -> *mut std::ffi::c_void;
 }
 
 struct X11Lib {
     x_open_display: unsafe extern "C" fn(*const std::os::raw::c_char) -> *mut std::ffi::c_void,
     x_close_display: unsafe extern "C" fn(*mut std::ffi::c_void) -> std::os::raw::c_int,
-    x_keysym_to_keycode: unsafe extern "C" fn(*mut std::ffi::c_void, std::os::raw::c_ulong) -> std::os::raw::c_uchar,
-    x_query_keymap: unsafe extern "C" fn(*mut std::ffi::c_void, *mut std::os::raw::c_char) -> std::os::raw::c_int,
+    x_keysym_to_keycode:
+        unsafe extern "C" fn(*mut std::ffi::c_void, std::os::raw::c_ulong) -> std::os::raw::c_uchar,
+    x_query_keymap: unsafe extern "C" fn(
+        *mut std::ffi::c_void,
+        *mut std::os::raw::c_char,
+    ) -> std::os::raw::c_int,
 }
 
 unsafe impl Send for X11Lib {}

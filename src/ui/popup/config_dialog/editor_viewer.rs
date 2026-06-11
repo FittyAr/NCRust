@@ -1,4 +1,3 @@
-
 use super::RowType;
 use crate::config::localization::t;
 use crate::config::settings::Settings;

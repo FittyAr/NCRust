@@ -251,6 +251,7 @@ pub fn get_default_english_translation(key: &str) -> String {
         "viewer_search_text" => "Search for: {}",
         "view_text_mode" => "Text",
         "view_hex_mode" => "Hex",
+        "view_image_mode" => "Image",
         "quickview_title" => " Quick View: {} ",
         "quickview_archive" => "Archive: {}",
         "quickview_format" => "Format: {}",

@@ -275,8 +275,12 @@ fn handle_viewer_screen(
             KeyCode::End => {
                 if vw.mode == crate::ui::viewer::ViewerMode::Text {
                     vw.scroll = vw.lines.len().saturating_sub(1);
-                } else {
+                } else if vw.mode == crate::ui::viewer::ViewerMode::Hex {
                     vw.scroll = (vw.raw.len() / 16).saturating_sub(1);
+                } else {
+                    if let Some(ref img) = vw.image_data {
+                        vw.scroll = (img.height() as usize / 2).saturating_sub(1);
+                    }
                 }
             }
             KeyCode::F(4) => vw.toggle_mode(),

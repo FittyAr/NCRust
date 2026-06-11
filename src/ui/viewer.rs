@@ -1,5 +1,6 @@
 use crate::config::localization::t;
 use crate::ui::theme_apply::parse_color;
+use image::GenericImageView;
 use ratatui::{
     Frame,
     layout::Rect,
@@ -13,6 +14,7 @@ use ratatui::{
 pub enum ViewerMode {
     Text,
     Hex,
+    Image,
 }
 
 /// State for the internal F3 viewer.
@@ -23,8 +25,10 @@ pub struct ViewerState {
     pub lines: Vec<String>,
     /// Raw bytes (used in Hex mode).
     pub raw: Vec<u8>,
+    /// Loaded image data if applicable.
+    pub image_data: Option<image::DynamicImage>,
     pub mode: ViewerMode,
-    /// Vertical scroll offset (line or hex row index).
+    /// Vertical scroll offset (line, hex row index, or image character row).
     pub scroll: usize,
     /// Last search query
     pub last_search: Option<String>,
@@ -34,17 +38,56 @@ impl ViewerState {
     /// Loads a file for viewing. Tries to read as UTF-8 text; falls back to hex mode on failure.
     pub fn load(path: std::path::PathBuf) -> Self {
         let raw = std::fs::read(&path).unwrap_or_default();
-        let (lines, mode) = match std::str::from_utf8(&raw) {
-            Ok(text) => (
-                text.lines().map(|l| l.to_string()).collect(),
-                ViewerMode::Text,
-            ),
-            Err(_) => (Vec::new(), ViewerMode::Hex),
-        };
+
+        let is_image_ext = path
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .map(|ext| {
+                let ext_lower = ext.to_lowercase();
+                matches!(
+                    ext_lower.as_str(),
+                    "png"
+                        | "jpg"
+                        | "jpeg"
+                        | "bmp"
+                        | "gif"
+                        | "webp"
+                        | "tif"
+                        | "tiff"
+                        | "ico"
+                        | "tga"
+                )
+            })
+            .unwrap_or(false);
+
+        let mut image_data = None;
+        let mut mode = ViewerMode::Hex;
+        let mut lines = Vec::new();
+
+        if is_image_ext {
+            if let Ok(img) = image::open(&path) {
+                image_data = Some(img);
+                mode = ViewerMode::Image;
+            }
+        }
+
+        if image_data.is_none() {
+            match std::str::from_utf8(&raw) {
+                Ok(text) => {
+                    lines = text.lines().map(|l| l.to_string()).collect();
+                    mode = ViewerMode::Text;
+                }
+                Err(_) => {
+                    mode = ViewerMode::Hex;
+                }
+            }
+        }
+
         Self {
             path,
             lines,
             raw,
+            image_data,
             mode,
             scroll: 0,
             last_search: None,
@@ -53,8 +96,15 @@ impl ViewerState {
 
     pub fn toggle_mode(&mut self) {
         self.mode = match self.mode {
-            ViewerMode::Text => ViewerMode::Hex,
+            ViewerMode::Text => {
+                if self.image_data.is_some() {
+                    ViewerMode::Image
+                } else {
+                    ViewerMode::Hex
+                }
+            }
             ViewerMode::Hex => ViewerMode::Text,
+            ViewerMode::Image => ViewerMode::Hex,
         };
         self.scroll = 0;
     }
@@ -67,6 +117,13 @@ impl ViewerState {
         let max = match self.mode {
             ViewerMode::Text => self.lines.len().saturating_sub(1),
             ViewerMode::Hex => (self.raw.len() / 16).saturating_sub(1),
+            ViewerMode::Image => {
+                if let Some(ref img) = self.image_data {
+                    (img.height() as usize / 2).saturating_sub(1)
+                } else {
+                    0
+                }
+            }
         };
         self.scroll = (self.scroll + amount).min(max);
     }
@@ -86,6 +143,7 @@ pub fn render_viewer(
     let mode_label = match state.mode {
         ViewerMode::Text => t("view_text_mode"),
         ViewerMode::Hex => t("view_hex_mode"),
+        ViewerMode::Image => t("view_image_mode"),
     };
     let file_name = state
         .path
@@ -111,6 +169,7 @@ pub fn render_viewer(
     match state.mode {
         ViewerMode::Text => render_text(f, area, state, block, theme),
         ViewerMode::Hex => render_hex(f, area, state, block, theme),
+        ViewerMode::Image => render_image(f, area, state, block, theme),
     }
 }
 
@@ -195,4 +254,110 @@ fn render_hex(
         .block(block)
         .style(Style::default().fg(parse_color(&theme.panel_fg)));
     f.render_widget(para, area);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Image renderer
+// ─────────────────────────────────────────────────────────────────────────────
+
+fn render_image(
+    f: &mut Frame,
+    area: Rect,
+    state: &ViewerState,
+    block: Block,
+    theme: &crate::config::theme::Theme,
+) {
+    let inner_area = block.inner(area);
+    let inner_w = inner_area.width;
+    let inner_h = inner_area.height;
+
+    if inner_w == 0 || inner_h == 0 {
+        return;
+    }
+
+    let img = match &state.image_data {
+        Some(i) => i,
+        None => {
+            let para = Paragraph::new(vec![Line::from("Error loading image")])
+                .block(block)
+                .style(Style::default().fg(parse_color(&theme.panel_fg)));
+            f.render_widget(para, area);
+            return;
+        }
+    };
+
+    let img_w = img.width();
+    let img_h = img.height();
+
+    // Virtual height of terminal canvas: each cell has 2 vertical pixels.
+    let canvas_w = inner_w as u32;
+    let canvas_h = inner_h as u32 * 2;
+
+    // Preserve aspect ratio
+    let r = img_w as f64 / img_h as f64;
+    let (mut dw, mut dh) = if (canvas_w as f64 / r) <= canvas_h as f64 {
+        let w = canvas_w;
+        let h = (w as f64 / r) as u32;
+        (w, h)
+    } else {
+        let h = canvas_h;
+        let w = (h as f64 * r) as u32;
+        (w, h)
+    };
+
+    if dw == 0 {
+        dw = 1;
+    }
+    if dh == 0 {
+        dh = 1;
+    }
+
+    // Resize image using fast filter
+    let resized = img.resize_exact(dw, dh, image::imageops::FilterType::Nearest);
+
+    let cols = dw as usize;
+    let rows = (dh as usize + 1) / 2;
+    let scroll_offset = state.scroll;
+
+    // Center layout calculations (relative to inner_area)
+    let start_x = inner_area.x + ((inner_w - dw as u16) / 2);
+    let start_y = inner_area.y + ((inner_h - rows as u16) / 2);
+
+    f.render_widget(block, area);
+
+    let buf = f.buffer_mut();
+
+    for r_y in 0..rows {
+        let target_y = start_y as i32 + r_y as i32 - scroll_offset as i32;
+        if target_y < inner_area.y as i32 || target_y >= (inner_area.y + inner_h) as i32 {
+            continue;
+        }
+
+        for r_x in 0..cols {
+            let target_x = start_x + r_x as u16;
+            if target_x >= inner_area.x + inner_w {
+                continue;
+            }
+
+            let py_top = 2 * r_y;
+            let py_bottom = 2 * r_y + 1;
+
+            let pixel_top = resized.get_pixel(r_x as u32, py_top as u32);
+            let color_top = ratatui::style::Color::Rgb(pixel_top[0], pixel_top[1], pixel_top[2]);
+
+            let cell = buf.get_mut(target_x, target_y as u16);
+            if py_bottom < dh as usize {
+                let pixel_bottom = resized.get_pixel(r_x as u32, py_bottom as u32);
+                let color_bottom =
+                    ratatui::style::Color::Rgb(pixel_bottom[0], pixel_bottom[1], pixel_bottom[2]);
+                cell.set_char('▄');
+                cell.set_fg(color_bottom);
+                cell.set_bg(color_top);
+            } else {
+                cell.set_char('▀');
+                cell.set_fg(color_top);
+                cell.set_bg(parse_color(&theme.panel_bg));
+            }
+        }
+    }
 }
