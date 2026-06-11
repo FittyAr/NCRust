@@ -61,12 +61,12 @@ NCRust ofrece binarios precompilados de forma automática mediante GitHub Action
 
 * **Linux (enlace estático, ejecutable independiente):**
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/main/install.sh | sh
+  curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh
   ```
 * **Windows (PowerShell):**
   Ejecuta el siguiente comando dentro de PowerShell:
   ```powershell
-  irm https://raw.githubusercontent.com/FittyAr/Pairee/main/install.ps1 | iex
+  irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex
   ```
 
 ### Compilar desde el Código Fuente
