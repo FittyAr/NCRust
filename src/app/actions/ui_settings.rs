@@ -150,6 +150,7 @@ pub fn handle_ui_settings_action(
         Action::Unfocus => {
             state.active_popup = None;
             state.cli_input.clear();
+            state.fkeys_modifier_override = None;
             true
         }
         Action::Refresh | Action::RereadPanel => {
@@ -365,6 +366,16 @@ pub fn handle_ui_settings_action(
             state.active_popup = Some(PopupType::Info(
                 "Video mode: resize your terminal manually.".to_string(),
             ));
+            true
+        }
+        Action::CycleFKeysModifiers => {
+            use crossterm::event::KeyModifiers;
+            state.fkeys_modifier_override = match state.fkeys_modifier_override {
+                None => Some(KeyModifiers::CONTROL),
+                Some(KeyModifiers::CONTROL) => Some(KeyModifiers::ALT),
+                Some(KeyModifiers::ALT) => None,
+                _ => None,
+            };
             true
         }
         _ => false,

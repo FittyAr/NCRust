@@ -67,6 +67,7 @@ pub struct AppState {
 
     // ── Keyboard State ────────────────────────────────────────────────────────
     pub current_modifiers: crossterm::event::KeyModifiers,
+    pub fkeys_modifier_override: Option<crossterm::event::KeyModifiers>,
 }
 
 impl AppState {
@@ -105,6 +106,7 @@ impl AppState {
             free_space_left: None,
             free_space_right: None,
             current_modifiers: crossterm::event::KeyModifiers::empty(),
+            fkeys_modifier_override: None,
         }
     }
 

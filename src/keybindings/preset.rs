@@ -158,6 +158,8 @@ fn insert_common_norton_bindings(map: &mut HashMap<String, Action>) {
     map.insert("Ctrl+H".to_string(), Action::ToggleHidden);
     map.insert("Ctrl+r".to_string(), Action::Refresh);
     map.insert("Ctrl+R".to_string(), Action::Refresh);
+    map.insert("Ctrl+p".to_string(), Action::CycleFKeysModifiers);
+    map.insert("Ctrl+P".to_string(), Action::CycleFKeysModifiers);
     map.insert("Esc".to_string(), Action::Unfocus);
     map.insert("Alt+c".to_string(), Action::CompressFiles);
     map.insert("Alt+e".to_string(), Action::ExtractArchive);

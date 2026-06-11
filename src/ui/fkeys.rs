@@ -22,6 +22,8 @@ pub fn render_fkeys(f: &mut Frame, area: Rect, context: &AppContext, state: &App
         Some(crate::app::state::Screen::Viewer(_))
     );
 
+    let modifiers = state.fkeys_modifier_override.unwrap_or(state.current_modifiers);
+
     let fkeys = if is_editor {
         vec![
             ("1", t("fkey_help")),
@@ -52,10 +54,7 @@ pub fn render_fkeys(f: &mut Frame, area: Rect, context: &AppContext, state: &App
             ("11", String::new()),
             ("12", String::new()),
         ]
-    } else if state
-        .current_modifiers
-        .contains(crossterm::event::KeyModifiers::CONTROL)
-    {
+    } else if modifiers.contains(crossterm::event::KeyModifiers::CONTROL) {
         vec![
             ("1", t("fkey_ctrl_left")),
             ("2", t("fkey_ctrl_right")),
@@ -70,10 +69,7 @@ pub fn render_fkeys(f: &mut Frame, area: Rect, context: &AppContext, state: &App
             ("11", t("fkey_ctrl_owner")),
             ("12", t("fkey_ctrl_sort")),
         ]
-    } else if state
-        .current_modifiers
-        .contains(crossterm::event::KeyModifiers::ALT)
-    {
+    } else if modifiers.contains(crossterm::event::KeyModifiers::ALT) {
         vec![
             ("1", t("fkey_alt_left")),
             ("2", t("fkey_alt_right")),

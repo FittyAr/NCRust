@@ -196,4 +196,6 @@ pub enum Action {
     VideoMode,
     /// Open graphical directory tree navigator (Alt+F10)
     TreeView,
+    /// Cycle active F-key modifier row view (Normal -> Ctrl -> Alt)
+    CycleFKeysModifiers,
 }

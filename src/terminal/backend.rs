@@ -29,7 +29,10 @@ impl TerminalBackend {
         // If it fails, we simply ignore the error and proceed.
         let _ = execute!(
             stdout,
-            PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::REPORT_EVENT_TYPES),
+            PushKeyboardEnhancementFlags(
+                KeyboardEnhancementFlags::REPORT_EVENT_TYPES
+                    | KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES
+            ),
             EnableFocusChange
         );
         let backend = CrosstermBackend::new(stdout);

@@ -193,6 +193,7 @@ fn parse_action_name(name: &str) -> Option<Action> {
         "context_menu" => Some(Action::ContextMenu),
         "video_mode" => Some(Action::VideoMode),
         "tree_view" => Some(Action::TreeView),
+        "cycle_fkeys_modifiers" => Some(Action::CycleFKeysModifiers),
 
         _ => None,
     }
@@ -270,5 +271,8 @@ mod tests {
 
         let key_ctrl_w = KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL);
         assert_eq!(resolver.resolve(key_ctrl_w), Some(Action::TaskList));
+
+        let key_ctrl_p = KeyEvent::new(KeyCode::Char('p'), KeyModifiers::CONTROL);
+        assert_eq!(resolver.resolve(key_ctrl_p), Some(Action::CycleFKeysModifiers));
     }
 }
