@@ -39,7 +39,44 @@ for cmd in curl tar; do
     fi
 done
 
-# 3. Retrieve Latest Version
+# 3. Check for Existing Installation
+if [ -f "$INSTALL_DIR/pairee" ] || [ -d "$CONFIG_DIR" ]; then
+    # Colors for warning/options
+    YELLOW='\033[1;33m'
+    echo "${YELLOW}Warning: Pairee is already installed.${NC}"
+    
+    if [ -c /dev/tty ]; then
+        printf "Do you want to overwrite and update the binary? [y/N]: "
+        read -r OVERWRITE < /dev/tty || OVERWRITE="n"
+        case "$OVERWRITE" in
+            [yY][eE][sS]|[yY])
+                echo "Proceeding with update..."
+                ;;
+            *)
+                echo "Installation cancelled."
+                exit 0
+                ;;
+        esac
+
+        if [ -d "$CONFIG_DIR" ]; then
+            printf "Do you want to clear old configurations, themes, and history settings? [y/N]: "
+            read -r CLEAR_CONFIG < /dev/tty || CLEAR_CONFIG="n"
+            case "$CLEAR_CONFIG" in
+                [yY][eE][sS]|[yY])
+                    echo "Clearing old settings in $CONFIG_DIR..."
+                    rm -rf "$CONFIG_DIR"
+                    ;;
+                *)
+                    echo "Keeping existing settings."
+                    ;;
+            esac
+        fi
+    else
+        echo "Non-interactive shell detected. Overwriting existing installation..."
+    fi
+fi
+
+# 4. Retrieve Latest Version
 echo "Fetching latest version info..."
 VERSION=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name":' | head -n 1 | cut -d '"' -f 4)
 
@@ -49,12 +86,12 @@ if [ -z "$VERSION" ]; then
 fi
 echo "Latest version found: ${GREEN}${VERSION}${NC}"
 
-# 4. Create paths
+# 5. Create paths
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$CONFIG_DIR/lang"
 mkdir -p "$CONFIG_DIR/help"
 
-# 5. Download and Extract
+# 6. Download and Extract
 TEMP_DIR=$(mktemp -d)
 TARBALL="pairee-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
 DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${VERSION}/${TARBALL}"
@@ -65,7 +102,7 @@ curl -L "$DOWNLOAD_URL" -o "${TEMP_DIR}/${TARBALL}"
 echo "Extracting archive..."
 tar -xzf "${TEMP_DIR}/${TARBALL}" -C "$TEMP_DIR"
 
-# 6. Install assets and binary
+# 7. Install assets and binary
 echo "Installing files..."
 PKG_FOLDER="${TEMP_DIR}/pairee-${VERSION}-x86_64-unknown-linux-musl"
 
@@ -86,7 +123,7 @@ echo "Binary location: ${BLUE}${INSTALL_DIR}/pairee${NC}"
 echo "Config location: ${BLUE}${CONFIG_DIR}/${NC}"
 echo ""
 
-# 7. PATH verification
+# 8. PATH verification
 case :$PATH: in
     *:"$INSTALL_DIR":*) ;;
     *)

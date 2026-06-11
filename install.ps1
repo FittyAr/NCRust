@@ -6,9 +6,30 @@ $ErrorActionPreference = "Stop"
 $repo = "FittyAr/Pairee"
 $installDir = Join-Path $HOME "AppData\Local\Programs\pairee"
 $configDir = Join-Path $env:APPDATA "pairee\config"
+$exePath = Join-Path $installDir "pairee.exe"
 
 Write-Host "Pairee Installer for Windows" -ForegroundColor Blue
 Write-Host "=============================="
+
+# Check for Existing Installation
+if ((Test-Path $exePath) -or (Test-Path $configDir)) {
+    Write-Host "Warning: Pairee is already installed." -ForegroundColor Yellow
+    $overwrite = Read-Host "Do you want to overwrite and update the binary? [y/N]"
+    if ($overwrite -notmatch "^[yY](es)?$") {
+        Write-Host "Installation cancelled."
+        exit 0
+    }
+
+    if (Test-Path $configDir) {
+        $clearConfig = Read-Host "Do you want to clear old configurations, themes, and history settings? [y/N]"
+        if ($clearConfig -match "^[yY](es)?$") {
+            Write-Host "Clearing old settings in $configDir..."
+            Remove-Item -Recurse -Force $configDir -ErrorAction SilentlyContinue
+        } else {
+            Write-Host "Keeping existing settings."
+        }
+    }
+}
 
 # 1. Fetch Version
 Write-Host "Fetching latest version info..."
