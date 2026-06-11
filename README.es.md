@@ -2,7 +2,7 @@
 
 > Tu mundo, en dos paneles.
 
-[![Licencia: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Licencia: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 
 Un gestor de archivos para terminal moderno, multiplataforma y altamente modular, inspirado en los clásicos **Norton Commander** y **Far Manager**. Desarrollado en Rust utilizando `ratatui` y `crossterm`.
@@ -29,7 +29,7 @@ Pairee/
 ├── agents.md                      # Directrices para desarrolladores de IA
 ├── install.sh                     # Script de instalación para Linux (compatible con curl)
 ├── install.ps1                    # Script de instalación para Windows (compatible con PowerShell)
-├── LICENSE                        # Licencia MIT
+├── LICENSE                        # Licencia GNU GPL v3
 ├── README.md                      # Índice de documentación en inglés
 ├── README.es.md                   # Índice de documentación en español (Este archivo)
 ├── docs/                          # Documentación para desarrolladores
@@ -60,14 +60,32 @@ Pairee/
 NCRust ofrece binarios precompilados de forma automática mediante GitHub Actions (compatibles con Windows MSVC, Linux GNU y Linux MUSL estático). Puedes instalarlos al instante desde tu terminal:
 
 * **Linux (enlace estático, ejecutable independiente):**
-  ```bash
-  curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh
-  ```
+  * **Lanzamiento Estándar:**
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh
+    ```
+  * **Compilar desde Código Fuente (Modo Debug):**
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh -s -- debug
+    ```
+  * **Desinstalar:**
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh -s -- uninstall
+    ```
+
 * **Windows (PowerShell):**
-  Ejecuta el siguiente comando dentro de PowerShell:
-  ```powershell
-  irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex
-  ```
+  * **Lanzamiento Estándar:**
+    ```powershell
+    irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex
+    ```
+  * **Compilar desde Código Fuente (Modo Debug):**
+    ```powershell
+    irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex -Arguments debug
+    ```
+  * **Desinstalar:**
+    ```powershell
+    irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex -Arguments uninstall
+    ```
 
 ### Compilar desde el Código Fuente
 
@@ -117,4 +135,4 @@ Para manuales detallados, principios de diseño y opciones de configuración, co
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+Este proyecto está bajo la Licencia Pública General de GNU v3 (GPL v3). Consulta el archivo [LICENSE](LICENSE) para más detalles.

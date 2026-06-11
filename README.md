@@ -2,7 +2,7 @@
 
 > Tu mundo, en dos paneles. (Your world, in two panels.)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 
 A modern, highly modular, cross-platform terminal file manager inspired by the classic **Norton Commander** and **Far Manager**. Built in Rust utilizing `ratatui` and `crossterm`.
@@ -29,7 +29,7 @@ Pairee/
 ├── agents.md                      # AI Developer Guidelines
 ├── install.sh                     # Linux installer script (curl-compatible)
 ├── install.ps1                    # Windows installer script (PowerShell-compatible)
-├── LICENSE                        # MIT License
+├── LICENSE                        # GNU GPL v3 License
 ├── README.md                      # English documentation index (This file)
 ├── README.es.md                   # Spanish documentation index
 ├── docs/                          # Developer documentation
@@ -60,14 +60,32 @@ Pairee/
 NCRust provides precompiled binaries built automatically via GitHub Actions (supporting Windows MSVC, Linux GNU, and static Linux MUSL). You can install them instantly via command line:
 
 * **Linux (statically linked, standalone binary):**
-  ```bash
-  curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh
-  ```
+  * **Standard Release:**
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh
+    ```
+  * **Build from Source (Debug/Source Mode):**
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh -s -- debug
+    ```
+  * **Uninstall:**
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/FittyAr/Pairee/master/install.sh | sh -s -- uninstall
+    ```
+
 * **Windows (PowerShell):**
-  Run the following command inside PowerShell:
-  ```powershell
-  irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex
-  ```
+  * **Standard Release:**
+    ```powershell
+    irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex
+    ```
+  * **Build from Source (Debug/Source Mode):**
+    ```powershell
+    irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex -Arguments debug
+    ```
+  * **Uninstall:**
+    ```powershell
+    irm https://raw.githubusercontent.com/FittyAr/Pairee/master/install.ps1 | iex -Arguments uninstall
+    ```
 
 ### Build from Source
 
@@ -117,4 +135,4 @@ For deep-dive instructions, design principles, and config options, refer to the 
 
 ## 📄 License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+This project is licensed under the GNU General Public License v3. See [LICENSE](LICENSE) for details.
