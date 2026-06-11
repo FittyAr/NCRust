@@ -5,12 +5,13 @@
 set -euo pipefail
 
 # Text formatting
-BOLD='\033[1m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-CYAN='\033[0;36m'
-RESET='\033[0m'
+ESC=$(printf '\033')
+BOLD="${ESC}[1m"
+GREEN="${ESC}[0;32m"
+YELLOW="${ESC}[1;33m"
+RED="${ESC}[0;31m"
+CYAN="${ESC}[0;36m"
+RESET="${ESC}[0m"
 
 # Ensure we are in project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

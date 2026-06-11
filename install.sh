@@ -20,10 +20,12 @@ for arg in "$@"; do
 done
 
 # Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+ESC=$(printf '\033')
+RED="${ESC}[0;31m"
+GREEN="${ESC}[0;32m"
+BLUE="${ESC}[0;34m"
+YELLOW="${ESC}[1;33m"
+NC="${ESC}[0m" # No Color
 
 # 3. Uninstall logic
 if [ "$UNINSTALL_MODE" = "true" ]; then
@@ -155,8 +157,6 @@ done
 
 # 3. Check for Existing Installation
 if [ -f "$INSTALL_DIR/pairee" ] || [ -d "$CONFIG_DIR" ]; then
-    # Colors for warning/options
-    YELLOW='\033[1;33m'
     echo "${YELLOW}Warning: Pairee is already installed.${NC}"
     
     if [ -c /dev/tty ]; then

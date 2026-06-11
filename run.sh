@@ -6,12 +6,13 @@
 
 set -euo pipefail
 
-BOLD='\033[1m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-CYAN='\033[0;36m'
-RESET='\033[0m'
+ESC=$(printf '\033')
+BOLD="${ESC}[1m"
+GREEN="${ESC}[0;32m"
+YELLOW="${ESC}[1;33m"
+RED="${ESC}[0;31m"
+CYAN="${ESC}[0;36m"
+RESET="${ESC}[0m"
 
 # ---------------------------------------------------------------------------
 # 1. Locate Cargo — add ~/.cargo/bin to PATH if needed
